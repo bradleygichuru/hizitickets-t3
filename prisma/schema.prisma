@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+// Necessary for Next auth
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?   @unique
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  event         Event?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Event {
+  EventId          String        @id @default(cuid())
+  EventName        String        @unique
+  EventDescription String
+  EventLocation    String
+  EventMaxTickets  Int
+  EventDate        DateTime
+  EventPosterUrl   String
+  EventOrganizer   String        @unique
+  EventValidity    Boolean       @default(false)
+  eventOrganizer   User          @relation(fields: [EventOrganizer], references: [name])
+  ticketTypes      TicketTypes[]
+  transactions     Transaction[]
+  TotalRevenue     Int @default(0)
+  TicketsSold Int @default(0)
+}
+
+model Transaction {
+  TransactionId     String @id @default(cuid())
+  EventName         String
+  TransactionMethod String
+  NumberOfTickets   Int
+  MerchantRequestID String
+  CheckoutRequestID String
+  TotalAmount       Int
+  event             Event  @relation(fields: [EventName], references: [EventName])
+}
+
+model TicketTypes {
+  id        String   @id @default(cuid())
+  eventName String
+  price     Int
+  title     String
+  deadline  DateTime
+  event     Event    @relation(fields: [eventName], references: [EventName])
+}
