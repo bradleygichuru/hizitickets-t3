@@ -41,7 +41,9 @@ export default function Nav() {
               className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <a className="btn btn-ghost text-accent" href="/dashboard">Dashboard</a>
+                <Link className="btn btn-ghost text-accent" href="/dashboard">
+                  Dashboard
+                </Link>
               </li>
               <li tabIndex={0}>
                 <a className="btn btn-ghost  text-accent">History</a>
@@ -63,7 +65,10 @@ export default function Nav() {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal p-0">
             <li>
-              <a className="btn btn-ghost  text-accent">Dashboard</a>
+              <Link className="btn btn-ghost text-accent" href="/dashboard">
+              
+                <a className="btn btn-ghost  text-accent">Dashboard</a>
+              </Link>
             </li>
             <li tabIndex={0}>
               <a className="btn btn-ghost text-accent">
@@ -90,21 +95,24 @@ export default function Nav() {
           </ul>
         </div>
         <div className="navbar-end">
-          {isDashboard && <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img src={`${session?.user?.image}`} />{/* //TODO set google account image or used account image */}
-              </div>
-            </label>
-            <ul
-              tabIndex={0}
-              className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
-            >
-              <li>
-                <a>Logout</a>
-              </li>
-            </ul>
-          </div>}
+          {isDashboard && (
+            <div className="dropdown dropdown-end">
+              <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                <div className="w-10 rounded-full">
+                  <img src={`${session?.user?.image}`} />
+                  {/* //TODO set google account image or used account image */}
+                </div>
+              </label>
+              <ul
+                tabIndex={0}
+                className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <a>Logout</a>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </>

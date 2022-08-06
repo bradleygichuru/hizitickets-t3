@@ -3,21 +3,16 @@ import { useState } from "react";
 import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  connectStorageEmulator,
-} from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
-import { number, z } from "zod";
+import { z } from "zod";
 import { useSession } from "next-auth/react";
 import LoginButton from "../components/LoginButton";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
-
+//TODO if no events show skeleton
 console.log(yourDate.toISOString().split("T")[0]);
 
 const FormSchema = z.object({
@@ -25,7 +20,6 @@ const FormSchema = z.object({
   eventDescription: z.string(),
   eventLocation: z.string(),
   eventDate: z.date(),
-
   eventTicketPrice: z.number(),
   eventMaxTickets: z.number(),
   ticketType1Name: z.string(),
@@ -51,13 +45,13 @@ const sorts = [
   "Tickets remaining",
 ]; // TODO make sort types functional i.e work
 // TODO user should not get to this page without signing in
-const DashBoard: NextPage = () => {
+const DashBoard = () => {
   const [eventPoster, setEventPoster] = useState<File>();
   const [selectedSort, setSelectedSort] = useState(sorts[0]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data: session, status } = useSession();
   /* console.log(session) */
-  let revenue = 0;
+  
   const {
     register,
     handleSubmit,
@@ -78,6 +72,29 @@ const DashBoard: NextPage = () => {
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log(data);
+    const eventicketTypes = [
+      {
+        title: data.ticketType1Name,
+        deadline: data.ticketType1Date,
+        price: data.ticketType1Price,
+      },
+      {
+        title: data.ticketType2Name,
+        deadline: data.ticketType2Date!,
+        price: data.ticketType2Price,
+      },
+      {
+        title: data.ticketType3Name,
+        deadline: data.ticketType3Date!,
+        price: data.ticketType3Price,
+      },
+      {
+        title: data.ticketType4Name,
+        deadline: data.ticketType4Date!,
+        price: data.ticketType4Price,
+      },
+    ];
+
     if (eventPoster) {
       console.log(eventPoster);
       setIsSubmitting((isSubmitting) => !isSubmitting);
@@ -86,33 +103,18 @@ const DashBoard: NextPage = () => {
       const url = await getDownloadURL(snapshot.ref);
       if (url) {
         console.log(`${url}`);
+
         addEventMutation
           .mutateAsync({
             eventName: data.eventName,
             eventDate: data.eventDate,
             eventDescription: data.eventDescription,
-            eventicketTypes: [
-              {
-                title: data.ticketType1Name,
-                deadline: data.ticketType1Date,
-                price: data.ticketType1Price,
-              },
-              {
-                title: data.ticketType2Name,
-                deadline: data.ticketType2Date!,
-                price: data.ticketType2Price,
-              },
-              {
-                title: data.ticketType3Name,
-                deadline: data.ticketType3Date!,
-                price: data.ticketType3Price,
-              },
-              {
-                title: data.ticketType4Name,
-                deadline: data.ticketType4Date!,
-                price: data.ticketType4Price,
-              },
-            ],
+            eventicketTypesParsed: eventicketTypes.filter((type) => {
+              if (type.title.split(" ")[0] != "e.g" && type.title.length != 0) {
+                console.log(type);
+                return type;
+              }
+            }),
             eventLocation: data.eventLocation,
             eventMaxTickets: data.eventMaxTickets,
             eventPosterUrl: url,

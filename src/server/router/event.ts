@@ -43,7 +43,7 @@ export const eventRouter = createRouter()
       eventPosterUrl: z.string(),
       eventOrganizer: z.string(),
       eventDate: z.date(),
-      eventicketTypes: z.array(
+      eventicketTypesParsed: z.array(
         z.object({ price: z.number(), title: z.string(), deadline: z.date() })
       ),
     }),
@@ -57,10 +57,9 @@ export const eventRouter = createRouter()
           EventMaxTickets: input.eventMaxTickets,
           EventPosterUrl: input.eventPosterUrl,
           EventOrganizer: input.eventOrganizer,
-
           ticketTypes: {
             createMany: {
-              data: [...input.eventicketTypes],
+              data: [...input.eventicketTypesParsed],
             },
           },
         },

@@ -2,9 +2,7 @@ import { Fragment, useEffect, createRef, useState, Key } from "react";
 
 import { FaMoneyCheckAlt } from "react-icons/fa";
 
-
 /* import generateQR from "../../lib/Base64UrlGenerator"; */
-
 
 import { GetStaticProps, GetServerSideProps } from "next";
 import React from "react";
@@ -23,20 +21,27 @@ const features = [
 ];
 
 //TODO quantity will be set programatically from values in the database and be reduced on ticket purchase
-const quantitys = ["1", "2", "3", "4"];
 
 const Ticket: React.FC<{ slug: string }> = (props) => {
   const [selectedType, setSelectedType] = useState("Select ticket");
-  const [selectedQuantity, setSelectedQuantity] = useState(quantitys[0]);
+
   const [phoneNumber, setPhoneNumber] = useState<number>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [transactionQueued, setTransactionQueued] = useState(false);
   const [transactionValidity, setTransactionValidity] = useState(false);
   const [MerchantRequestID, setMerchantRequestID] = useState("");
+  const buyMutation = trpc.useMutation("ticket.buyTicket");
 
-  
- 
-  const { isLoading, error, data } = trpc.useQuery(["event.getEvent",{eventName:props.slug}])
+  const { isLoading, error, data } = trpc.useQuery([
+    "event.getEvent",
+    { eventName: props.slug },
+  ]);
+  const quantitys = Array.from(
+    { length: data?.event?.EventMaxTickets! - data?.event?.TicketsSold! },
+    (_, i) => i + 1
+  );
+  const [selectedQuantity, setSelectedQuantity] = useState(quantitys[0]);
+
   //TODO handle errors
   /* generateQR("bradley").then((url) => console.log(url)); //TODO remove debug logs on prod
   let transactionWait = () => {
@@ -49,11 +54,11 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
       );
     }
   }; */
+
   let genWait = () => {
     if (transactionValidity == false) {
       return (
         <div className="flex">
-         
           <p className="m-4">Generating ticket</p>
         </div>
       );
@@ -63,9 +68,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   console.log({ data });
 
   if (isLoading) {
-    return (
-     <p>loading</p>
-    );
+    return <p>loading</p>;
   }
 
   return (
@@ -131,21 +134,23 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               }}
               placeholder="select ticket"
             >
-              {data?.event!.ticketTypes.map(
-                (
-                  val,index
-                ) => (
-                  <option key={index} value={val.title}>
-                    {val.title}
-                  </option>
-                )
-              )}
-            </select> 
+              {data?.event!.ticketTypes.map((val, index) => (
+                <option key={index} value={val.title}>
+                  {val.title}
+                </option>
+              ))}
+            </select>
+            <label
+              htmlFor="Listbox"
+              className="mt-4 block text-sm font-extrabold text-gray-700"
+            >
+              select quantity of tickets
+            </label>
             <select
               className="select"
               placeholder="1"
               onChange={(e) => {
-                setSelectedQuantity(e.target.value);
+                setSelectedQuantity(parseInt(e.target.value));
               }}
             >
               {quantitys.map((quantity, quantityIdx) => (
@@ -154,58 +159,34 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 </option>
               ))}
             </select>
+            
 
-            <input
-                type="tel"
-                placeholder="mpesa mobile number"
-               className="input"
-                value={phoneNumber}
-                onChange={(e) => {
-                  setPhoneNumber(parseInt(e.target.value));
-                }}
-              />
            
-            <button className="btn"
-              onClick={ async () => {
-                setIsSubmitting((status) => !status);
-                fetch("/api/buy", {
-                  body: JSON.stringify({
-                    phoneNumber: phoneNumber,
-                    selectedQuantity: selectedQuantity,
-                    selectedType: selectedType,
-                    eventId: data?.event?.EventId!
-                  }),
+            <label className="label">
+              <span className="label-text">Your mpesa number</span>
+            </label>
+            <label className="input-group">
+              <span>+254</span>
+              <input
+                 type="tel"
+                 placeholder="mpesa mobile number"
+                className="input input-bordered"
+                value={phoneNumber}
+              onChange={(e) => {
+                setPhoneNumber(parseInt(e.target.value));
+              }}
+              />
+            </label>
 
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  method: "POST",
-                })
-                  .then((res) => res.json())
-                  .then((data) => {
-                    setIsSubmitting((status) => !status);
-                    if (data.MpesaResponseCode == "0") {
-                      setMerchantRequestID(data.MerchantRequestID);
-                      setTransactionQueued((status) => !status);
-                     /* //TODO toast toast({
-                        title: "transaction initiated",
-                        description: data.Message,
-                        status: "success",
-                        duration: 9000,
-                        isClosable: true,
-                      }); */
-                     /*  onOpen(); */
-                    } else {
-                     /*// TODO   toast({
-                        title: "transaction failed",
-                        description: data.Message,
-                        status: "error",
-                        duration: 9000,
-                        isClosable: false,
-                      }); */
-                    }
+            <button
+              className="btn"
+              onClick={() => {
+                buyMutation
+                  .mutateAsync({ mobileNumber: phoneNumber! })
+                  .then((res) => {
+                    console.log(res);
                   });
-              } }
+              }}
             >
               checkout
             </button>
@@ -215,7 +196,9 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
             <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Event Description
             </h2>
-            <p className="mt-4 text-gray-500">{data?.event?.EventDescription}</p>
+            <p className="mt-4 text-gray-500">
+              {data?.event?.EventDescription}
+            </p>
 
             <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
               {features.map((feature) => (
