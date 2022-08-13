@@ -80,14 +80,16 @@ model Event {
 }
 
 model Transaction {
-  TransactionId     String @id @default(cuid())
+  TransactionId     String  @id @default(cuid())
+  MobileNumber      String
   EventName         String
   TransactionMethod String
   NumberOfTickets   Int
-  MerchantRequestID String
-  CheckoutRequestID String
+  MerchantRequestID String  @unique
+  CheckoutRequestID String  @unique
   TotalAmount       Int
-  event             Event  @relation(fields: [EventName], references: [EventName])
+  Valid             Boolean @default(false)
+  event             Event   @relation(fields: [EventName], references: [EventName])
 }
 
 model TicketTypes {

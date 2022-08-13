@@ -1,80 +1,109 @@
-import { Fragment, useEffect, createRef, useState, Key } from "react";
+import {
+  useEffect, useState
+} from "react";
 
 import { FaMoneyCheckAlt } from "react-icons/fa";
 
 /* import generateQR from "../../lib/Base64UrlGenerator"; */
-
-import { GetStaticProps, GetServerSideProps } from "next";
+import { set, SubmitHandler, useForm } from "react-hook-form";
+import { GetServerSideProps } from "next";
 import React from "react";
 import Quixote from "../../components/Ticket";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
+import { Transaction } from "@prisma/client";
+import Router from "next/router";
+import Image from "next/image";
+import puff from '../../../public/puff.svg'
 
-//TODO area code satination in mpesa number input field
-function classNames(...classes: any[]) {
-  return classes.filter(Boolean).join(" ");
-}
+type formSchema = {
+  quantity: number;
+  mobileNumber: number;
+  ticketTypeTitle: string;
+};
 const features = [
   {
     name: "Time",
   },
 ];
 
-//TODO quantity will be set programatically from values in the database and be reduced on ticket purchase
+//TODO quantity will be reduced on ticket purchase
 
 const Ticket: React.FC<{ slug: string }> = (props) => {
-  const [selectedType, setSelectedType] = useState("Select ticket");
-
-  const [phoneNumber, setPhoneNumber] = useState<number>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [transactionQueued, setTransactionQueued] = useState(false);
-  const [transactionValidity, setTransactionValidity] = useState(false);
-  const [MerchantRequestID, setMerchantRequestID] = useState("");
   const buyMutation = trpc.useMutation("ticket.buyTicket");
 
-  const { isLoading, error, data } = trpc.useQuery([
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+
+  } = useForm<formSchema>();
+
+  const onSubmit: SubmitHandler<formSchema> = async (formData) => {
+    const searchObj = data?.event!.ticketTypes.find(
+      (type) => type.title == formData.ticketTypeTitle
+    );
+    setIsSubmitting(true);
+    buyMutation
+      .mutateAsync({
+        mobileNumber: formData.mobileNumber,
+        quantity: formData.quantity,
+        ticketTypeTitle: formData.ticketTypeTitle,
+        eventName: data?.event!.EventName!,
+        totalAmount: searchObj?.price! * formData.quantity,
+      }, {
+        onSuccess(data) {
+          setIsSubmitting(false);
+          if (data.transcation) {
+            Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
+
+          }else{
+              console.log("error")
+            }
+        }
+      })
+
+    console.log(formData);
+  };
+
+  const { data, isLoading, error } = trpc.useQuery([
     "event.getEvent",
     { eventName: props.slug },
   ]);
+
   const quantitys = Array.from(
-    { length: data?.event?.EventMaxTickets! - data?.event?.TicketsSold! },
+    { length: data?.event!.EventMaxTickets! - data?.event!.TicketsSold! },
     (_, i) => i + 1
   );
-  const [selectedQuantity, setSelectedQuantity] = useState(quantitys[0]);
 
   //TODO handle errors
   /* generateQR("bradley").then((url) => console.log(url)); //TODO remove debug logs on prod
-  let transactionWait = () => {
-    if (transactionValidity == false) {
-      return (
-        <div className="flex ">
-        
-          <p className="m-4">Waiting of transaction confirmation</p>
-        </div>
-      );
-    }
-  }; */
+  */
 
-  let genWait = () => {
-    if (transactionValidity == false) {
-      return (
-        <div className="flex">
-          <p className="m-4">Generating ticket</p>
-        </div>
-      );
-    }
-  };
   console.log(props.slug);
   console.log({ data });
 
   if (isLoading) {
-    return <p>loading</p>;
+    return (
+
+      <div className="bg-black grid h-screen place-items-center">
+        <Image
+          src={puff}
+          width={64}
+          height={64}
+          alt="loading..."
+          className=""
+        />
+          <p className="text-white">Loading</p>
+      </div>
+    );
   }
 
   return (
     <Layout>
       <div className=" sm:ml-20 sm:m-4 ">
-        {" "}
+
         {/* //TODO implement modal  <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>
@@ -101,7 +130,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
             <div className="group relative p-0 m-3 mb-16 rounded-lg bg-black flex-auto">
               <div className="w-full min-h-80  aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
                 <img
-                  src={data?.event?.EventPosterUrl}
+                  src={data?.event!.EventPosterUrl}
                   className="object-center object-cover lg:w-full lg:h-full" //TODO use next/image here
                 />
               </div>
@@ -113,7 +142,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                         aria-hidden="true"
                         className="absolute inset-0 font-sans text-sm font-bold"
                       />
-                      {data!.event?.EventName}
+                      {data!.event!.EventName}
                     </a>
                   </h3>
                 </div>
@@ -121,75 +150,86 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
             </div>
           </div>
           <div className="relative grid lg:grid-cols-2 grid-cols-1  gap-4 sm:gap-6 lg:gap-8 ">
-            <label
-              htmlFor="Listbox"
-              className="mt-4 block text-sm font-extrabold text-gray-700"
-            >
-              select ticket type
-            </label>
-            <select
-              className="select"
-              onChange={(e) => {
-                setSelectedType(e.target.value);
-              }}
-              placeholder="select ticket"
-            >
-              {data?.event!.ticketTypes.map((val, index) => (
-                <option key={index} value={val.title}>
-                  {val.title}
-                </option>
-              ))}
-            </select>
-            <label
-              htmlFor="Listbox"
-              className="mt-4 block text-sm font-extrabold text-gray-700"
-            >
-              select quantity of tickets
-            </label>
-            <select
-              className="select"
-              placeholder="1"
-              onChange={(e) => {
-                setSelectedQuantity(parseInt(e.target.value));
-              }}
-            >
-              {quantitys.map((quantity, quantityIdx) => (
-                <option key={quantityIdx} value={quantity}>
-                  {quantity}
-                </option>
-              ))}
-            </select>
-            
+            <form className="form-control" onSubmit={handleSubmit(onSubmit)}>
+              <label className="label">
+                <span className="label-text">select ticket type</span>
+              </label>
+              <select
+                {...register("ticketTypeTitle", { required: true })}
+                className="select select-bordered "
+                placeholder="select ticket"
+              >
+                {data?.event!.ticketTypes.map((val, index) => (
+                  <option key={index} value={val.title}>
+                    {`${val.title} ${val.price} ksh`}
+                  </option>
+                ))}
+              </select>
+              <label className="label">
+                {errors.ticketTypeTitle && (
+                  <span className="label-text-alt text-red-900">
+                    This field is required
+                  </span>
+                )}
+              </label>
 
-           
-            <label className="label">
-              <span className="label-text">Your mpesa number</span>
-            </label>
-            <label className="input-group">
-              <span>+254</span>
-              <input
-                 type="tel"
-                 placeholder="mpesa mobile number"
-                className="input input-bordered"
-                value={phoneNumber}
-              onChange={(e) => {
-                setPhoneNumber(parseInt(e.target.value));
-              }}
-              />
-            </label>
+              <label className="label">
+                <span className="label-text">select quantity of tickets</span>
+              </label>
+              <select
+                {...register("quantity", {
+                  required: true,
+                  valueAsNumber: true,
+                })}
+                className="select select-bordered "
+                placeholder="1"
+              >
+                {quantitys.map((quantity, quantityIdx) => (
+                  <option key={quantityIdx} value={quantity}>
+                    {quantity}
+                  </option>
+                ))}
+              </select>
+              <label className="label">
+                {errors.quantity && (
+                  <span className="text-red-50 label-text-alt">
+                    {" "}
+                    This field is required
+                  </span>
+                )}
+              </label>
 
-            <button
-              className="btn"
-              onClick={() => {
-                buyMutation
-                  .mutateAsync({ mobileNumber: phoneNumber! })
-                  .then((res) => {
-                    console.log(res);
-                  });
-              }}
-            >
-              checkout
-            </button>
+              <label className="label">
+                <span className="label-text">Your mpesa number</span>
+              </label>
+              <label className="input-group">
+                <span>+254</span>
+
+                <input
+                  type="tel"
+                  placeholder="71234567"
+                  {...register("mobileNumber", {
+                    required: true,
+                    valueAsNumber: true,
+                  })}
+                  className="input input-bordered"
+                />
+              </label>
+              <label className="label">
+                {errors.mobileNumber && (
+                  <span className="text-red-50 label-text-alt">
+                    {" "}
+                    This field is required
+                  </span>
+                )}
+              </label>
+
+              <button className={isSubmitting ? "btn loading btn-disabled gap-2" : "btn gap-2"} disabled={isSubmitting ? true : false} type="submit">
+                <FaMoneyCheckAlt/>
+                checkout
+
+              </button>
+            </form>
           </div>
 
           <div>
@@ -197,7 +237,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               Event Description
             </h2>
             <p className="mt-4 text-gray-500">
-              {data?.event?.EventDescription}
+              {data?.event!.EventDescription}
             </p>
 
             <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
@@ -208,7 +248,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 >
                   <dt className="font-medium text-gray-900">{feature.name}</dt>
                   <dd className="mb-20 text-sm text-gray-500">
-                    {data?.event?.EventDate.toDateString()}
+                    {data?.event!.EventDate.toDateString()}
                   </dd>
                 </div>
               ))}

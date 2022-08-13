@@ -41,8 +41,13 @@ export default function Nav() {
               className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
+                <Link className="btn btn-ghost text-accent" href="/events">
+                  <a className="btn btn-ghost  text-accent">Events</a>
+                </Link>
+              </li>
+              <li>
                 <Link className="btn btn-ghost text-accent" href="/dashboard">
-                  Dashboard
+                <a className="btn btn-ghost  text-accent">Dashboard</a>
                 </Link>
               </li>
               <li tabIndex={0}>
@@ -66,8 +71,12 @@ export default function Nav() {
           <ul className="menu menu-horizontal p-0">
             <li>
               <Link className="btn btn-ghost text-accent" href="/dashboard">
-              
                 <a className="btn btn-ghost  text-accent">Dashboard</a>
+              </Link>
+            </li>
+            <li>
+              <Link className="btn btn-ghost text-accent" href="/events">
+                <a className="btn btn-ghost  text-accent">Events</a>
               </Link>
             </li>
             <li tabIndex={0}>

@@ -10,12 +10,13 @@ export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   NEXTAUTH_SECRET: z.string(),
   NEXTAUTH_URL: z.string().url(),
-  GOOGLE_ID:z.string(),
-  GOOGLE_SECRET:z.string(),
-  GITHUB_ID:z.string(),
-  GITHUB_SECRET :z.string()
-  
-  
+  GOOGLE_ID: z.string(),
+  GOOGLE_SECRET: z.string(),
+  GITHUB_ID: z.string(),
+  GITHUB_SECRET: z.string(),
+  CALLBACK_URL: z.string().url(),
+
+
 });
 
 /**
