@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createRouter } from "./context";
 import axios from "axios";
 import { env } from "../../env/server.mjs";
+import { SHA256 } from 'crypto-ts';
 
 const businessShortCode = 174379;
 const passkey =
@@ -92,4 +93,23 @@ export const ticketRouter = createRouter()
         console.log("error");
       }
     },
+  }).mutation("generateTickets", {
+    input: z.object({ transactionId: z.string() }), async resolve({ input, ctx }) {
+      const transaction = await ctx.prisma.transaction.findUnique({ where: { TransactionId: input.transactionId } });
+      const transactionHash: string = SHA256(`${transaction?.Valid}${transaction?.EventName}${transaction?.TotalAmount}${transaction?.MobileNumber}${transaction?.TransactionId}${transaction?.CheckoutRequestID}${transaction?.TransactionMethod}${transaction?.NumberOfTickets}${transaction?.MerchantRequestID}`);
+
+      for (let i = 0; i < transaction?.NumberOfTickets! - 1; i++) {
+        const unhashedTicket = await ctx.prisma.ticket.create({
+          data: {
+            TransactionHash: transactionHash!
+            , TransactionId: transaction?.TransactionId!
+
+          }
+        });
+        const ticketHash = SHA256(`${unhashedTicket.Scanned}${unhashedTicket.TicketId}${unhashedTicket.TicketHash}${unhashedTicket.TransactionHash}`);
+        const ticketWithHash = await ctx.prisma.ticket.update({ where: { TicketId: unhashedTicket.TicketId }, data: { TicketHash: ticketHash } });
+        //TODO test if works 
+
+      }
+    }
   });

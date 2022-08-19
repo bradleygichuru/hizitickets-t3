@@ -90,6 +90,7 @@ model Transaction {
   TotalAmount       Int
   Valid             Boolean @default(false)
   event             Event   @relation(fields: [EventName], references: [EventName])
+  tickets           Ticket[]
 }
 
 model TicketTypes {
@@ -100,3 +101,11 @@ model TicketTypes {
   deadline  DateTime
   event     Event    @relation(fields: [eventName], references: [EventName])
 }
+model Ticket{
+    TicketId String @id @default(cuid())
+    TransactionId String
+    TransactionHash String
+    TicketHash String @default("")
+    Scanned Boolean @default(false)
+    transaction Transaction @relation(fields:[TransactionId],references:[TransactionId])
+  }

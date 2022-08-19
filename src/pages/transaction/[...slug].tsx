@@ -1,9 +1,11 @@
+import Quixote from '../../components/Ticket';
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react';
 import { trpc } from '../../utils/trpc';
 import { GetServerSideProps } from "next";
 import Image from 'next/image';
 import puff from '../../../public/puff.svg';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
   const [valid, setValid] = useState<boolean>(false);
@@ -12,6 +14,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
     const timer = setInterval(() => {
       checkTransactioMutation.mutateAsync({ merchantRequestID: props.slug }).then(res => {
         console.log(res.validity);
+        
         if (res.validity == true) {
           setValid(true);
           clearInterval(timer);
@@ -33,14 +36,17 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
           alt="loading..."
           className=""
         />
-         <p className='text-white'> confirming transaction</p>      
+        <p className='text-white'> confirming transaction</p>
 
       </div>
     )
   }
   return (
     <div>
-      transaction confirmed
+      <PDFDownloadLink document={<Quixote/>} fileName="ticket.pdf">here</PDFDownloadLink>
+      <PDFViewer className='w-screen h-screen'>
+        <Quixote/>
+      </PDFViewer>
     </div>
   )
 }

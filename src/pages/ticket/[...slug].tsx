@@ -15,6 +15,7 @@ import { Transaction } from "@prisma/client";
 import Router from "next/router";
 import Image from "next/image";
 import puff from '../../../public/puff.svg'
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 
 type formSchema = {
   quantity: number;
@@ -58,9 +59,9 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
           if (data.transcation) {
             Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
 
-          }else{
-              console.log("error")
-            }
+          } else {
+            console.log("error")
+          }
         }
       })
 
@@ -95,7 +96,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
           alt="loading..."
           className=""
         />
-          <p className="text-white">Loading</p>
+        <p className="text-white">Loading</p>
       </div>
     );
   }
@@ -225,7 +226,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               </label>
 
               <button className={isSubmitting ? "btn loading btn-disabled gap-2" : "btn gap-2"} disabled={isSubmitting ? true : false} type="submit">
-                <FaMoneyCheckAlt/>
+                <FaMoneyCheckAlt />
                 checkout
 
               </button>
