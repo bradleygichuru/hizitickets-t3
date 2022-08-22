@@ -80,16 +80,17 @@ model Event {
 }
 
 model Transaction {
-  TransactionId     String  @id @default(cuid())
+  TransactionId     String   @id @default(cuid())
   MobileNumber      String
+  ticketTypeTitle   String
   EventName         String
   TransactionMethod String
   NumberOfTickets   Int
-  MerchantRequestID String  @unique
-  CheckoutRequestID String  @unique
+  MerchantRequestID String   @unique
+  CheckoutRequestID String   @unique
   TotalAmount       Int
-  Valid             Boolean @default(false)
-  event             Event   @relation(fields: [EventName], references: [EventName])
+  Valid             Boolean  @default(false)
+  event             Event    @relation(fields: [EventName], references: [EventName])
   tickets           Ticket[]
 }
 
@@ -101,11 +102,13 @@ model TicketTypes {
   deadline  DateTime
   event     Event    @relation(fields: [eventName], references: [EventName])
 }
-model Ticket{
-    TicketId String @id @default(cuid())
-    TransactionId String
-    TransactionHash String
-    TicketHash String @default("")
-    Scanned Boolean @default(false)
-    transaction Transaction @relation(fields:[TransactionId],references:[TransactionId])
-  }
+
+model Ticket {
+  TicketId        String      @id @default(cuid())
+  TransactionId   String
+  TransactionHash String
+  ImageData       String @db.LongText
+  TicketHash      String      @default("")
+  Scanned         Boolean     @default(false)
+  transaction     Transaction @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)
+}

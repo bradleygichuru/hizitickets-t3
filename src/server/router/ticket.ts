@@ -2,8 +2,8 @@ import { z } from "zod";
 import { createRouter } from "./context";
 import axios from "axios";
 import { env } from "../../env/server.mjs";
-import { SHA256 } from 'crypto-ts';
-
+import { createHash } from "crypto";
+import generateQR from "../../utils/base64gen";
 const businessShortCode = 174379;
 const passkey =
   "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
@@ -70,6 +70,7 @@ export const ticketRouter = createRouter()
             TotalAmount: input.totalAmount,
             MerchantRequestID: buyRequest.data.MerchantRequestID,
             CheckoutRequestID: buyRequest.data.CheckoutRequestID,
+            ticketTypeTitle: input.ticketTypeTitle,
           },
         });
       }
@@ -93,23 +94,52 @@ export const ticketRouter = createRouter()
         console.log("error");
       }
     },
-  }).mutation("generateTickets", {
-    input: z.object({ transactionId: z.string() }), async resolve({ input, ctx }) {
-      const transaction = await ctx.prisma.transaction.findUnique({ where: { TransactionId: input.transactionId } });
-      const transactionHash: string = SHA256(`${transaction?.Valid}${transaction?.EventName}${transaction?.TotalAmount}${transaction?.MobileNumber}${transaction?.TransactionId}${transaction?.CheckoutRequestID}${transaction?.TransactionMethod}${transaction?.NumberOfTickets}${transaction?.MerchantRequestID}`);
+  })
+  .mutation("generateTickets", {
+    //TODO prevent duplication of tickets
+    input: z.object({ transactionId: z.string() }),
+    async resolve({ input, ctx }) {
+      const transaction = await ctx.prisma.transaction.findUnique({
+        where: { TransactionId: input.transactionId },
+      });
+      const transactionHash = createHash("sha256")
+        .update(
+          `${transaction?.Valid}${transaction?.EventName}${transaction?.TotalAmount}${transaction?.MobileNumber}${transaction?.TransactionId}${transaction?.CheckoutRequestID}${transaction?.TransactionMethod}${transaction?.NumberOfTickets}${transaction?.MerchantRequestID}`
+        )
+        .digest("hex");
 
       for (let i = 0; i < transaction?.NumberOfTickets! - 1; i++) {
         const unhashedTicket = await ctx.prisma.ticket.create({
           data: {
-            TransactionHash: transactionHash!
-            , TransactionId: transaction?.TransactionId!
-
-          }
+            TransactionHash: transactionHash!,
+            TransactionId: transaction?.TransactionId!,
+            ImageData:""
+          },
         });
-        const ticketHash = SHA256(`${unhashedTicket.Scanned}${unhashedTicket.TicketId}${unhashedTicket.TicketHash}${unhashedTicket.TransactionHash}`);
-        const ticketWithHash = await ctx.prisma.ticket.update({ where: { TicketId: unhashedTicket.TicketId }, data: { TicketHash: ticketHash } });
-        //TODO test if works 
 
+        const ticketHash = createHash("sha256")
+          .update(
+            `${unhashedTicket.Scanned}${unhashedTicket.TicketId}${unhashedTicket.TicketHash}${unhashedTicket.TransactionHash}`
+          )
+          .digest("hex");
+        console.log(ticketHash);
+        const imageData = await generateQR(ticketHash);
+        const ticketWithHash = await ctx.prisma.ticket.update({
+          where: { TicketId: unhashedTicket.TicketId },
+          data: { TicketHash: ticketHash, ImageData: imageData! },
+        });
+
+        //TODO test if works
       }
-    }
+      const transactionWithTickets = await ctx.prisma.transaction.findUnique({
+        where: { TransactionId: input.transactionId },
+        select: {
+          event: true,
+          TransactionId: true,
+          ticketTypeTitle: true,
+          tickets: true,
+        },
+      });
+      return { transaction: transactionWithTickets };
+    },
   });

@@ -9,6 +9,8 @@ export const transactionRouter = createRouter().mutation("checkTransaction", {
     });
     return {
       validity: transaction?.Valid,
+      transactionId:transaction?.TransactionId,
+      
     };
   },
 });

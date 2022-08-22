@@ -1,4 +1,3 @@
-import { NextPage } from "next";
 import { useState } from "react";
 import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
 import Layout from "../components/layout";
