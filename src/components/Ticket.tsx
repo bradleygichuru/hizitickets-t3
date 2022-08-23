@@ -9,26 +9,22 @@ type props = {
   hash: string;
   date: Date;
   type: string;
-  imageData:string
- 
+  imageData: string;
 };
 
-const Quixote = (props: props) => {
-  
-  
-  
+const TicketTemplate = (props: props) => {
   return (
     <>
       <Document>
         <Page style={styles.body}>
           <Image style={styles.qrcode} src={props.imageData} />
           <Text style={styles.subtitle}>ticket QR CODE</Text>
-          <Text style={styles.text}>Event Name:{props.eventName}</Text>
-          <Text style={styles.text}>Ticket hash:{props.hash}</Text>
+          <Text style={styles.text}>Event Name : {props.eventName}</Text>
+
           <Text style={styles.text}>
             Valid till:{props.date.toDateString()}
           </Text>
-          <Text style={styles.text}>Ticket type : Regular</Text>
+          <Text style={styles.text}>Ticket type : {props.type}</Text>
 
           <Image
             style={styles.logo}
@@ -79,4 +75,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Quixote;
+export default TicketTemplate;

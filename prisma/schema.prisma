@@ -107,7 +107,7 @@ model Ticket {
   TicketId        String      @id @default(cuid())
   TransactionId   String
   TransactionHash String
-  ImageData       String @db.LongText
+  ImageData       String      @db.LongText
   TicketHash      String      @default("")
   Scanned         Boolean     @default(false)
   transaction     Transaction @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)

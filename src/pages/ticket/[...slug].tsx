@@ -4,7 +4,6 @@ import {
 
 import { FaMoneyCheckAlt } from "react-icons/fa";
 
- import generateQR from "../../utils/base64gen";
 import { set, SubmitHandler, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import React from "react";
@@ -67,7 +66,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
 
     console.log(formData);
   };
-  generateQR("hello").then(res => console.log(res))
+
   const { data, isLoading, error } = trpc.useQuery([
     "event.getEvent",
     { eventName: props.slug },
