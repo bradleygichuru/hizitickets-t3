@@ -8,7 +8,7 @@ import puff from "../../../public/puff.svg";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { Event, Ticket, Transaction } from "@prisma/client";
 import generateQR from "../../utils/base64gen";
-
+import ReactLoading from 'react-loading';
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
   const [valid, setValid] = useState<boolean>(false);
 
@@ -21,35 +21,33 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   } | null>();
 
   const generateTicketPdfs = transaction?.tickets.map((val, index) => {
-    let imagedata;
-    generateQR(val.TicketHash).then((data) => (imagedata = data));
     return (
-      
-        <div key={index} className="card m-3 w-96 bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title">
-              Your {transaction?.ticketTypeTitle!} ticket
-            </h2>
-            <a className="btn">
-              <PDFDownloadLink
-                key={index}
-                document={
-                  <TicketTemplate
-                    eventName={transaction?.event.EventName!}
-                    imageData={val.ImageData!}
-                    hash={val.TicketHash}
-                    date={transaction?.event.EventDate!}
-                    type={transaction?.ticketTypeTitle!}
-                  />
-                }
-                fileName="ticket.pdf"
-              >{`ticket ${index}`}</PDFDownloadLink>
-            </a>
 
-           
-          </div>
+      <div key={index} className="card m-3 w-96 bg-base-100 shadow-xl">
+        <div className="card-body">
+          <h2 className="card-title">
+            Your {transaction?.ticketTypeTitle!} ticket
+          </h2>
+          <a className="btn">
+            <PDFDownloadLink
+              key={index}
+              document={
+                <TicketTemplate
+                  eventName={transaction?.event.EventName!}
+                  imageData={val.ImageData!}
+                  hash={val.TicketHash}
+                  date={transaction?.event.EventDate!}
+                  type={transaction?.ticketTypeTitle!}
+                />
+              }
+              fileName="ticket.pdf"
+            >{`ticket ${index}`}</PDFDownloadLink>
+          </a>
+
+
         </div>
-      
+      </div>
+
     );
   });
 
@@ -79,19 +77,18 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
             setValid(false);
           }
         });
+      return ()=> 
+        
+            clearInterval(timer);
     }, 6000);
   }, []);
   if (valid == false) {
     return (
-      <div className="bg-black grid h-screen place-items-center">
-        <Image
-          src={puff}
-          width={64}
-          height={64}
-          alt="loading..."
-          className=""
-        />
-        <p className="text-white"> confirming transaction</p>
+      <div className="bg-primary grid h-screen place-items-center">
+
+        <ReactLoading type="spin" color="#0000FF"
+          height={100} width={100} />
+        <p className="text-black"> confirming transaction</p>
       </div>
     );
   }

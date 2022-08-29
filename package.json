@@ -28,6 +28,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.33.1",
     "react-icons": "^4.4.0",
+    "react-loading": "^2.0.3",
     "react-query": "^3.39.2",
     "superjson": "^1.9.1",
     "ws": "^8.8.1",

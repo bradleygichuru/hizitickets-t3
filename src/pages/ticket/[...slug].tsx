@@ -3,7 +3,7 @@ import {
 } from "react";
 
 import { FaMoneyCheckAlt } from "react-icons/fa";
-
+import ReactLoading from 'react-loading'
 import { set, SubmitHandler, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import React from "react";
@@ -73,7 +73,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   ]);
 
   const quantitys = Array.from(
-    { length: data?.event!.EventMaxTickets! - data?.event!.TicketsSold! },
+    { length: data?.event!.EventMaxTickets! },
     (_, i) => i + 1
   );
 
@@ -87,17 +87,11 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   if (isLoading) {
     return (
 
-      <div className="bg-black grid h-screen place-items-center">
-        <Image
-          src={puff}
-          width={64}
-          height={64}
-          alt="loading..."
-          className=""
-        />
-        <p className="text-white">Loading</p>
+      <div className="bg-primary grid h-screen place-items-center">
+        <ReactLoading type="spin" color="#0000FF"
+          height={100} width={100} />
       </div>
-    );
+    )
   }
 
   return (

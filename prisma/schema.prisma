@@ -73,8 +73,6 @@ model Event {
   eventOrganizer   User          @relation(fields: [EventOrganizer], references: [name])
   ticketTypes      TicketTypes[]
   transactions     Transaction[]
-  TotalRevenue     Int           @default(0)
-  TicketsSold      Int           @default(0)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 }

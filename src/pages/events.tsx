@@ -4,23 +4,16 @@ import { trpc } from "../utils/trpc";
 import Section from "../components/section";
 import EventEntry from "../components/EventEntry";
 import Image from "next/image";
-import puff from '../../public/puff.svg'
-
+import ReactLoading from 'react-loading';
 const EventsPage: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["event.getEvents"]);
   console.log(data);
   if (isLoading) {
     return (
 
-      <div className="bg-black grid h-screen place-items-center">
-        <Image
-          src={puff}
-          width={64}
-          height={64}
-          alt="loading..."
-          className=""
-        />
-        Loading
+      <div className="bg-primary grid h-screen place-items-center">
+        <ReactLoading type="spin" color="#0000FF"
+          height={100} width={50} />
       </div>
     )
   }

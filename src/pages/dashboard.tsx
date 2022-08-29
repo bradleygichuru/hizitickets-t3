@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
+import ReactLoading from 'react-loading';
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -8,6 +9,9 @@ import { trpc } from "../utils/trpc";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import LoginButton from "../components/LoginButton";
+import Image from "next/image";
+import puff from '../../public/puff.svg'
+
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
@@ -50,19 +54,22 @@ const DashBoard = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data: session, status } = useSession();
   /* console.log(session) */
-  
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
+  const [totalTicketsSold, setTotalTicketsSold] = useState<number>(0);
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
   } = useForm<FormSchemaType>();
+  console.log(status)
   const watchAllFields = watch();
   const { data, isLoading } = trpc.useQuery(
     ["event.getUserEvents", { eventOrganizer: session?.user?.name! }],
     {
       onSuccess(data) {
         console.log(data);
+
       },
     }
   );
@@ -93,7 +100,6 @@ const DashBoard = () => {
         price: data.ticketType4Price,
       },
     ];
-
     if (eventPoster) {
       console.log(eventPoster);
       setIsSubmitting((isSubmitting) => !isSubmitting);
@@ -129,10 +135,35 @@ const DashBoard = () => {
   if (!session) {
     return <LoginButton />;
   }
-  if (session) {
+
+  if (status != "authenticated") {
+    return (
+
+      <div className="bg-black grid h-screen place-items-center">
+        <Image
+          src={puff}
+          width={64}
+          height={64}
+          alt="loading..."
+          className=""
+        />
+        Loading
+      </div>
+    )
+  }
+  if(isLoading){
+    return(
+
+      <div className="bg-primary grid h-screen place-items-center">
+       <ReactLoading type="spin" color="#0000FF"
+        height={100} width={100} /> 
+      </div>
+    )
+  }
+  if (status == "authenticated") {
     return (
       <Layout>
-        <div className="grid grid-cols-1 sm:ml-24 p-1 ">
+        <div className="grid grid-cols-1 sm:ml-24 p-1 h-screen">
           <label
             htmlFor="my-modal-3"
             className="my-1 btn modal-button bg-accent hover:bg-indigo-700"
@@ -533,6 +564,12 @@ const DashBoard = () => {
 
           <div className="p-3 grid grid-cols-2 bg-primary m-5 rounded-3xl sm:grid sm:auto-cols-auto mx-auto">
             {data?.events.map((event, index) => {
+              let ticketNumbers = 0;
+              let revenue = 0;
+              event.transactions.forEach((val, _) => {
+                revenue += val.TotalAmount;
+                ticketNumbers += val.tickets.length;
+              })
               return (
                 <>
                   <div
@@ -563,7 +600,7 @@ const DashBoard = () => {
                     <div className="stats shadow m-1">
                       <div className="stat overflow-hidden">
                         <div className="stat-title">Total Revenue</div>
-                        <div className="stat-value">{event.TotalRevenue}</div>
+                        <div className="stat-value">{revenue}</div>
                         <div className="stat-desc">
                           21% more than last month
                         </div>
@@ -572,18 +609,7 @@ const DashBoard = () => {
                     <div className="stats shadow m-1">
                       <div className="stat overflow-hidden">
                         <div className="stat-title">Total Tickets Sold</div>
-                        <div className="stat-value">{event.TicketsSold}</div>
-                        <div className="stat-desc">
-                          21% more than last month
-                        </div>
-                      </div>
-                    </div>
-                    <div className="stats shadow m-1">
-                      <div className="stat overflow-hidden">
-                        <div className="stat-title">Tickets Remain</div>
-                        <div className="stat-value">
-                          {event.EventMaxTickets}
-                        </div>
+                        <div className="stat-value">{ticketNumbers}</div>
                         <div className="stat-desc">
                           21% more than last month
                         </div>

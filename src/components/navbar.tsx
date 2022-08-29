@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { useSession,signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -117,7 +117,7 @@ export default function Nav() {
                 className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <a>Logout</a>
+                  <a onClick={()=>{signOut()}}>Logout</a>
                 </li>
               </ul>
             </div>
