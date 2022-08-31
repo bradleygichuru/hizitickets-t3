@@ -113,7 +113,7 @@ export const ticketRouter = createRouter()
           data: {
             TransactionHash: transactionHash!,
             TransactionId: transaction?.TransactionId!,
-            ImageData:""
+            ImageData: "",
           },
         });
 
@@ -142,4 +142,18 @@ export const ticketRouter = createRouter()
       });
       return { transaction: transactionWithTickets };
     },
+  })
+  .query("fetchTicket", {
+    input: z.object({ ticketHash: z.string() }),
+    async resolve({ input, ctx }) {
+      const ticket = await ctx.prisma.ticket.findFirst({
+        where: { TicketHash: input.ticketHash },
+        include: {
+          transaction: {
+            select: { ticketTypeTitle: true, EventName: true, Valid: true },
+          },
+        },
+      });
+      return{ ticket}
+    }
   });
