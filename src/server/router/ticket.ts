@@ -129,7 +129,7 @@ export const ticketRouter = createRouter()
           data: { TicketHash: ticketHash, ImageData: imageData! },
         });
 
-        //TODO test if works
+        
       }
       const transactionWithTickets = await ctx.prisma.transaction.findUnique({
         where: { TransactionId: input.transactionId },
@@ -154,6 +154,11 @@ export const ticketRouter = createRouter()
           },
         },
       });
-      return{ ticket}
+      if(ticket?.transaction.Valid == true){
+        return ticket
+      }else{
+        return {result:"the transaction involved with ticket was not valid"}
+      }
+      
     }
   });

@@ -108,8 +108,8 @@ export default function Nav() {
             <div className="dropdown dropdown-end">
               <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 rounded-full">
-                  <img src={`${session?.user?.image}`} />
-                  {/* //TODO set google account image or used account image */}
+                  <img src={`${session?.user?.image} `} alt="profile image" />
+                 
                 </div>
               </label>
               <ul

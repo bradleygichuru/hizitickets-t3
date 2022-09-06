@@ -1,9 +1,7 @@
-import {
-  useEffect, useState
-} from "react";
+import { useEffect, useState } from "react";
 
 import { FaMoneyCheckAlt } from "react-icons/fa";
-import ReactLoading from 'react-loading'
+import ReactLoading from "react-loading";
 import { set, SubmitHandler, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import React from "react";
@@ -13,7 +11,7 @@ import Layout from "../../components/layout";
 import { Transaction } from "@prisma/client";
 import Router from "next/router";
 import Image from "next/image";
-import puff from '../../../public/puff.svg'
+import puff from "../../../public/puff.svg";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 
 type formSchema = {
@@ -37,7 +35,6 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
     register,
     handleSubmit,
     formState: { errors },
-
   } = useForm<formSchema>();
 
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
@@ -45,24 +42,25 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
       (type) => type.title == formData.ticketTypeTitle
     );
     setIsSubmitting(true);
-    buyMutation
-      .mutateAsync({
+    buyMutation.mutateAsync(
+      {
         mobileNumber: formData.mobileNumber,
         quantity: formData.quantity,
         ticketTypeTitle: formData.ticketTypeTitle,
         eventName: data?.event!.EventName!,
         totalAmount: searchObj?.price! * formData.quantity,
-      }, {
+      },
+      {
         onSuccess(data) {
           setIsSubmitting(false);
           if (data.transcation) {
             Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
-
           } else {
-            console.log("error")
+            console.log("error");
           }
-        }
-      })
+        },
+      }
+    );
 
     console.log(formData);
   };
@@ -78,47 +76,22 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   );
 
   //TODO handle errors
-  /* generateQR("bradley").then((url) => console.log(url)); //TODO remove debug logs on prod
-  */
+  
 
   console.log(props.slug);
   console.log({ data });
 
   if (isLoading) {
     return (
-
       <div className="bg-primary grid h-screen place-items-center">
-        <ReactLoading type="spin" color="#0000FF"
-          height={100} width={100} />
+        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
       </div>
-    )
+    );
   }
 
   return (
     <Layout>
       <div className=" sm:ml-20 sm:m-4 ">
-
-        {/* //TODO implement modal  <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Processing Purchase</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <div className="flex flex-col">
-                <div className="flex">{transactionWait()}</div>
-
-                <div className="flex">{genWait()}</div>
-              </div>
-            </ModalBody>
-
-            <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
-              </Button>
-              <Button variant="ghost">Secondary Action</Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal> */}
         <div className="max-w-2xl mx-auto grid items-center grid-cols-1 px-6 gap-y-16 gap-x-8 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8 lg:grid-cols-2">
           <div className="grid sm:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8 ">
             <div className="group relative p-0 m-3 mb-16 rounded-lg bg-black flex-auto">
@@ -218,10 +191,15 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 )}
               </label>
 
-              <button className={isSubmitting ? "btn loading btn-disabled gap-2" : "btn gap-2"} disabled={isSubmitting ? true : false} type="submit">
+              <button
+                className={
+                  isSubmitting ? "btn loading btn-disabled gap-2" : "btn gap-2"
+                }
+                disabled={isSubmitting ? true : false}
+                type="submit"
+              >
                 <FaMoneyCheckAlt />
                 checkout
-
               </button>
             </form>
           </div>
