@@ -49,7 +49,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  event         Event?
+  event         Event[]
 }
 
 model VerificationToken {
@@ -68,7 +68,7 @@ model Event {
   EventMaxTickets  Int
   EventDate        DateTime
   EventPosterUrl   String
-  EventOrganizer   String        @unique
+  EventOrganizer   String        
   EventValidity    Boolean       @default(false)
   eventOrganizer   User          @relation(fields: [EventOrganizer], references: [name])
   ticketTypes      TicketTypes[]
