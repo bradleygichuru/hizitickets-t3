@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 import { FaMoneyCheckAlt } from "react-icons/fa";
 import ReactLoading from "react-loading";
-import { set, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { GetServerSideProps } from "next";
 import React from "react";
-import Quixote from "../../components/Ticket";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
-import { Transaction } from "@prisma/client";
 import Router from "next/router";
-import Image from "next/image";
-import puff from "../../../public/puff.svg";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 
 type formSchema = {
   quantity: number;

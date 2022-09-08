@@ -9,9 +9,10 @@ import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { Event, Ticket, Transaction } from "@prisma/client";
 import generateQR from "../../utils/base64gen";
 import ReactLoading from "react-loading";
-const TransactionPage: NextPage<{ slug: string }> = (props) => {
-  const [valid, setValid] = useState<boolean>(false);
 
+const TransactionPage: NextPage<{ slug: string }> = (props) => {
+  
+  const [valid, setValid] = useState<boolean>(false);
   const [transactionId, setTransactionId] = useState<string>();
   const [transaction, setTransaction] = useState<{
     event: Event;
