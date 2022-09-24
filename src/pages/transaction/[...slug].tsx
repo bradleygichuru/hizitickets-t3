@@ -11,7 +11,6 @@ import generateQR from "../../utils/base64gen";
 import ReactLoading from "react-loading";
 
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
-  
   const [valid, setValid] = useState<boolean>(false);
   const [transactionId, setTransactionId] = useState<string>();
   const [transaction, setTransaction] = useState<{
@@ -82,6 +81,14 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
       <div className="bg-primary grid h-screen place-items-center">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <p className="text-black"> confirming transaction</p>
+      </div>
+    );
+  }
+  if (generateTicketPdfs == undefined) {
+    return (
+      <div className="bg-primary grid h-screen place-items-center">
+        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
+        <p className="text-black">generating tickets</p>
       </div>
     );
   }

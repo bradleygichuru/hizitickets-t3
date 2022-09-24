@@ -60,7 +60,7 @@ export const ticketRouter = createRouter()
         },
       });
       let unconfirmedTransaction;
-      if (buyRequest.data.ResponseCode == "0") {
+      if (buyRequest.data.ResponseCode == "0") {//TODO change this in prod 
         unconfirmedTransaction = await ctx.prisma.transaction.create({
           data: {
             MobileNumber: `254${input.mobileNumber}`,
@@ -165,9 +165,27 @@ export const ticketRouter = createRouter()
           },
         },
       });
-      if (ticket?.transaction.Valid == true) {
-        return ticket;
-      } else {
+      if (!ticket) {
+        return { result: "qrcode invalid ticket doesnt exist" };
+      }
+      if (ticket?.transaction.Valid === true && ticket.Scanned == false) {
+        const ticketScanned = await ctx.prisma.ticket.update({
+          where: { TicketId:ticket.TicketId },
+          data: { Scanned: true },
+          include: {
+            transaction: {
+              select: { ticketTypeTitle: true, EventName: true, Valid: true },
+            },
+          },
+        });
+        if (ticketScanned.Scanned === true) {
+          return { result: `ticket scanned of type ${ticketScanned.transaction.ticketTypeTitle}` };
+        }
+      }
+      if (ticket?.Scanned === true ) {
+        return { result: `ticket of type ${ticket.transaction.ticketTypeTitle} was already scanned` };
+      }
+      if (ticket?.transaction.Valid == false) {
         return { result: "the transaction involved with ticket was not valid" };
       }
     },

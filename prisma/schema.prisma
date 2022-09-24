@@ -104,9 +104,9 @@ model TicketTypes {
 model Ticket {
   TicketId        String      @id @default(cuid())
   TransactionId   String
-  TransactionHash String
+  TransactionHash String      
   ImageData       String      @db.LongText
-  TicketHash      String      @default("") 
+  TicketHash      String      @unique @default(cuid()) 
   Scanned         Boolean     @default(false)
   transaction     Transaction @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)
 }
