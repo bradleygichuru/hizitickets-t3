@@ -1,15 +1,23 @@
 import type { NextPage } from "next";
-import Head from "next/head";
-import LoginButton from "../components/LoginButton";
-import { trpc } from "../utils/trpc";
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Home: NextPage = () => {
-  const router = useRouter()
-
+  const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem("visited");
+    if (token) {
+      router.push("/events");
+    } else {
+      localStorage.setItem("visited", "true");
+    }
+  }, []);
   return (
     <>
-      <div data-theme="light" className="hero min-h-screen bg-[url('https://placeimg.com/1000/800/arch')]">
+      <div
+        data-theme="light"
+        className="hero min-h-screen bg-[url('https://placeimg.com/1000/800/arch')]"
+      >
         <input type="checkbox" id="my-modal-3" className="modal-toggle" />
         <div className="modal">
           <div className="modal-box">
@@ -24,14 +32,22 @@ const Home: NextPage = () => {
             </h3>
 
             <div className="modal-action">
-              <label htmlFor="my-modal-3" className="btn btn-outline" onClick={() => {
-                router.push("/events")
-              }}>
+              <label
+                htmlFor="my-modal-3"
+                className="btn btn-outline"
+                onClick={() => {
+                  router.push("/events");
+                }}
+              >
                 View events
               </label>
-              <label htmlFor="my-modal-3" className="btn btn-outline" onClick={() => {
-                router.push("/dashboard");
-              }}>
+              <label
+                htmlFor="my-modal-3"
+                className="btn btn-outline"
+                onClick={() => {
+                  router.push("/dashboard");
+                }}
+              >
                 Create your event
               </label>
             </div>
@@ -46,7 +62,10 @@ const Home: NextPage = () => {
               excepturi exercitationem quasi. In deleniti eaque aut repudiandae
               et a id nisi.
             </p>
-            <label htmlFor="my-modal-3" className="btn modal-button btn-primary">
+            <label
+              htmlFor="my-modal-3"
+              className="btn modal-button btn-primary"
+            >
               Get Started
             </label>
           </div>
