@@ -76,7 +76,6 @@ const DashBoard = () => {
   const addEventMutation = trpc.useMutation("event.addEvent");
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    
     console.log(data);
     const eventicketTypes = [
       {
@@ -106,7 +105,7 @@ const DashBoard = () => {
       const storageRef = ref(storage, eventPoster.name);
       const snapshot = await uploadBytes(storageRef, eventPoster);
       const url = await getDownloadURL(snapshot.ref);
-      
+
       if (url) {
         console.log(`${url}`);
 
@@ -136,8 +135,7 @@ const DashBoard = () => {
               );
             }
             console.log(result);
-            
-            
+
             setTimeout(() => {
               setShowToast(false);
             }, 7000);
@@ -324,7 +322,6 @@ const DashBoard = () => {
                             Price
                           </label>
                           <input
-                            type="number"
                             {...register("ticketType2Price", {
                               valueAsNumber: true,
                             })}
@@ -566,24 +563,24 @@ const DashBoard = () => {
           </div>
           {showToast && (
             <div className="toast">
-            <div className="alert alert-info shadow-lg ">
-              <div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="stroke-current flex-shrink-0 h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>{submissionStatus}</span>
+              <div className="alert alert-info shadow-lg ">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current flex-shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span>{submissionStatus}</span>
+                </div>
               </div>
-            </div>
             </div>
           )}
           <div className="p-2 flex content-around">
@@ -664,7 +661,6 @@ const DashBoard = () => {
               );
             })}
           </div>
-         
         </div>
       </Layout>
     );

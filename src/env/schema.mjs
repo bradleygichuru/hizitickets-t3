@@ -15,8 +15,6 @@ export const serverSchema = z.object({
   GITHUB_ID: z.string(),
   GITHUB_SECRET: z.string(),
   CALLBACK_URL: z.string().url(),
-
-
 });
 
 /**

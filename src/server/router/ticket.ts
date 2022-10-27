@@ -21,6 +21,7 @@ export const ticketRouter = createRouter()
       console.log(input);
       let date = new Date();
       var status: string;
+
       let timestamp =
         date.getFullYear() +
         ("0" + (date.getMonth() + 1)).slice(-2) +
@@ -60,7 +61,8 @@ export const ticketRouter = createRouter()
         },
       });
       let unconfirmedTransaction;
-      if (buyRequest.data.ResponseCode == "0") {//TODO change this in prod 
+      if (buyRequest.data.ResponseCode == "0") {
+        //TODO change this in prod
         unconfirmedTransaction = await ctx.prisma.transaction.create({
           data: {
             MobileNumber: `254${input.mobileNumber}`,
@@ -95,6 +97,7 @@ export const ticketRouter = createRouter()
       }
     },
   })
+
   .mutation("generateTickets", {
     input: z.object({ transactionId: z.string() }),
     async resolve({ input, ctx }) {
@@ -109,7 +112,7 @@ export const ticketRouter = createRouter()
           )
           .digest("hex");
 
-        for (let i = 0; i < transaction?.NumberOfTickets! - 1; i++) {
+        for (let i = 1; i <= transaction?.NumberOfTickets!; i += 1) {
           const unhashedTicket = await ctx.prisma.ticket.create({
             data: {
               TransactionHash: transactionHash!,
@@ -170,7 +173,7 @@ export const ticketRouter = createRouter()
       }
       if (ticket?.transaction.Valid === true && ticket.Scanned == false) {
         const ticketScanned = await ctx.prisma.ticket.update({
-          where: { TicketId:ticket.TicketId },
+          where: { TicketId: ticket.TicketId },
           data: { Scanned: true },
           include: {
             transaction: {
@@ -179,14 +182,35 @@ export const ticketRouter = createRouter()
           },
         });
         if (ticketScanned.Scanned === true) {
-          return { result: `ticket scanned of type ${ticketScanned.transaction.ticketTypeTitle}` };
+          return {
+            result: `ticket scanned of type ${ticketScanned.transaction.ticketTypeTitle}`,
+          };
         }
       }
-      if (ticket?.Scanned === true ) {
-        return { result: `ticket of type ${ticket.transaction.ticketTypeTitle} was already scanned` };
+      if (ticket?.Scanned === true) {
+        return {
+          result: `ticket of type ${ticket.transaction.ticketTypeTitle} was already scanned`,
+        };
       }
       if (ticket?.transaction.Valid == false) {
         return { result: "the transaction involved with ticket was not valid" };
       }
+    },
+  })
+  .mutation("findMerchantId", {
+    input: z.object({
+      phoneNumber: z.string(),
+      eventName: z.string(),
+      ticketType: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const transactions = await ctx.prisma.transaction.findMany({
+        where: {
+          MobileNumber: input.phoneNumber,
+          EventName: input.eventName,
+          ticketTypeTitle: input.ticketType,
+        },
+      });
+      return transactions;
     },
   });

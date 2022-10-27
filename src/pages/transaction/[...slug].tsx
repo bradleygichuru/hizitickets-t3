@@ -24,24 +24,23 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
     return (
       <div key={index} className="card m-3 w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title">
+          <h3 className="card-title">
             Your {transaction?.ticketTypeTitle!} ticket
-          </h2>
-          <a className="btn">
-            <PDFDownloadLink
-              key={index}
-              document={
-                <TicketTemplate
-                  eventName={transaction?.event.EventName!}
-                  imageData={val.ImageData!}
-                  hash={val.TicketHash}
-                  date={transaction?.event.EventDate!}
-                  type={transaction?.ticketTypeTitle!}
-                />
-              }
-              fileName="ticket.pdf"
-            >{`ticket ${index}`}</PDFDownloadLink>
-          </a>
+          </h3>
+          <PDFDownloadLink
+            className="btn"
+            key={index}
+            document={
+              <TicketTemplate
+                eventName={transaction?.event.EventName!}
+                imageData={val.ImageData!}
+                hash={val.TicketHash}
+                date={transaction?.event.EventDate!}
+                type={transaction?.ticketTypeTitle!}
+              />
+            }
+            fileName={`ticket${index}.pdf`}
+          >{`ticket ${index}`}</PDFDownloadLink>
         </div>
       </div>
     );
@@ -93,11 +92,11 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
     );
   }
   return (
-    <div
-      data-theme="light"
-      className="overflow-auto  h-screen flex-wrap flex flex-row"
-    >
-      {generateTicketPdfs}
+    <div data-theme="light">
+      <h2 className="card-title">Download your tickets</h2>
+      <div className="overflow-auto  h-screen flex-wrap flex flex-row">
+        {generateTicketPdfs}
+      </div>
     </div>
   );
 };

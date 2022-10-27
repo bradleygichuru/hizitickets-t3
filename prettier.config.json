@@ -1,7 +1,0 @@
-const options ={
-  arrowParens : 'avoid',
-  singleQuote:true,
-  endOfLine:'lf',
-  tabWidth:2,
-}
-module.exports = options

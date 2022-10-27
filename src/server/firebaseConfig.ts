@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getStorage } from 'firebase/storage'
+import { getStorage } from "firebase/storage";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
@@ -12,7 +12,7 @@ const firebaseConfig = {
   storageBucket: "hizitickets.appspot.com",
   messagingSenderId: "936680876554",
   appId: "1:936680876554:web:2a16d69aaa0a4a07bd8df3",
-  measurementId: "G-GZYL7NX3CN"
+  measurementId: "G-GZYL7NX3CN",
 };
 
 // Initialize Firebase

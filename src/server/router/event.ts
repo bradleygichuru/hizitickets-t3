@@ -14,10 +14,9 @@ export const eventRouter = createRouter()
   .query("getEvent", {
     input: z.object({ eventName: z.string() }),
     async resolve({ input, ctx }) {
-
       const event = await ctx.prisma.event.findFirst({
         where: { EventName: input.eventName },
-        include: { ticketTypes: true, },
+        include: { ticketTypes: true },
       });
       return {
         event: event,
@@ -29,7 +28,10 @@ export const eventRouter = createRouter()
     async resolve({ ctx, input }) {
       const events = await ctx.prisma.event.findMany({
         where: { EventOrganizer: input.eventOrganizer },
-        include: { ticketTypes: true, transactions: { include: { tickets: true } } },
+        include: {
+          ticketTypes: true,
+          transactions: { include: { tickets: true } },
+        },
       });
       return { events: events };
     },

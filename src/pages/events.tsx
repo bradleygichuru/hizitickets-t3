@@ -2,20 +2,16 @@ import { NextPage } from "next";
 import Layout from "../components/layout";
 import { trpc } from "../utils/trpc";
 import Section from "../components/section";
-import EventEntry from "../components/EventEntry";
-import Image from "next/image";
-import ReactLoading from 'react-loading';
+import ReactLoading from "react-loading";
 const EventsPage: NextPage = () => {
   const { data, isLoading } = trpc.useQuery(["event.getEvents"]);
   console.log(data);
   if (isLoading) {
     return (
-
       <div className="bg-primary grid h-screen place-items-center">
-        <ReactLoading type="spin" color="#0000FF"
-          height={100} width={50} />
+        <ReactLoading type="spin" color="#0000FF" height={100} width={50} />
       </div>
-    )
+    );
   }
   return (
     <Layout>

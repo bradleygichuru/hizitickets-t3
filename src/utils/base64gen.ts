@@ -1,11 +1,9 @@
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
 
-export default async function generateQR(text:string) {
+export default async function generateQR(text: string) {
   try {
-    return (await QRCode.toDataURL(text))
+    return await QRCode.toDataURL(text);
   } catch (err) {
-
-    console.error(err)
+    console.error(err);
   }
 }
-

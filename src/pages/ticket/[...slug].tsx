@@ -70,7 +70,6 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   );
 
   //TODO handle errors
-  
 
   console.log(props.slug);
   console.log({ data });

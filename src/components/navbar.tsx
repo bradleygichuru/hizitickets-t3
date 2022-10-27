@@ -1,4 +1,4 @@
-import { useSession,signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -42,12 +42,12 @@ export default function Nav() {
             >
               <li>
                 <Link className="btn btn-ghost text-accent" href="/events">
-                  <a className="btn btn-ghost  text-accent">Events</a>
+                  Events
                 </Link>
               </li>
               <li>
                 <Link className="btn btn-ghost text-accent" href="/dashboard">
-                <a className="btn btn-ghost  text-accent">Dashboard</a>
+                  <a className="btn btn-ghost  text-accent">Dashboard</a>
                 </Link>
               </li>
               <li tabIndex={0}>
@@ -59,7 +59,9 @@ export default function Nav() {
                 </ul>
               </li>
               <li>
-                <a className="btn btn-ghost  text-accent">Get Help</a>
+                <Link className="btn btn-ghost text-accent" href="/help">
+                  <a className="btn btn-ghost text-accent">Get Help</a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -99,7 +101,9 @@ export default function Nav() {
               </ul>
             </li>
             <li>
-              <a className="btn btn-ghost  text-accent">Get Help</a>
+              <Link className="btn btn-ghost text-accent" href="/help">
+                <a className="btn btn-ghost  text-accent">Get Help</a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -109,7 +113,6 @@ export default function Nav() {
               <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 rounded-full">
                   <img src={`${session?.user?.image} `} alt="profile image" />
-                 
                 </div>
               </label>
               <ul
@@ -117,7 +120,13 @@ export default function Nav() {
                 className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <a onClick={()=>{signOut()}}>Logout</a>
+                  <a
+                    onClick={() => {
+                      signOut();
+                    }}
+                  >
+                    Logout
+                  </a>
                 </li>
               </ul>
             </div>
