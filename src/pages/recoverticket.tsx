@@ -1,5 +1,7 @@
 import type { NextPage } from "next";
 import Layout from "../components/layout";
+x
+import Router from "next/router";
 import { trpc } from "../utils/trpc";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,15 +21,20 @@ const RecoverTicket: NextPage = () => {
   } = useForm<FormSchemaType>();
   const findTicketsMutation = trpc.useMutation("ticket.findMerchantId");
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    findTicketsMutation
+    const res = await findTicketsMutation
       .mutateAsync({
         phoneNumber: data.phoneNumber,
         eventName: data.eventName,
         ticketType: data.ticketType,
-      })
-      .then((transactions) => {
-        console.log(transactions);
       });
+    if(res){
+
+        console.log(res);
+        Router.push(`/transaction/${res[0]?.MerchantRequestID}`);
+
+    }
+      
+    
   };
   return (
     <Layout>
