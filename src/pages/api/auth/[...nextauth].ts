@@ -1,7 +1,6 @@
 import NextAuth, { Profile, type NextAuthOptions } from "next-auth";
 
 import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github";
 
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -26,10 +25,6 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GOOGLE_ID,
       clientSecret: env.GOOGLE_SECRET,
     }) as OAuthConfig<Profile>,
-    GitHubProvider({
-      clientId: env.GITHUB_ID,
-      clientSecret: env.GITHUB_SECRET,
-    }),
     // ...add more providers here
   ],
   debug: true,
