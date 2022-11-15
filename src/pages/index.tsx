@@ -4,20 +4,17 @@ import { useEffect } from "react";
 
 const Home: NextPage = () => {
   const router = useRouter();
-  useEffect(() => {
+  /*useEffect(() => {
     const token = localStorage.getItem("visited");
     if (token) {
       router.push("/events");
     } else {
       localStorage.setItem("visited", "true");
     }
-  }, []);
+  }, []);*/
   return (
     <>
-      <div
-        data-theme="light"
-        className="hero min-h-screen bg-[url('https://placeimg.com/1000/800/arch')]"
-      >
+      <div data-theme="light">
         <input type="checkbox" id="my-modal-3" className="modal-toggle" />
         <div className="modal">
           <div className="modal-box">
@@ -53,23 +50,31 @@ const Home: NextPage = () => {
             </div>
           </div>
         </div>
-        <div className="hero-overlay bg-opacity-60"></div>
-        <div className="hero-content text-center text-neutral-content">
-          <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
-            <p className="mb-5">
-              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-              excepturi exercitationem quasi. In deleniti eaque aut repudiandae
-              et a id nisi.
-            </p>
-            <label
-              htmlFor="my-modal-3"
-              className="btn modal-button btn-primary"
-            >
-              Get Started
-            </label>
+        <section className="bg-gray-50">
+          <div className="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
+            <div className="mx-auto max-w-xl text-center">
+              <h1 className="text-3xl m-2 font-extrabold sm:text-5xl">
+                We understand your ticketing needs.
+                <strong className="font-extrabold m-2 text-accent sm:block">
+                  Welcome to Hizitickets.
+                </strong>
+              </h1>
+
+              <p className="mt-4 sm:text-xl sm:leading-relaxed">
+                Home of fast, convinient and simple ticketing
+              </p>
+
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <label
+                  htmlFor="my-modal-3"
+                  className="btn modal-button block w-full rounded bg-accent px-12 py-3 text-sm font-medium text-white shadow hover:bg-gray-500 focus:outline-none focus:ring active:bg-red-500 sm:w-auto"
+                >
+                  Get Started
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </>
   );
