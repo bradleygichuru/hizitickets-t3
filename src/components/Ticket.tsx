@@ -1,4 +1,4 @@
-import logo from "../public/Untitled-1.svg";
+import logo from "../public/logo.svg";
 //import Pdf from 'react-to-pdf';
 import { Document, Page, StyleSheet, Image, Text } from "@react-pdf/renderer";
 import { NextPage } from "next";
