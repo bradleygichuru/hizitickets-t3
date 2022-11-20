@@ -57,7 +57,7 @@ const Home: NextPage = () => {
           </div>
         </div>
         <section className="bg-gray-50">
-          <div className=" bg-[url('../../public/background.svg')] mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
+          <div className="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
             <div className="mx-auto max-w-xl text-center bg-white">
               <h1 className="text-3xl m-2 font-extrabold sm:text-5xl">
                 We understand your ticketing needs.
