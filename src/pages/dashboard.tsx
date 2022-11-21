@@ -7,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
 import { z } from "zod";
-import { useSession } from "next-auth/react";
+import { useSession,signIn } from "next-auth/react";
 import LoginButton from "../components/LoginButton";
 
 let yourDate = new Date();
@@ -144,8 +144,7 @@ const DashBoard = () => {
     }
   };
   if (status == "unauthenticated") {
-    return <LoginButton />;
-  }
+    signIn();  }
 
   if (status != "authenticated") {
     return (
