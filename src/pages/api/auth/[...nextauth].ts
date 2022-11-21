@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_SECRET,
     }) as OAuthConfig<Profile>,
     // ...add more providers here
-  ],
+  ],pages:{signIn:"/auth/signin"},
   debug: true,
 };
 
