@@ -10,6 +10,7 @@ import logo from "../../../public/logo.svg"
 const SignIn = ({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  console.log(providers);
   return (
     <div className="grid h-screen place-items-center py-12 px-4 sm:px-6 lg:px-8">
       <Head>
