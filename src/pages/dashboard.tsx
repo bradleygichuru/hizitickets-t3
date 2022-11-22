@@ -8,8 +8,6 @@ import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
 import { z } from "zod";
 import { useSession,signIn } from "next-auth/react";
-import LoginButton from "../components/LoginButton";
-
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
@@ -46,6 +44,7 @@ const sorts = [
 ]; // TODO make sort types functional i.e work
 
 const DashBoard = () => {
+
   const [eventPoster, setEventPoster] = useState<File>();
   const [submissionStatus, setSubmissionStatus] = useState<string>();
   const [showToast, setShowToast] = useState<boolean>(false);

@@ -4,11 +4,14 @@ import { FcGoogle } from "react-icons/fc";
 import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import { CtxOrReq } from "next-auth/client/_utils";
+import {useRouter} from "next/router";
 import logo from "../../../public/logo.svg"
 const SignIn = ({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   console.log(providers);
+    const router = useRouter()
+
   return (
     <div className="grid h-screen place-items-center py-12 px-4 sm:px-6 lg:px-8">
       <Head>
@@ -25,7 +28,7 @@ const SignIn = ({
               ? Object.values(providers).map((provider) => (
                   <div key={provider.name}>
                     <button className="btn gap-2 bg-accent"
-                      onClick={() => signIn(provider.id)}
+                      onClick={() => signIn(provider.id,{ callbackUrl: router.query.callbackUrl })}
                     >
                     <FcGoogle/>
                       Sign in with {provider.name}
@@ -39,6 +42,7 @@ const SignIn = ({
   );
 };
 export const getServerSideProps = async (context: CtxOrReq | undefined) => {
+
   const providers = await getProviders();
   return {
     props: { providers },
