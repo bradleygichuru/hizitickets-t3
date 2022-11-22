@@ -28,7 +28,7 @@ const SignIn = ({
               ? Object.values(providers).map((provider) => (
                   <div key={provider.name}>
                     <button className="btn gap-2 bg-accent"
-                      onClick={() => signIn(provider.id,{ callbackUrl: router.query.callbackUrl })}
+                      onClick={() => signIn(provider.id,{ callbackUrl: router?.query?.callbackUrl?.toString() })}
                     >
                     <FcGoogle/>
                       Sign in with {provider.name}
