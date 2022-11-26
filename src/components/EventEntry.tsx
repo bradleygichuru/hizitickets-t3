@@ -7,7 +7,7 @@ export default function EventEntry(props: {
   console.log(props);
   return (
     <Link href={`/ticket/${props.eventName}`} passHref>
-      <div className="group relative p-0 m-3 mb-10 rounded-lg bg-black flex-auto">
+      <div className="group relative p-0 m-3 mb-10 rounded-lg bg-neutral flex-auto">
         <div className="w-full min-h-80  aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
           <img
             src={`${props.eventPosterUrl}`}
@@ -17,7 +17,7 @@ export default function EventEntry(props: {
         <div className="m-1 flex justify-between">
           <div>
             <h3 className="text-sm  rounded-lg p-1">
-              <a className="text-primary">
+              <a className="text-neutral-content">
                 <span
                   aria-hidden="true"
                   className=" absolute inset-0 font-sans text-sm font-bold "

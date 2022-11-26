@@ -8,7 +8,7 @@ const EventsPage: NextPage = () => {
   console.log(data);
   if (isLoading) {
     return (
-      <div className="bg-primary grid h-screen place-items-center">
+      <div className="bg-base-100 text-base-content grid h-screen place-items-center">
         <ReactLoading type="spin" color="#0000FF" height={100} width={50} />
       </div>
     );

@@ -47,26 +47,26 @@ export default function Nav() {
               className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <Link className="btn btn-ghost text-accent" href="/events">
-                  <a className="btn btn-ghost  text-accent">Events</a>
+                <Link className="btn btn-ghost text-primary" href="/events">
+                  <a className="btn btn-ghost  text-primary">Events</a>
                 </Link>
               </li>
               <li>
-                <Link className="btn btn-ghost text-accent" href="/dashboard">
-                  <a className="btn btn-ghost  text-accent">Dashboard</a>
+                <Link className="btn btn-ghost text-primary" href="/dashboard">
+                  <a className="btn btn-ghost  text-primary">Dashboard</a>
                 </Link>
               </li>
               <li tabIndex={0}>
-                <a className="btn btn-ghost  text-accent">History</a>
+                <a className="btn btn-ghost  text-primary">History</a>
                 <ul className="p-2 bg-base-100">
                   <li>
-                    <a className="btn btn-ghost  text-accent">Event history</a>
+                    <a className="btn btn-ghost  text-primary">Event history</a>
                   </li>
                 </ul>
               </li>
               <li>
-                <Link className="btn btn-ghost text-accent" href="/help">
-                  <a className="btn btn-ghost text-accent">Get Help</a>
+                <Link className="btn btn-ghost text-primary" href="/help">
+                  <a className="btn btn-ghost text-primary">Get Help</a>
                 </Link>
               </li>
             </ul>
@@ -78,17 +78,17 @@ export default function Nav() {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal p-0">
             <li>
-              <Link className="btn btn-ghost text-accent" href="/dashboard">
-                <a className="btn btn-ghost  text-accent">Dashboard</a>
+              <Link className="btn btn-ghost text-primary" href="/dashboard">
+                <a className="btn btn-ghost  text-primary">Dashboard</a>
               </Link>
             </li>
             <li>
-              <Link className="btn btn-ghost text-accent" href="/events">
-                <a className="btn btn-ghost  text-accent">Events</a>
+              <Link className="btn btn-ghost text-primary" href="/events">
+                <a className="btn btn-ghost  text-primary">Events</a>
               </Link>
             </li>
             <li tabIndex={0}>
-              <a className="btn btn-ghost text-accent">
+              <a className="btn btn-ghost text-primary">
                 History
                 <svg
                   className="fill-current"
@@ -102,13 +102,13 @@ export default function Nav() {
               </a>
               <ul className="p-2 bg-base-100">
                 <li>
-                  <a className="btn btn-ghost  text-accent">Event history</a>
+                  <a className="btn btn-ghost  text-primary">Event history</a>
                 </li>
               </ul>
             </li>
             <li>
-              <Link className="btn btn-ghost text-accent" href="/help">
-                <a className="btn btn-ghost  text-accent">Get Help</a>
+              <Link className="btn btn-ghost text-primary" href="/help">
+                <a className="btn btn-ghost  text-primary">Get Help</a>
               </Link>
             </li>
           </ul>

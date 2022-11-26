@@ -17,7 +17,7 @@ export default function Section(props: { data: Event[]; sectionName: string }) {
           {props.sectionName}
         </span>
       </div>
-      <div className="bg-primary rounded-xl p-3 grid grid-cols-1 sm:grid sm:grid-rows-1 sm:grid-cols-4 justify-center  sm:ml-24 sm:mt-20 mt-20 w-auto ml-10 mr-10 ">
+      <div className="bg-base-100 rounded-xl p-3 grid grid-cols-1 sm:grid sm:grid-rows-1 sm:grid-cols-4 justify-center  sm:ml-24 sm:mt-20 mt-20 w-auto ml-10 mr-10 ">
         {props.data.map((val, index) => {
           return (
             <EventEntry

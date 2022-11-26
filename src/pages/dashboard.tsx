@@ -147,7 +147,7 @@ const DashBoard = () => {
 
   if (status != "authenticated") {
     return (
-      <div className=" bg-primary grid h-screen place-items-center">
+      <div className=" bg-base-100 grid h-screen place-items-center">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <span className="text-black">Authenticating</span>
       </div>
@@ -155,7 +155,7 @@ const DashBoard = () => {
   }
   if (isLoading) {
     return (
-      <div className="bg-primary grid h-screen place-items-center">
+      <div className="bg-base-100 grid text-base-content h-screen place-items-center">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
       </div>
     );
@@ -166,7 +166,7 @@ const DashBoard = () => {
         <div className="grid grid-cols-1 sm:ml-24 p-1 h-screen">
           <label
             htmlFor="my-modal-3"
-            className="my-1 btn modal-button bg-accent hover:bg-indigo-700"
+            className="my-1 btn rounded modal-button btn-accent hover:btn-accent-focus"
           >
             Add Event
             <BiAddToQueue className="w-6 h-6 ml-6" />
@@ -198,7 +198,7 @@ const DashBoard = () => {
                     />
                     {errors.eventName && (
                       <label className="label">
-                        <span className="text-red-900">
+                        <span className="text-error-content">
                           This field is required
                         </span>
                       </label>
@@ -215,7 +215,7 @@ const DashBoard = () => {
                     />
                     {errors.eventDescription && (
                       <label className="label">
-                        <span className="text-red-900">
+                        <span className="text-error-content">
                           This field is required
                         </span>
                       </label>
@@ -232,7 +232,7 @@ const DashBoard = () => {
                     />
                     {errors.eventLocation && (
                       <label className="label">
-                        <span className="text-red-900">
+                        <span className="text-error-content">
                           This field is required
                         </span>
                       </label>
@@ -436,7 +436,7 @@ const DashBoard = () => {
                     {/* 
                 {errors.eventTicketTypes && (
                   <label className="label">
-                    <span className="text-red-900">This field is required</span>
+                    <span className="text-error-content">This field is required</span>
                   </label>
                 )} */}
 
@@ -457,7 +457,7 @@ const DashBoard = () => {
 
                     {errors.eventMaxTickets && (
                       <label className="label">
-                        <span className="text-red-900">
+                        <span className="text-error-content">
                           This field is required
                         </span>
                       </label>
@@ -478,7 +478,7 @@ const DashBoard = () => {
                     />
                     {errors.eventDate && (
                       <label className="label">
-                        <span className="text-red-900">
+                        <span className="text-error-content">
                           This field is required
                         </span>
                       </label>
@@ -536,7 +536,7 @@ const DashBoard = () => {
             </div>
           )}
           {isSubmitting && (
-            <div className="bg-primary grid modal place-items-center">
+            <div className="bg-base-100 grid modal place-items-center">
               <ReactLoading
                 type="spin"
                 color="#0000FF"
@@ -546,7 +546,7 @@ const DashBoard = () => {
               submiting
             </div>
           )}
-          <div className="flex justify-self-start bg-primary m-2.5 rounded-lg ">
+          <div className="flex justify-self-start bg-base-100 m-2.5 rounded-lg ">
             <div className="input-group mx-auto">
               <input
                 type="text"
@@ -600,7 +600,7 @@ const DashBoard = () => {
             </div>
           </div>
 
-          <div className="p-3 grid grid-cols-2 bg-primary m-5 rounded-3xl sm:grid sm:auto-cols-auto mx-auto">
+          <div className="p-3 grid grid-cols-2 bg-base-100 m-5 rounded-3xl sm:grid sm:auto-cols-auto mx-auto">
             {data?.events.map((event, index) => {
               let ticketNumbers = 0;
               let revenue = 0;
@@ -612,7 +612,7 @@ const DashBoard = () => {
                 <>
                   <div
                     key={index}
-                    className="group relative p-0 m-3 mb-40 rounded-lg bg-black lg:w-41 sm:mb-16 sm:w-52"
+                    className="group relative p-0 m-3 mb-40 rounded-lg bg-neutral lg:w-41 sm:mb-16 sm:w-52"
                   >
                     <div className="min-h-80 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
                       <img
@@ -623,7 +623,7 @@ const DashBoard = () => {
                     <div className="m-1 flex justify-between">
                       <div>
                         <h3 className="text-sm  rounded-lg p-1">
-                          <a className="text-primary">
+                          <a className="text-neutral-content">
                             <span
                               aria-hidden="true"
                               className=" absolute inset-0 font-sans text-sm font-bold "

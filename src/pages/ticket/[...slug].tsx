@@ -76,7 +76,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
 
   if (isLoading) {
     return (
-      <div className="bg-primary grid h-screen place-items-center">
+      <div className="bg-base-100 text-base-content grid h-screen place-items-center">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
       </div>
     );
@@ -87,7 +87,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
       <div className=" sm:ml-20 sm:m-4 ">
         <div className="max-w-2xl mx-auto grid items-center grid-cols-1 px-6 gap-y-16 gap-x-8 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8 lg:grid-cols-2">
           <div className="grid sm:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8 ">
-            <div className="group relative p-0 m-3 mb-16 rounded-lg bg-black flex-auto">
+            <div className="group relative p-0 m-3 mb-16 rounded-lg bg-neutral flex-auto">
               <div className="w-full min-h-80  aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
                 <img
                   src={data?.event!.EventPosterUrl}
@@ -97,7 +97,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               <div className="m-1 flex justify-between">
                 <div>
                   <h3 className="text-sm  rounded-lg p-1">
-                    <a className="text-primary">
+                    <a className="text-neutral-content">
                       <span
                         aria-hidden="true"
                         className="absolute inset-0 font-sans text-sm font-bold"
@@ -186,7 +186,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
 
               <button
                 className={
-                  isSubmitting ? "btn loading btn-disabled gap-2" : "btn gap-2"
+                  isSubmitting ? "btn loading btn-disabled gap-2 rounded" : "btn rounded btn-accent gap-2"
                 }
                 disabled={isSubmitting ? true : false}
                 type="submit"
@@ -198,10 +198,10 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
           </div>
 
           <div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-extrabold tracking-tight text-base-content sm:text-4xl">
               Event Description
             </h2>
-            <p className="mt-4 text-gray-500">
+            <p className="mt-4 text-base-content">
               {data?.event!.EventDescription}
             </p>
 
@@ -211,8 +211,8 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                   key={feature.name}
                   className="border-t border-gray-200 pt-0"
                 >
-                  <dt className="font-medium text-gray-900">{feature.name}</dt>
-                  <dd className="mb-20 text-sm text-gray-500">
+                  <dt className="font-medium text-base-content">{feature.name}</dt>
+                  <dd className="mb-20 text-sm text-base-content">
                     {data?.event!.EventDate.toDateString()}
                   </dd>
                 </div>

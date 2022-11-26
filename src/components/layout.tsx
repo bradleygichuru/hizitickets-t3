@@ -5,8 +5,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <main
-        className="my-0 h-screen overflow-scroll bg-card"
-        data-theme="light"
+        className="my-0 h-screen overflow-scroll bg-base-200"
+        data-theme="corporate"
       >
         <Nav />
         {children}
