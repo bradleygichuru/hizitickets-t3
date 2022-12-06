@@ -51,7 +51,7 @@ export const ticketRouter = createRouter()
           PartyA: parseInt(`254${input.mobileNumber}`),
           PartyB: businessShortCode,
           PhoneNumber: parseInt(`254${input.mobileNumber}`),
-          CallBackURL: `${env.CALLBACK_URL}/api/trpc/ticket.callback?batch=1`,
+          CallBackURL: `hizitickets.com/api/trpc/ticket.callback?batch=1`,
           AccountReference: "2ddadaw",
           TransactionDesc: "Ticket Purchase",
         },

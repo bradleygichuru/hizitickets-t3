@@ -5,13 +5,14 @@ import { eventRouter } from "./event";
 import { protectedExampleRouter } from "./protected-example-router";
 import { ticketRouter } from "./ticket";
 import { transactionRouter } from "./transaction";
-
+import {adminRouter} from "./admin";
 export const appRouter = createRouter()
   .transformer(superjson)
   .merge("event.", eventRouter)
   .merge("ticket.", ticketRouter)
   .merge("transactions.", transactionRouter)
-  .merge("question.", protectedExampleRouter);
+  .merge("question.", protectedExampleRouter)
+.merge("admin.",adminRouter);
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

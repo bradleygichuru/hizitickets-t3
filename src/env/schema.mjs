@@ -18,7 +18,6 @@ NEXTAUTH_URL: z.preprocess(
   ),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
-  CALLBACK_URL: z.string().url(),
 });
 
 /**

@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import logo from "../../public/logo.svg"
-import background from "../../public/background.svg";
 const Home: NextPage = () => {
   const router = useRouter();
   /*useEffect(() => {
