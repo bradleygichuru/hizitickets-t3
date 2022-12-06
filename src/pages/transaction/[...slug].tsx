@@ -100,7 +100,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   }, []);
   if (valid == false) {
     return (
-      <div className="bg-primary grid h-screen place-items-center">
+      <div className="bg-base-100 grid h-screen place-items-center">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <p className="text-black"> confirming transaction</p>
       </div>
