@@ -85,7 +85,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
             setTransactionId(res.transactionId);
 
             generateTicketsMutation
-              .mutateAsync({ transactionId: res?.transactionId })
+              .mutateAsync({ transactionId: res?.transactionId as string })
               .then((res) => {
                 setTransaction(res?.transaction);
               });
