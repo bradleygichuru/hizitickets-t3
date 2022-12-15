@@ -58,7 +58,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
           }
         },
       }
-    )};
+    )}
 
     console.log(formData);
   };
