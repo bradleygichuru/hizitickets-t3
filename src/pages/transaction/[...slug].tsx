@@ -23,14 +23,14 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
       <div key={index} className="card m-3 w-96 bg-base-100 shadow-xl">
         <div className="card-body  items-center text-center">
           <h3 className="card-title">
-            Your {transaction?.ticketTypeTitle!} ticket
+            Your {transaction?.ticketTypeTitle} ticket
           </h3>
           {val.Scanned && (
-            <div className="alert m-2 alert-warning shadow-lg">
+            <div className="alert alert-warning m-2 shadow-lg">
               <div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="stroke-current flex-shrink-0 h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0 stroke-current"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -54,11 +54,11 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
               key={index}
               document={
                 <TicketTemplate
-                  eventName={transaction?.event.EventName!}
-                  imageData={val.ImageData!}
+                  eventName={transaction?.event?.EventName}
+                  imageData={val?.ImageData}
                   hash={val.TicketHash}
-                  date={transaction?.event.EventDate!}
-                  type={transaction?.ticketTypeTitle!}
+                  date={transaction?.event?.EventDate}
+                  type={transaction?.ticketTypeTitle}
                 />
               }
               fileName={`ticket${index}.pdf`}
@@ -69,10 +69,9 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
     );
   });
 
-  const checkTransactioMutation = trpc.useMutation(
-    "transactions.checkTransaction"
-  );
-  const generateTicketsMutation = trpc.useMutation("ticket.generateTickets");
+  const checkTransactioMutation =
+    trpc.transaction.checkTransaction.useMutation();
+  const generateTicketsMutation = trpc.ticket.generateTickets.useMutation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -86,7 +85,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
             setTransactionId(res.transactionId);
 
             generateTicketsMutation
-              .mutateAsync({ transactionId: res.transactionId! })
+              .mutateAsync({ transactionId: res?.transactionId })
               .then((res) => {
                 setTransaction(res?.transaction);
               });
@@ -100,7 +99,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   }, []);
   if (valid == false) {
     return (
-      <div className="bg-base-100 grid h-screen place-items-center">
+      <div className="grid h-screen place-items-center bg-base-100">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <p className="text-black"> confirming transaction</p>
       </div>
@@ -108,7 +107,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   }
   if (generateTicketPdfs == undefined) {
     return (
-      <div className="bg-primary grid h-screen place-items-center">
+      <div className="grid h-screen place-items-center bg-primary">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <p className="text-black">generating tickets</p>
       </div>
@@ -116,10 +115,10 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   }
   return (
     <div data-theme="light">
-      <h2 className="text-3xl m-2 text-extrabold text-center">
+      <h2 className="text-extrabold m-2 text-center text-3xl">
         Download your tickets
       </h2>
-      <div className="overflow-auto  h-screen flex-wrap flex flex-row">
+      <div className="flex  h-screen flex-row flex-wrap overflow-auto">
         {generateTicketPdfs}
       </div>
     </div>

@@ -6,7 +6,7 @@ export default function LoginButton() {
     return (
       <div>
         Signed in as {session?.user?.email}
-        <button className="btn btn-primary" onClick={() => signOut()}>
+        <button className="btn-primary btn" onClick={() => signOut()}>
           Sign out
         </button>
       </div>
@@ -14,7 +14,7 @@ export default function LoginButton() {
   }
   return (
     <div className="grid h-screen place-items-center">
-      <button className="btn btn-primary" onClick={() => signIn()}>
+      <button className="btn-primary btn" onClick={() => signIn()}>
         Sign in
       </button>
     </div>

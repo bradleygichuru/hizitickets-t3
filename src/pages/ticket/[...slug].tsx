@@ -23,7 +23,7 @@ const features = [
 
 const Ticket: React.FC<{ slug: string }> = (props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const buyMutation = trpc.useMutation("ticket.buyTicket");
+  const buyMutation = trpc.ticket.buyTicket.useMutation();
 
   const {
     register,
@@ -32,7 +32,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   } = useForm<formSchema>();
 
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
-    const searchObj = data?.event!.ticketTypes.find(
+    const searchObj = data?.event?.ticketTypes.find(
       (type) => type.title == formData.ticketTypeTitle
     );
     setIsSubmitting(true);
@@ -41,8 +41,8 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
         mobileNumber: formData.mobileNumber,
         quantity: formData.quantity,
         ticketTypeTitle: formData.ticketTypeTitle,
-        eventName: data?.event!.EventName!,
-        totalAmount: searchObj?.price! * formData.quantity,
+        eventName: data?.event?.EventName,
+        totalAmount: searchObj?.price * formData.quantity,
       },
       {
         onSuccess(data) {
@@ -59,13 +59,12 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
     console.log(formData);
   };
 
-  const { data, isLoading, error } = trpc.useQuery([
-    "event.getEvent",
-    { eventName: props.slug },
-  ]);
+  const { data, isLoading, error } = trpc.events.getEvent.useQuery({
+    eventName: props.slug,
+  });
 
   const quantitys = Array.from(
-    { length: data?.event!.EventMaxTickets! },
+    { length: data?.event?.EventMaxTickets },
     (_, i) => i + 1
   );
 
@@ -76,7 +75,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
 
   if (isLoading) {
     return (
-      <div className="bg-base-100 text-base-content grid h-screen place-items-center">
+      <div className="grid h-screen place-items-center bg-base-100 text-base-content">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
       </div>
     );
@@ -84,42 +83,42 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
 
   return (
     <Layout>
-      <div className=" sm:ml-20 sm:m-4 ">
-        <div className="max-w-2xl mx-auto grid items-center grid-cols-1 px-6 gap-y-16 gap-x-8 sm:px-6 sm:py-6 lg:max-w-7xl lg:px-8 lg:grid-cols-2">
-          <div className="grid sm:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 lg:gap-8 ">
-            <div className="group relative p-0 m-3 mb-16 rounded-lg bg-neutral flex-auto">
-              <div className="w-full min-h-80  aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+      <div className=" sm:m-4 sm:ml-20 ">
+        <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 px-6 sm:px-6 sm:py-6 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 ">
+            <div className="group relative m-3 mb-16 flex-auto rounded-lg bg-neutral p-0">
+              <div className="min-h-80 aspect-w-1  aspect-h-1 lg:aspect-none w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
                 <img
-                  src={data?.event!.EventPosterUrl}
-                  className="object-center object-cover lg:w-full lg:h-full" //TODO use next/image here
+                  src={data?.event?.EventPosterUrl}
+                  className="object-cover object-center lg:h-full lg:w-full" //TODO use next/image here
                 />
               </div>
               <div className="m-1 flex justify-between">
                 <div>
-                  <h3 className="text-sm  rounded-lg p-1">
+                  <h3 className="rounded-lg  p-1 text-sm">
                     <a className="text-neutral-content">
                       <span
                         aria-hidden="true"
                         className="absolute inset-0 font-sans text-sm font-bold"
                       />
-                      {data!.event!.EventName}
+                      {data?.event?.EventName}
                     </a>
                   </h3>
                 </div>
               </div>
             </div>
           </div>
-          <div className="relative grid lg:grid-cols-2 grid-cols-1  gap-4 sm:gap-6 lg:gap-8 ">
+          <div className="relative grid grid-cols-1 gap-4  sm:gap-6 lg:grid-cols-2 lg:gap-8 ">
             <form className="form-control" onSubmit={handleSubmit(onSubmit)}>
               <label className="label">
                 <span className="label-text">select ticket type</span>
               </label>
               <select
                 {...register("ticketTypeTitle", { required: true })}
-                className="select select-bordered "
+                className="select-bordered select "
                 placeholder="select ticket"
               >
-                {data?.event!.ticketTypes.map((val, index) => (
+                {data?.event?.ticketTypes.map((val, index) => (
                   <option key={index} value={val.title}>
                     {`${val.title} ${val.price} ksh`}
                   </option>
@@ -141,7 +140,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                   required: true,
                   valueAsNumber: true,
                 })}
-                className="select select-bordered "
+                className="select-bordered select "
                 placeholder="1"
               >
                 {quantitys.map((quantity, quantityIdx) => (
@@ -152,7 +151,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               </select>
               <label className="label">
                 {errors.quantity && (
-                  <span className="text-red-50 label-text-alt">
+                  <span className="label-text-alt text-red-50">
                     {" "}
                     This field is required
                   </span>
@@ -172,12 +171,12 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                     required: true,
                     valueAsNumber: true,
                   })}
-                  className="input input-bordered"
+                  className="input-bordered input"
                 />
               </label>
               <label className="label">
                 {errors.mobileNumber && (
-                  <span className="text-red-50 label-text-alt">
+                  <span className="label-text-alt text-red-50">
                     {" "}
                     This field is required
                   </span>
@@ -186,7 +185,9 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
 
               <button
                 className={
-                  isSubmitting ? "btn loading btn-disabled gap-2 rounded" : "btn rounded btn-accent gap-2"
+                  isSubmitting
+                    ? "btn-disabled loading btn gap-2 rounded"
+                    : "btn-accent btn gap-2 rounded"
                 }
                 disabled={isSubmitting ? true : false}
                 type="submit"
@@ -202,7 +203,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               Event Description
             </h2>
             <p className="mt-4 text-base-content">
-              {data?.event!.EventDescription}
+              {data?.event?.EventDescription}
             </p>
 
             <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
@@ -211,9 +212,11 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                   key={feature.name}
                   className="border-t border-gray-200 pt-0"
                 >
-                  <dt className="font-medium text-base-content">{feature.name}</dt>
+                  <dt className="font-medium text-base-content">
+                    {feature.name}
+                  </dt>
                   <dd className="mb-20 text-sm text-base-content">
-                    {data?.event!.EventDate.toDateString()}
+                    {data?.event?.EventDate.toDateString()}
                   </dd>
                 </div>
               ))}

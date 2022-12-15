@@ -4,7 +4,6 @@ import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { BiHelpCircle, BiHomeHeart, BiStats, BiHistory } from "react-icons/bi";
 import logo from "../../public/logo.svg";
 export default function Nav() {
   const [isDashboard, setIsDashboard] = useState<boolean>(false);
@@ -26,7 +25,7 @@ export default function Nav() {
         </Head>
         <div className="navbar-start">
           <div className="dropdown">
-            <label tabIndex={0} className="btn btn-ghost lg:hidden">
+            <label tabIndex={0} className="btn-ghost btn lg:hidden">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
@@ -44,71 +43,44 @@ export default function Nav() {
             </label>
             <ul
               tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
             >
               <li>
-                <Link className="btn btn-ghost text-primary" href="/events">
-                  <a className="btn btn-ghost  text-primary">Events</a>
+                <Link className="btn-ghost btn text-primary" href="/events">
+                  Events
                 </Link>
               </li>
               <li>
-                <Link className="btn btn-ghost text-primary" href="/dashboard">
-                  <a className="btn btn-ghost  text-primary">Dashboard</a>
+                <Link className="btn-ghost btn text-primary" href="/dashboard">
+                  Dashboard
                 </Link>
               </li>
-              <li tabIndex={0}>
-                <a className="btn btn-ghost  text-primary">History</a>
-                <ul className="p-2 bg-base-100">
-                  <li>
-                    <a className="btn btn-ghost  text-primary">Event history</a>
-                  </li>
-                </ul>
-              </li>
               <li>
-                <Link className="btn btn-ghost text-primary" href="/help">
-                  <a className="btn btn-ghost text-primary">Get Help</a>
+                <Link className="btn-ghost btn text-primary" href="/help">
+                  Get Help
                 </Link>
               </li>
             </ul>
           </div>
-          <a className="btn btn-ghost normal-case text-xl">
+          <Link href="/" className="btn-ghost btn text-xl normal-case">
             <Image src={logo} alt="hizitickets" />
-          </a>
+          </Link>
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal p-0">
             <li>
-              <Link className="btn btn-ghost text-primary" href="/dashboard">
-                <a className="btn btn-ghost  text-primary">Dashboard</a>
+              <Link className="btn-ghost btn text-primary" href="/dashboard">
+                Dashboard
               </Link>
             </li>
             <li>
-              <Link className="btn btn-ghost text-primary" href="/events">
-                <a className="btn btn-ghost  text-primary">Events</a>
+              <Link className="btn-ghost btn text-primary" href="/events">
+                Events
               </Link>
             </li>
-            <li tabIndex={0}>
-              <a className="btn btn-ghost text-primary">
-                History
-                <svg
-                  className="fill-current"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-                </svg>
-              </a>
-              <ul className="p-2 bg-base-100">
-                <li>
-                  <a className="btn btn-ghost  text-primary">Event history</a>
-                </li>
-              </ul>
-            </li>
             <li>
-              <Link className="btn btn-ghost text-primary" href="/help">
-                <a className="btn btn-ghost  text-primary">Get Help</a>
+              <Link className="btn-ghost btn text-primary" href="/help">
+                Get Help
               </Link>
             </li>
           </ul>
@@ -116,14 +88,14 @@ export default function Nav() {
         <div className="navbar-end">
           {isDashboard && (
             <div className="dropdown dropdown-end">
-              <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+              <label tabIndex={0} className="btn-ghost btn-circle avatar btn">
                 <div className="w-10 rounded-full">
                   <img src={`${session?.user?.image} `} alt="profile image" />
                 </div>
               </label>
               <ul
                 tabIndex={0}
-                className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52"
+                className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
               >
                 <li>
                   <a

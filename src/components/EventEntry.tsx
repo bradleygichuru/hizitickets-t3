@@ -6,24 +6,22 @@ export default function EventEntry(props: {
 }) {
   console.log(props);
   return (
-    <Link href={`/ticket/${props.eventName}`} passHref>
-      <div className="group relative p-0 m-3 mb-10 rounded-lg bg-neutral flex-auto">
-        <div className="w-full min-h-80  aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+    <Link href={`/ticket/${props.eventName}`} passHref >
+      <div className="group relative m-3 mb-10 flex-auto rounded-lg bg-neutral p-0">
+        <div className="min-h-80 aspect-w-1  aspect-h-1 lg:aspect-none w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
           <img
             src={`${props.eventPosterUrl}`}
-            className="w-full h-full object-center object-cover lg:w-full lg:h-full" //TODO use next/image here
+            className="h-full w-full object-cover object-center lg:h-full lg:w-full" //TODO use next/image here
           />
         </div>
         <div className="m-1 flex justify-between">
           <div>
-            <h3 className="text-sm  rounded-lg p-1">
-              <a className="text-neutral-content">
+            <h3 className="rounded-lg text-neutral-content p-1 text-sm">
                 <span
                   aria-hidden="true"
                   className=" absolute inset-0 font-sans text-sm font-bold "
                 />
                 {props.eventName}
-              </a>
             </h3>
           </div>
         </div>

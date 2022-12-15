@@ -12,8 +12,8 @@ import Link from "next/link";
 const HelpPage: NextPage = () => {
   return (
     <Layout>
-      <div className="bg-primary my-2 h-screen mx-2 rounded p-10">
-        <h1 className="font-medium grid text-accent leading-tight text-5xl mx-2  mb-2">
+      <div className="my-2 mx-2 h-screen rounded bg-base-100 p-10">
+        <h1 className="mx-2 mb-2 grid text-5xl font-medium leading-tight text-accent">
           FAQ
         </h1>
         <Accordion allowToggle p="10px">
@@ -30,8 +30,8 @@ const HelpPage: NextPage = () => {
               <div className="divider"></div>
               <p>
                 1. Click on the event you wish to purchase tickets for on the{" "}
-                <Link href="/events" passHref>
-                  <a className="link link-primary">events page</a>
+                <Link  className="link-primary link" href="/events" passHref>
+                  events page
                 </Link>
                 <br></br>
                 2. Purchase tickets on the page you will be redirected to and
@@ -55,8 +55,8 @@ const HelpPage: NextPage = () => {
             <AccordionPanel mb={4} pb={4}>
               <div className="divider"></div>
               Regenerate lost tickets{" "}
-              <Link href="/recoverticket" passHref>
-                <a className="link link-primary">here</a>
+              <Link className="link-primary link" href="/recoverticket" passHref>
+                here
               </Link>
             </AccordionPanel>
           </AccordionItem>

@@ -7,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
 import { z } from "zod";
-import { useSession,signIn } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
@@ -44,7 +44,6 @@ const sorts = [
 ]; // TODO make sort types functional i.e work
 
 const DashBoard = () => {
-
   const [eventPoster, setEventPoster] = useState<File>();
   const [submissionStatus, setSubmissionStatus] = useState<string>();
   const [showToast, setShowToast] = useState<boolean>(false);
@@ -62,8 +61,8 @@ const DashBoard = () => {
   } = useForm<FormSchemaType>();
   console.log(status);
   const watchAllFields = watch();
-  const { data, isLoading } = trpc.useQuery(
-    ["event.getUserEvents", { eventOrganizer: session?.user?.name! }],
+  const { data, isLoading } = trpc.events.getUserEvents.useQuery(
+    { eventOrganizer: session?.user?.name as string },
     {
       onSuccess(data) {
         console.log(data);
@@ -71,7 +70,7 @@ const DashBoard = () => {
     }
   ); //TODO only execute query if session is present
   /*  console.log("Fields",watchAllFields); */
-  const addEventMutation = trpc.useMutation("event.addEvent");
+  const addEventMutation = trpc.events.addEvent.useMutation();
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log(data);
@@ -112,6 +111,7 @@ const DashBoard = () => {
             eventName: data.eventName,
             eventDate: data.eventDate,
             eventDescription: data.eventDescription,
+
             eventicketTypesParsed: eventicketTypes.filter((type) => {
               if (type.title.split(" ")[0] != "e.g" && type.title.length != 0) {
                 console.log(type);
@@ -143,11 +143,12 @@ const DashBoard = () => {
     }
   };
   if (status == "unauthenticated") {
-    signIn();  }
+    signIn();
+  }
 
   if (status != "authenticated") {
     return (
-      <div className=" bg-base-100 grid h-screen place-items-center">
+      <div className=" grid h-screen place-items-center bg-base-100">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <span className="text-black">Authenticating</span>
       </div>
@@ -155,7 +156,7 @@ const DashBoard = () => {
   }
   if (isLoading) {
     return (
-      <div className="bg-base-100 grid text-base-content h-screen place-items-center">
+      <div className="grid h-screen place-items-center bg-base-100 text-base-content">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
       </div>
     );
@@ -163,22 +164,22 @@ const DashBoard = () => {
   if (status == "authenticated") {
     return (
       <Layout>
-        <div className="grid grid-cols-1 sm:ml-24 p-1 h-screen">
+        <div className="grid h-screen grid-cols-1 p-1 sm:ml-24">
           <label
             htmlFor="my-modal-3"
-            className="my-1 btn rounded modal-button btn-accent hover:btn-accent-focus"
+            className="modal-button hover:btn-accent-focus btn-accent btn my-1 rounded"
           >
             Add Event
-            <BiAddToQueue className="w-6 h-6 ml-6" />
+            <BiAddToQueue className="ml-6 h-6 w-6" />
           </label>
           <input type="checkbox" id="my-modal-3" className="modal-toggle" />
           {!isSubmitting && (
             <div className="modal">
               <div className="modal-box relative max-w-md">
-                <h3 className="font-bold text-lg">Add Event</h3>
+                <h3 className="text-lg font-bold">Add Event</h3>
                 <label
                   htmlFor="my-modal-3"
-                  className="btn btn-sm btn-circle absolute right-2 top-2"
+                  className="btn-sm btn-circle btn absolute right-2 top-2"
                 >
                   ✕
                 </label>
@@ -191,7 +192,7 @@ const DashBoard = () => {
                       Event name
                     </label>
                     <input
-                      className="m-2 input input-bordered w-full max-w-xs"
+                      className="input-bordered input m-2 w-full max-w-xs"
                       {...register("eventName", { required: true })}
                       id="eventName"
                       placeholder="event name "
@@ -208,7 +209,7 @@ const DashBoard = () => {
                       Event description
                     </label>
                     <textarea
-                      className="m-2 textarea textarea-bordered"
+                      className="textarea-bordered textarea m-2"
                       {...register("eventDescription", { required: true })}
                       id="eventDescription"
                       placeholder="event description ............"
@@ -225,7 +226,7 @@ const DashBoard = () => {
                       Event location
                     </label>
                     <input
-                      className="m-2 input input-bordered w-full max-w-xs"
+                      className="input-bordered input m-2 w-full max-w-xs"
                       {...register("eventLocation", { required: true })}
                       id="eventLocation"
                       placeholder="event location ............"
@@ -249,16 +250,16 @@ const DashBoard = () => {
                 /> */}
 
                     <div className="dropdown">
-                      <label tabIndex={0} className="btn btn-outline m-1">
+                      <label tabIndex={0} className="btn-outline btn m-1">
                         Edit ticket type 1
                       </label>
 
                       <ul
                         tabIndex={0}
-                        className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
                       >
                         {" "}
-                        <div className="flex m-2 flex-col border-2 border-neutral rounded-lg">
+                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
                           <label tabIndex={0} className="label m-1">
                             Ticket title
                           </label>
@@ -268,7 +269,7 @@ const DashBoard = () => {
                             placeholder="e.g Regular"
                             id="ticketType1Name"
                             defaultValue={"e.g regular"}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Price
@@ -280,7 +281,7 @@ const DashBoard = () => {
                             })}
                             placeholder="Price"
                             defaultValue={0}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Purchase Deadline
@@ -291,20 +292,20 @@ const DashBoard = () => {
                               valueAsDate: true,
                             })}
                             placeholder="Deadline"
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                         </div>
                       </ul>
                     </div>
                     <div className="dropdown">
-                      <label tabIndex={0} className="btn btn-outline m-1 ">
+                      <label tabIndex={0} className="btn-outline btn m-1 ">
                         Edit ticket type 2
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
                       >
-                        <div className="flex m-2 flex-col border-2 border-neutral rounded-lg">
+                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
                           <label tabIndex={0} className="label m-1">
                             Ticket title
                           </label>
@@ -313,7 +314,7 @@ const DashBoard = () => {
                             {...register("ticketType2Name")}
                             placeholder="e.g Vip"
                             defaultValue={"e.g Vip"}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Price
@@ -324,7 +325,7 @@ const DashBoard = () => {
                             })}
                             defaultValue={0}
                             placeholder="Price"
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Purchase Deadline
@@ -336,20 +337,20 @@ const DashBoard = () => {
                             })}
                             placeholder="Deadline"
                             defaultValue={yourDate.toISOString().split("T")[0]}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                         </div>
                       </ul>
                     </div>
                     <div className="dropdown">
-                      <label tabIndex={0} className="btn btn-outline m-1 ">
+                      <label tabIndex={0} className="btn-outline btn m-1 ">
                         Edit ticket type 3
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
                       >
-                        <div className="flex m-2 flex-col border-2 border-neutral rounded-lg">
+                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
                           <label tabIndex={0} className="label m-1">
                             Ticket title
                           </label>
@@ -358,7 +359,7 @@ const DashBoard = () => {
                             {...register("ticketType3Name")}
                             placeholder="e.g Group"
                             defaultValue={"e.g Group"}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Price
@@ -370,7 +371,7 @@ const DashBoard = () => {
                             })}
                             defaultValue={0}
                             placeholder="Price"
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Purchase deadline
@@ -382,20 +383,20 @@ const DashBoard = () => {
                             })}
                             placeholder="Deadline"
                             defaultValue={yourDate.toISOString().split("T")[0]}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                         </div>
                       </ul>
                     </div>
                     <div className="dropdown">
-                      <label tabIndex={0} className="btn btn-outline m-1 ">
+                      <label tabIndex={0} className="btn-outline btn m-1 ">
                         Edit ticket type 4
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
                       >
-                        <div className="flex m-2 flex-col border-2 border-neutral rounded-lg">
+                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
                           <label tabIndex={0} className="label m-1">
                             Ticket title
                           </label>
@@ -404,7 +405,7 @@ const DashBoard = () => {
                             placeholder="e.g Advance Ticket"
                             {...register("ticketType4Name")}
                             defaultValue={"e.g Group"}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Price
@@ -416,7 +417,7 @@ const DashBoard = () => {
                             })}
                             defaultValue={0}
                             placeholder="Price"
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                           <label tabIndex={0} className="label m-1">
                             Purchase deadline
@@ -428,7 +429,7 @@ const DashBoard = () => {
                             })}
                             placeholder="Deadline"
                             defaultValue={yourDate.toISOString().split("T")[0]}
-                            className="m-2 input input-bordered "
+                            className="input-bordered input m-2 "
                           />
                         </div>
                       </ul>
@@ -445,7 +446,7 @@ const DashBoard = () => {
                     </label>
 
                     <input
-                      className="m-2 input input-bordered w-full max-w-xs"
+                      className="input-bordered input m-2 w-full max-w-xs"
                       {...register("eventMaxTickets", {
                         required: true,
                         valueAsNumber: true,
@@ -467,7 +468,7 @@ const DashBoard = () => {
                       Event date
                     </label>
                     <input
-                      className="m-2 input input-bordered w-full max-w-xs"
+                      className="input-bordered input m-2 w-full max-w-xs"
                       {...register("eventDate", {
                         required: true,
                         valueAsDate: true,
@@ -505,7 +506,7 @@ const DashBoard = () => {
                           <div className="flex text-sm text-gray-600">
                             <label
                               htmlFor="file-upload"
-                              className="relative cursor-pointer rounded-md l font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                              className="l relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
                             >
                               <span>Upload a file</span>
                               <input
@@ -527,7 +528,7 @@ const DashBoard = () => {
                       </div>
                     </div>
 
-                    <button className="mt-4 bg-accent btn" type="submit">
+                    <button className="btn mt-4 bg-accent" type="submit">
                       Submit
                     </button>
                   </form>
@@ -536,7 +537,7 @@ const DashBoard = () => {
             </div>
           )}
           {isSubmitting && (
-            <div className="bg-base-100 grid modal place-items-center">
+            <div className="modal grid place-items-center bg-base-100">
               <ReactLoading
                 type="spin"
                 color="#0000FF"
@@ -546,14 +547,14 @@ const DashBoard = () => {
               submiting
             </div>
           )}
-          <div className="flex justify-self-start bg-base-100 m-2.5 rounded-lg ">
+          <div className="m-2.5 flex justify-self-start rounded-lg bg-base-100 ">
             <div className="input-group mx-auto">
               <input
                 type="text"
                 placeholder="Search…"
-                className="input input-bordered"
+                className="input-bordered input"
               />
-              <button className="btn bg-accent btn-square">
+              <button className="btn-square btn bg-accent">
                 <BiSearchAlt className="m-3.5" />
               </button>
             </div>
@@ -564,7 +565,7 @@ const DashBoard = () => {
                 <div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="stroke-current flex-shrink-0 h-6 w-6"
+                    className="h-6 w-6 flex-shrink-0 stroke-current"
                     fill="none"
                     viewBox="0 0 24 24"
                   >
@@ -580,8 +581,8 @@ const DashBoard = () => {
               </div>
             </div>
           )}
-          <div className="p-2 flex content-around">
-            <div className="  w-auto  mt-1 rounded-lg flex ">
+          <div className="flex content-around p-2">
+            <div className="  mt-1  flex w-auto rounded-lg ">
               <div className="input-group">
                 <select
                   className="select"
@@ -600,7 +601,7 @@ const DashBoard = () => {
             </div>
           </div>
 
-          <div className="p-3 grid grid-cols-2 bg-base-100 m-5 rounded-3xl sm:grid sm:auto-cols-auto mx-auto">
+          <div className="m-5 mx-auto grid grid-cols-2 rounded-3xl bg-base-100 p-3 sm:grid sm:auto-cols-auto">
             {data?.events.map((event, index) => {
               let ticketNumbers = 0;
               let revenue = 0;
@@ -612,17 +613,17 @@ const DashBoard = () => {
                 <>
                   <div
                     key={index}
-                    className="group relative p-0 m-3 mb-40 rounded-lg bg-neutral lg:w-41 sm:mb-16 sm:w-52"
+                    className="lg:w-41 group relative m-3 mb-40 rounded-lg bg-neutral p-0 sm:mb-16 sm:w-52"
                   >
-                    <div className="min-h-80 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+                    <div className="min-h-80 aspect-w-1 aspect-h-1 lg:aspect-none overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
                       <img
                         src={event.EventPosterUrl}
-                        className="object-center object-cover lg:w-41 lg:h-full" //TODO use next/image here
+                        className="lg:w-41 object-cover object-center lg:h-full" //TODO use next/image here
                       />
                     </div>
                     <div className="m-1 flex justify-between">
                       <div>
-                        <h3 className="text-sm  rounded-lg p-1">
+                        <h3 className="rounded-lg  p-1 text-sm">
                           <a className="text-neutral-content">
                             <span
                               aria-hidden="true"
@@ -634,8 +635,8 @@ const DashBoard = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col mb-14">
-                    <div className="stats shadow m-1">
+                  <div className="mb-14 flex flex-col">
+                    <div className="stats m-1 shadow">
                       <div className="stat overflow-hidden">
                         <div className="stat-title">Total Revenue</div>
                         <div className="stat-value">{revenue}</div>
@@ -644,7 +645,7 @@ const DashBoard = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="stats shadow m-1">
+                    <div className="stats m-1 shadow">
                       <div className="stat overflow-hidden">
                         <div className="stat-title">Total Tickets Sold</div>
                         <div className="stat-value">{ticketNumbers}</div>

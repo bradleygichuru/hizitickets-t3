@@ -19,7 +19,7 @@ const RecoverTicket: NextPage = () => {
     formState: { errors },
     watch,
   } = useForm<FormSchemaType>();
-  const findTicketsMutation = trpc.useMutation("ticket.findMerchantId");
+  const findTicketsMutation = trpc.ticket.findMerchantId.useMutation();
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     const res = await findTicketsMutation.mutateAsync({
       phoneNumber: data.phoneNumber,
@@ -33,8 +33,8 @@ const RecoverTicket: NextPage = () => {
   };
   return (
     <Layout>
-      <div className="bg-primary my-2 h-screen mx-2 rounded p-10">
-        <h1 className="font-medium grid text-accent leading-tight text-3xl ml-4 mb-2">
+      <div className="my-2 mx-2 h-screen rounded bg-base-100 p-10">
+        <h1 className="ml-4 mb-2 grid text-3xl font-medium leading-tight text-accent">
           Regenerate Lost Tickets
         </h1>
         <div className="overflow-hidden bg-white shadow sm:rounded-lg">
@@ -53,12 +53,12 @@ const RecoverTicket: NextPage = () => {
                   The ticket purchasers mobile number
                 </span>
               </label>
-              <label className="m-2 input-group input-group-md input-group-vertical">
+              <label className="input-group-md input-group input-group-vertical m-2">
                 <span>number</span>
                 <input
                   type="text"
                   placeholder="+2547 xxx xxxxx"
-                  className="input input-bordered"
+                  className="input-bordered input"
                   {...register("phoneNumber", { required: true })}
                 />
               </label>
@@ -71,12 +71,12 @@ const RecoverTicket: NextPage = () => {
               <label className="label">
                 <span className="label-text">Ticket type</span>
               </label>
-              <label className="m-2 input-group input-group-md input-group-vertical">
+              <label className="input-group-md input-group input-group-vertical m-2">
                 <span>name</span>
                 <input
                   type="text"
                   placeholder="Group ticket"
-                  className="input input-bordered"
+                  className="input-bordered input"
                   {...register("ticketType", { required: true })}
                 />
               </label>
@@ -90,12 +90,12 @@ const RecoverTicket: NextPage = () => {
               <label className="label">
                 <span className="label-text">Event Name</span>
               </label>
-              <label className="m-2 input-group input-group-md input-group-vertical">
+              <label className="input-group-md input-group input-group-vertical m-2">
                 <span>Name</span>
                 <input
                   type="text"
                   placeholder="eg. OktoberFest "
-                  className="input input-bordered"
+                  className="input-bordered input"
                   {...register("eventName", { required: true })}
                 />
               </label>
@@ -105,7 +105,7 @@ const RecoverTicket: NextPage = () => {
                   <span className="text-red-900">This field is required</span>
                 </label>
               )}
-              <button type="submit" className="btn bg-accent m-2">
+              <button type="submit" className="btn m-2 bg-accent">
                 submit
               </button>
             </form>

@@ -4,13 +4,13 @@ import { FcGoogle } from "react-icons/fc";
 import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import { CtxOrReq } from "next-auth/client/_utils";
-import {useRouter} from "next/router";
-import logo from "../../../public/logo.svg"
+import { useRouter } from "next/router";
+import logo from "../../../public/logo.svg";
 const SignIn = ({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   console.log(providers);
-    const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="grid h-screen place-items-center py-12 px-4 sm:px-6 lg:px-8">
@@ -20,29 +20,33 @@ const SignIn = ({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="w-full max-w-md space-y-8">
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            Sign in to your account
-          </h2>
-          <div className="justify-center flex ">
-            {providers
-              ? Object.values(providers).map((provider) => (
-                  <div key={provider.name}>
-                    <button className="btn gap-2 btn-accent rounded text-accent-content"
-                      onClick={() => signIn(provider.id,{ callbackUrl: router?.query?.callbackUrl?.toString() })}
-                    >
-                    <FcGoogle/>
-                      Sign in with {provider.name}
-                    </button>
-                  </div>
-                ))
-              : ""}
-          </div>
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          Sign in to your account
+        </h2>
+        <div className="flex justify-center ">
+          {providers
+            ? Object.values(providers).map((provider) => (
+                <div key={provider.name}>
+                  <button
+                    className="btn-accent btn gap-2 rounded text-accent-content"
+                    onClick={() =>
+                      signIn(provider.id, {
+                        callbackUrl: router?.query?.callbackUrl?.toString(),
+                      })
+                    }
+                  >
+                    <FcGoogle />
+                    Sign in with {provider.name}
+                  </button>
+                </div>
+              ))
+            : ""}
+        </div>
       </div>
     </div>
   );
 };
 export const getServerSideProps = async (context: CtxOrReq | undefined) => {
-
   const providers = await getProviders();
   return {
     props: { providers },
