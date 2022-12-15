@@ -31,18 +31,22 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
     formState: { errors },
   } = useForm<formSchema>();
 
+  const { data, isLoading, error } = trpc.events.getEvent.useQuery({
+    eventName: props.slug,
+  });
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
-    const searchObj = data?.event?.ticketTypes.find(
+    const searchObj = data?.event?.ticketTypes?.find(
       (type) => type.title == formData.ticketTypeTitle
     );
     setIsSubmitting(true);
+    if(searchObj?.price){
     buyMutation.mutateAsync(
       {
         mobileNumber: formData.mobileNumber,
         quantity: formData.quantity,
         ticketTypeTitle: formData.ticketTypeTitle,
         eventName: data?.event?.EventName as string,
-        totalAmount: searchObj?.price! * formData.quantity,
+        totalAmount: searchObj?.price * formData.quantity,
       },
       {
         onSuccess(data) {
@@ -54,14 +58,11 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
           }
         },
       }
-    );
+    )};
 
     console.log(formData);
   };
 
-  const { data, isLoading, error } = trpc.events.getEvent.useQuery({
-    eventName: props.slug,
-  });
 
   const quantitys = Array.from(
     { length: data?.event?.EventMaxTickets as number },
@@ -143,13 +144,13 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 className="select-bordered select "
                 placeholder="1"
               >
-                {quantitys.map((val,index) => (
+                {quantitys.map((val,index) => {
                   return(
                   <option key={index} value={val}>
                     {val}
                   </option>
                   );
-                ))}
+                })}
               </select>
               <label className="label">
                 {errors.quantity && (
