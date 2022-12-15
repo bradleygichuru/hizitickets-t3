@@ -41,8 +41,8 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
         mobileNumber: formData.mobileNumber,
         quantity: formData.quantity,
         ticketTypeTitle: formData.ticketTypeTitle,
-        eventName: data?.event?.EventName,
-        totalAmount: searchObj?.price * formData.quantity,
+        eventName: data?.event?.EventName as string,
+        totalAmount: searchObj?.price! * formData.quantity,
       },
       {
         onSuccess(data) {
@@ -64,7 +64,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   });
 
   const quantitys = Array.from(
-    { length: data?.event?.EventMaxTickets },
+    { length: data?.event?.EventMaxTickets as number },
     (_, i) => i + 1
   );
 
@@ -143,10 +143,12 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 className="select-bordered select "
                 placeholder="1"
               >
-                {quantitys.map((quantity, quantityIdx) => (
-                  <option key={quantityIdx} value={quantity}>
-                    {quantity}
+                {quantitys.map((val,index) => (
+                  return(
+                  <option key={index} value={val}>
+                    {val}
                   </option>
+                  );
                 ))}
               </select>
               <label className="label">
