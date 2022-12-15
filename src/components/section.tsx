@@ -12,7 +12,7 @@ export default function Section(props: { data: Event[]; sectionName: string }) {
         </span>
       </div>
       <div className="mt-20 ml-10 mr-10 grid w-auto grid-cols-1 justify-center rounded-xl bg-base-100  p-3 sm:ml-24 sm:mt-20 sm:grid sm:grid-cols-4 sm:grid-rows-1 ">
-        {props.data.map((val, index) => {
+        {props?.data?.map((val, index) => {
           return (
             <EventEntry
               key={index}
