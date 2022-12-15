@@ -3,7 +3,7 @@ import { Event } from "@prisma/client";
 import { BiCaretDownCircle } from "react-icons/bi";
 import { loadGetInitialProps } from "next/dist/shared/lib/utils";
 import { Key } from "react";
-export default function Section(props: { data: Event[]; sectionName: string }) {
+export default function Section(props: { data: Event[]|undefined; sectionName: string }) {
   return (
     <div className="flex flex-col content-center ">
       <div className="container ml-12 mt-8 flex w-auto sm:ml-24 sm:w-auto">
