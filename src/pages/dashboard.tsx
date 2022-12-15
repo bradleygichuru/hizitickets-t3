@@ -121,7 +121,7 @@ const DashBoard = () => {
             eventLocation: data.eventLocation,
             eventMaxTickets: data.eventMaxTickets,
             eventPosterUrl: url,
-            eventOrganizer: session?.user?.name!,
+            eventOrganizer: session?.user?.name,
           })
           .then(({ result }) => {
             setShowToast(true);
