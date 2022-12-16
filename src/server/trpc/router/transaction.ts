@@ -7,9 +7,11 @@ export const transactionRouter = router({
       const transaction = await ctx.prisma.transaction.findUnique({
         where: { MerchantRequestID: input.merchantRequestID },
       });
+      
       return {
         validity: transaction?.Valid,
         transactionId: transaction?.TransactionId,
+        status: transaction?.cancelled,
       };
     }),
 });

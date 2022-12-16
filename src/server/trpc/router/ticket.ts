@@ -185,6 +185,7 @@ export const ticketRouter = router({
         phoneNumber: z.string(),
         eventName: z.string(),
         ticketType: z.string(),
+        
       })
     )
     .mutation(async ({ input, ctx }) => {

@@ -28,7 +28,7 @@ const RecoverTicket: NextPage = () => {
     });
     if (res) {
       console.log(res);
-      Router.push(`/transaction/${res[0]?.MerchantRequestID}`);
+     // Router.push(`/transaction/${res[0]?.MerchantRequestID}`);
     }
   };
   return (

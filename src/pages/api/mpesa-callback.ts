@@ -4,13 +4,23 @@ import { prisma } from "../../server/db/client";
 
 const mpesacallback = async (req: NextApiRequest, res: NextApiResponse) => {
   console.log(req?.body);
-  if (req?.body.stkCallback.ResultCode == 0) {
+  if (req?.body.Body.stkCallback.ResultCode == 0) {
     await prisma.transaction.update({
       where: {
-        MerchantRequestID: req?.body.stkCallback.MerchantRequestID,
+        MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
       },
       data: { Valid: true },
     });
+  }
+  if (req?.body.Body.stkCallback.ResultCode == 1032) {
+    console.log("cancelled");
+    await prisma.transaction.update({
+      where: {
+        MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
+      },
+      data: { cancelled: true },
+    });
+    
   } else {
     console.log("error");
   }

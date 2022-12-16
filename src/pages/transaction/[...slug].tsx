@@ -7,6 +7,7 @@ import Image from "next/image";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Event, Ticket, Transaction } from "@prisma/client";
 import ReactLoading from "react-loading";
+import Router from "next/router";
 
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
   const [valid, setValid] = useState<boolean>(false);
@@ -80,7 +81,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
         .then((res) => {
           console.log(res.validity);
 
-          if (res.validity == true) {
+          if (res.validity == true && res.status == false) {
             setValid(true);
             setTransactionId(res.transactionId);
 
@@ -90,7 +91,10 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
                 setTransaction(res?.transaction);
               });
             clearInterval(timer);
-          } else {
+          } if(res.status == true){
+            Router.push('/events')
+          } 
+          else {
             setValid(false);
           }
         });
@@ -107,7 +111,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   }
   if (generateTicketPdfs == undefined) {
     return (
-      <div className="grid h-screen place-items-center bg-primary">
+      <div className="grid h-screen place-items-center bg-base-100">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <p className="text-black">generating tickets</p>
       </div>

@@ -54,10 +54,8 @@ const HelpPage: NextPage = () => {
             </h2>
             <AccordionPanel mb={4} pb={4}>
               <div className="divider"></div>
-              Regenerate lost tickets{" "}
-              <Link className="link-primary link" href="/recoverticket" passHref>
-                here
-              </Link>
+             To Regenerate lost tickets +254768085236 +254794292432
+              
             </AccordionPanel>
           </AccordionItem>
         </Accordion>

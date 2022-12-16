@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -67,7 +67,7 @@ model Event {
   EventMaxTickets  Int
   EventDate        DateTime
   EventPosterUrl   String
-  EventOrganizer   String        
+  EventOrganizer   String
   EventValidity    Boolean       @default(false)
   eventOrganizer   User          @relation(fields: [EventOrganizer], references: [name])
   ticketTypes      TicketTypes[]
@@ -89,6 +89,7 @@ model Transaction {
   Valid             Boolean  @default(false)
   event             Event    @relation(fields: [EventName], references: [EventName])
   tickets           Ticket[]
+  cancelled         Boolean?
 }
 
 model TicketTypes {
@@ -103,9 +104,9 @@ model TicketTypes {
 model Ticket {
   TicketId        String      @id @default(cuid())
   TransactionId   String
-  TransactionHash String      
+  TransactionHash String
   ImageData       String      @db.LongText
-  TicketHash      String      @unique @default(cuid()) 
+  TicketHash      String      @unique @default(cuid())
   Scanned         Boolean     @default(false)
   transaction     Transaction @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)
 }
