@@ -39,30 +39,30 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
       (type) => type.title == formData.ticketTypeTitle
     );
     setIsSubmitting(true);
-    if(searchObj?.price){
-    buyMutation.mutateAsync(
-      {
-        mobileNumber: formData.mobileNumber,
-        quantity: formData.quantity,
-        ticketTypeTitle: formData.ticketTypeTitle,
-        eventName: data?.event?.EventName as string,
-        totalAmount: searchObj?.price * formData.quantity,
-      },
-      {
-        onSuccess(data) {
-          setIsSubmitting(false);
-          if (data.transcation) {
-            Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
-          } else {
-            console.log("error");
-          }
+    if (searchObj?.price) {
+      buyMutation.mutateAsync(
+        {
+          mobileNumber: formData.mobileNumber,
+          quantity: formData.quantity,
+          ticketTypeTitle: formData.ticketTypeTitle,
+          eventName: data?.event?.EventName as string,
+          totalAmount: searchObj?.price * formData.quantity,
         },
-      }
-    )}
+        {
+          onSuccess(data) {
+            setIsSubmitting(false);
+            if (data.transcation) {
+              Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
+            } else {
+              console.log("error");
+            }
+          },
+        }
+      );
+    }
 
     console.log(formData);
   };
-
 
   const quantitys = Array.from(
     { length: data?.event?.EventMaxTickets as number },
@@ -144,11 +144,11 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 className="select-bordered select "
                 placeholder="1"
               >
-                {quantitys.map((val,index) => {
-                  return(
-                  <option key={index} value={val}>
-                    {val}
-                  </option>
+                {quantitys.map((val, index) => {
+                  return (
+                    <option key={index} value={val}>
+                      {val}
+                    </option>
                   );
                 })}
               </select>

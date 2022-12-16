@@ -30,7 +30,7 @@ const HelpPage: NextPage = () => {
               <div className="divider"></div>
               <p>
                 1. Click on the event you wish to purchase tickets for on the{" "}
-                <Link  className="link-primary link" href="/events" passHref>
+                <Link className="link-primary link" href="/events" passHref>
                   events page
                 </Link>
                 <br></br>
@@ -54,8 +54,7 @@ const HelpPage: NextPage = () => {
             </h2>
             <AccordionPanel mb={4} pb={4}>
               <div className="divider"></div>
-             To Regenerate lost tickets +254768085236 +254794292432
-              
+              To Regenerate lost tickets +254768085236 +254794292432
             </AccordionPanel>
           </AccordionItem>
         </Accordion>

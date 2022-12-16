@@ -20,7 +20,6 @@ const mpesacallback = async (req: NextApiRequest, res: NextApiResponse) => {
       },
       data: { cancelled: true },
     });
-    
   } else {
     console.log("error");
   }

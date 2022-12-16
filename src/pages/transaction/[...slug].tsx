@@ -91,10 +91,10 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
                 setTransaction(res?.transaction);
               });
             clearInterval(timer);
-          } if(res.cancelled == true && res.validity == false){
-            Router.push('/events')
-          } 
-          
+          }
+          if (res.cancelled == true && res.validity == false) {
+            Router.push("/events");
+          }
         });
       return () => clearInterval(timer);
     }, 6000);

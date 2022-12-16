@@ -21,7 +21,7 @@ export const serverSchema = z.object({
   ),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
-  CALLBACK_URL:z.string().url(),
+  CALLBACK_URL: z.string().url(),
 });
 
 /**
