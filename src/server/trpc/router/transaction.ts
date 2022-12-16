@@ -11,7 +11,7 @@ export const transactionRouter = router({
       return {
         validity: transaction?.Valid,
         transactionId: transaction?.TransactionId,
-        status: transaction?.cancelled,
+        cancelled: transaction?.cancelled,
       };
     }),
 });

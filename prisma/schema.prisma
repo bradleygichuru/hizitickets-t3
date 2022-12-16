@@ -8,7 +8,7 @@ generator client {
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  relationMode = "prisma"
 }
 
 // Necessary for Next auth
@@ -89,7 +89,7 @@ model Transaction {
   Valid             Boolean  @default(false)
   event             Event    @relation(fields: [EventName], references: [EventName])
   tickets           Ticket[]
-  cancelled         Boolean?
+  cancelled         Boolean @default(false)
 }
 
 model TicketTypes {

@@ -81,7 +81,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
         .then((res) => {
           console.log(res.validity);
 
-          if (res.validity == true && res.status == false) {
+          if (res.validity == true && res.cancelled == false) {
             setValid(true);
             setTransactionId(res.transactionId);
 
@@ -91,12 +91,10 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
                 setTransaction(res?.transaction);
               });
             clearInterval(timer);
-          } if(res.status == true){
+          } if(res.cancelled == true && res.validity == false){
             Router.push('/events')
           } 
-          else {
-            setValid(false);
-          }
+          
         });
       return () => clearInterval(timer);
     }, 6000);
