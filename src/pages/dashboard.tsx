@@ -3,10 +3,14 @@ import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
 import ReactLoading from "react-loading";
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { Button, Alert, AlertIcon } from "@chakra-ui/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
 import { z } from "zod";
+import { useToast } from "@chakra-ui/react";
+import Image from "next/image";
+import ticket from "../../public/ticket-svgrepo-com.svg";
 import { useSession, signIn } from "next-auth/react";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
@@ -44,9 +48,8 @@ const sorts = [
 ]; // TODO make sort types functional i.e work
 
 const DashBoard = () => {
+  const toast = useToast();
   const [eventPoster, setEventPoster] = useState<File>();
-  const [submissionStatus, setSubmissionStatus] = useState<string>();
-  const [showToast, setShowToast] = useState<boolean>(false);
   const [selectedSort, setSelectedSort] = useState(sorts[0]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { data: session, status } = useSession();
@@ -124,20 +127,26 @@ const DashBoard = () => {
             eventOrganizer: session?.user?.name as string,
           })
           .then(({ result }) => {
-            setShowToast(true);
             if (result == "success") {
-              setSubmissionStatus("submitted successfully");
+              setIsSubmitting(false);
+              toast({
+                title: "Success.",
+                description: "Your event was submitted successfully",
+                status: "success",
+                duration: 9000,
+                isClosable: true,
+              });
             } else {
-              setSubmissionStatus(
-                "there was a problem submitting your event details"
-              );
+              toast({
+                title: "Error",
+                description:
+                  "there was a problem submitting your event details",
+                status: "error",
+                duration: 9000,
+                isClosable: true,
+              });
             }
             console.log(result);
-
-            setTimeout(() => {
-              setShowToast(false);
-            }, 7000);
-            setIsSubmitting(false);
           });
       }
     }
@@ -173,7 +182,7 @@ const DashBoard = () => {
             <BiAddToQueue className="ml-6 h-6 w-6" />
           </label>
           <input type="checkbox" id="my-modal-3" className="modal-toggle" />
-          {!isSubmitting && (
+          
             <div className="modal">
               <div className="modal-box relative max-w-md">
                 <h3 className="text-lg font-bold">Add Event</h3>
@@ -239,6 +248,11 @@ const DashBoard = () => {
                       </label>
                     )}
 
+                    <Alert className="m-4" status="info">
+                      <AlertIcon />
+                      On the Events Tickets section, filling the first ticket
+                      type is mandatory
+                    </Alert>
                     <label htmlFor="eventTicketTypes" className="label">
                       Event Tickets
                     </label>
@@ -528,137 +542,86 @@ const DashBoard = () => {
                       </div>
                     </div>
 
-                    <button className="btn mt-4 bg-accent" type="submit">
+                    <Button
+                      variant="outline"
+                      isLoading={isSubmitting}
+                      className="mt-4 bg-accent"
+                      type="submit"
+                    >
                       Submit
-                    </button>
+                    </Button>
                   </form>
                 </div>
               </div>
             </div>
-          )}
-          {isSubmitting && (
-            <div className="modal grid place-items-center bg-base-100">
-              <ReactLoading
-                type="spin"
-                color="#0000FF"
-                height={100}
-                width={100}
-              />
-              submiting
-            </div>
-          )}
-          <div className="m-2.5 flex justify-self-start rounded-lg bg-base-100 ">
-            <div className="input-group mx-auto">
-              <input
-                type="text"
-                placeholder="Search…"
-                className="input-bordered input"
-              />
-              <button className="btn-square btn bg-accent">
-                <BiSearchAlt className="m-3.5" />
-              </button>
-            </div>
-          </div>
-          {showToast && (
-            <div className="toast">
-              <div className="alert alert-info shadow-lg ">
-                <div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 flex-shrink-0 stroke-current"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>{submissionStatus}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="flex content-around p-2">
-            <div className="  mt-1  flex w-auto rounded-lg ">
-              <div className="input-group">
-                <select
-                  className="select"
-                  onChange={(e) => {
-                    setSelectedSort(e.target.value);
-                  }}
-                >
-                  {sorts.map((val, index) => (
-                    <option key={index} value={val}>
-                      {val}
-                    </option>
-                  ))}
-                </select>
-                <button className="btn">Go</button>
-              </div>
-            </div>
-          </div>
+          
+          
 
-          <div className="m-5 mx-auto grid grid-cols-2 rounded-3xl bg-base-100 p-3 sm:grid sm:auto-cols-auto">
-            {data?.events.map((event, index) => {
-              let ticketNumbers = 0;
-              let revenue = 0;
-              event.transactions.forEach((val, _) => {
-                revenue += val.TotalAmount;
-                ticketNumbers += val.tickets.length;
-              });
-              return (
-                <>
-                  <div
-                    key={index}
-                    className="lg:w-41 group relative m-3 mb-40 rounded-lg bg-neutral p-0 sm:mb-16 sm:w-52"
-                  >
-                    <div className="min-h-80 aspect-w-1 aspect-h-1 lg:aspect-none overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
-                      <img
-                        src={event.EventPosterUrl}
-                        className="lg:w-41 object-cover object-center lg:h-full" //TODO use next/image here
-                      />
-                    </div>
-                    <div className="m-1 flex justify-between">
-                      <div>
-                        <h3 className="rounded-lg  p-1 text-sm">
-                          <a className="text-neutral-content">
-                            <span
-                              aria-hidden="true"
-                              className=" absolute inset-0 font-sans text-sm font-bold "
-                            />
-                            {event.EventName}
-                          </a>
-                        </h3>
+          {data?.events.length == 0 ? (
+            <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
+              <Image src={ticket} width={200} alt="ticket" height={200} />
+              No Events
+            </div>
+          ) : (
+            <div className="m-5 mx-auto grid grid-cols-2 rounded-3xl bg-base-100 p-3 sm:grid sm:auto-cols-auto">
+              {data?.events.map((event, index) => {
+                let ticketNumbers = 0;
+                let revenue = 0;
+                event.transactions.forEach((val, _) => {
+                  revenue += val.TotalAmount;
+                  ticketNumbers += val.tickets.length;
+                });
+                return (
+                  <>
+                    <div
+                      key={index}
+                      className="lg:w-41 group relative m-3 mb-40 rounded-lg bg-neutral p-0 sm:mb-16 sm:w-52"
+                    >
+                      <div className="min-h-80 aspect-w-1 aspect-h-1 lg:aspect-none overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
+                        <img
+                          src={event.EventPosterUrl}
+                          className="lg:w-41 object-cover object-center lg:h-full" //TODO use next/image here
+                        />
                       </div>
-                    </div>
-                  </div>
-                  <div className="mb-14 flex flex-col">
-                    <div className="stats m-1 shadow">
-                      <div className="stat overflow-hidden">
-                        <div className="stat-title">Total Revenue</div>
-                        <div className="stat-value">{revenue}</div>
-                        <div className="stat-desc">
-                          21% more than last month
+                      <div className="m-1 flex justify-between">
+                        <div>
+                          <h3 className="rounded-lg  p-1 text-sm">
+                            <a className="text-neutral-content">
+                              <span
+                                aria-hidden="true"
+                                className=" absolute inset-0 font-sans text-sm font-bold "
+                              />
+                              {event.EventName}
+                            </a>
+                          </h3>
                         </div>
                       </div>
                     </div>
-                    <div className="stats m-1 shadow">
-                      <div className="stat overflow-hidden">
-                        <div className="stat-title">Total Tickets Sold</div>
-                        <div className="stat-value">{ticketNumbers}</div>
-                        <div className="stat-desc">
-                          21% more than last month
+                    <div className="mb-14 flex flex-col">
+                      <div className="stats m-1 shadow">
+                        <div className="stat overflow-hidden">
+                          <div className="stat-title">Total Revenue</div>
+                          <div className="stat-value">{revenue}</div>
+                          <div className="stat-desc">
+                            21% more than last month
+                          </div>
+                        </div>
+                      </div>
+                      <div className="stats m-1 shadow">
+                        <div className="stat overflow-hidden">
+                          <div className="stat-title">Total Tickets Sold</div>
+                          <div className="stat-value">{ticketNumbers}</div>
+                          <div className="stat-desc">
+                            21% more than last month
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </>
-              );
-            })}
-          </div>
+                  </>
+                );
+              })}
+            </div>
+          )}
         </div>
       </Layout>
     );
