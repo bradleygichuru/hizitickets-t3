@@ -62,7 +62,7 @@ export default function Nav() {
               </li>
             </ul>
           </div>
-          <Link href="/" className="btn-ghost btn text-xl normal-case">
+          <Link href="/events" className="btn-ghost btn text-xl normal-case">
             <Image src={logo} alt="hizitickets" />
           </Link>
         </div>
