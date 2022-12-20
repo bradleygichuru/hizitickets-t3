@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
@@ -30,6 +30,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -38,6 +39,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -74,22 +77,29 @@ model Event {
   transactions     Transaction[]
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+
+  @@index([EventOrganizer])
 }
 
 model Transaction {
-  TransactionId     String   @id @default(cuid())
-  MobileNumber      String
-  ticketTypeTitle   String
-  EventName         String
-  TransactionMethod String
-  NumberOfTickets   Int
-  MerchantRequestID String   @unique
-  CheckoutRequestID String   @unique
-  TotalAmount       Int
-  Valid             Boolean  @default(false)
-  event             Event    @relation(fields: [EventName], references: [EventName])
-  tickets           Ticket[]
-  cancelled         Boolean @default(false)
+  TransactionId      String   @id @default(cuid())
+  MobileNumber       String
+  ticketTypeTitle    String
+  EventName          String
+  TransactionMethod  String
+  NumberOfTickets    Int
+  MerchantRequestID  String   @unique
+  CheckoutRequestID  String   @unique
+  TotalAmount        Int
+  Valid              Boolean  @default(false)
+  event              Event    @relation(fields: [EventName], references: [EventName])
+  tickets            Ticket[]
+  cancelled          Boolean  @default(false)
+  mpesaReceiptNumber String?
+  transactionDate    String?
+  completed          Boolean  @default(false)
+
+  @@index([EventName])
 }
 
 model TicketTypes {
@@ -99,6 +109,8 @@ model TicketTypes {
   title     String
   deadline  DateTime
   event     Event    @relation(fields: [eventName], references: [EventName])
+
+  @@index([eventName])
 }
 
 model Ticket {
@@ -109,4 +121,6 @@ model Ticket {
   TicketHash      String      @unique @default(cuid())
   Scanned         Boolean     @default(false)
   transaction     Transaction @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)
+
+  @@index([TransactionId])
 }
