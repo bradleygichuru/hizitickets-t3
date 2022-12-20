@@ -90,9 +90,12 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
               .then((res) => {
                 setTransaction(res?.transaction);
               });
+            setValid(true);
             clearInterval(timer);
           }
           if (res.cancelled == true && res.validity == false) {
+            setValid(true);
+            clearInterval(timer);
             Router.push("/events");
           }
         });
