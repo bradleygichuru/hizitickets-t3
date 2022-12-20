@@ -34,9 +34,5 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
     console.log(error)
   }
 };
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+
 export default mpesaCallback;
