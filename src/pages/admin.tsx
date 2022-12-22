@@ -36,7 +36,7 @@ const AdminPage = () => {
   }
   return (
     <div className=" grid h-screen place-items-center bg-base-100">
-      <Image src={error} />
+      <Image src={error} alt="error" w={100} h={100} />
       <span className="text-black">
         You are not authorized to view this page
       </span>
