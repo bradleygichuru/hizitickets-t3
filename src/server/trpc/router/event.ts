@@ -1,13 +1,40 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../trpc";
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const eventsRouter = router({
+  getVerifiedEvents: protectedProcedure.query(async ({ ctx }) => {
+    const events = await ctx.prisma.event.findMany({
+      where: { EventValidity: true },
+    });
+    return {
+      events: events,
+    };
+  }),
+
   getEvents: publicProcedure.query(async ({ ctx }) => {
     const events = await ctx.prisma.event.findMany({});
     return {
       events: events,
     };
   }),
+
+  verifyEvent: protectedProcedure
+    .input(z.object({ eventName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session.user.email == "bradleygichuru@gmail.com") {
+        const verifiedEvent = await ctx.prisma.event.update({
+          where: { EventName: input?.eventName },
+          data: { EventValidity: true },
+        });
+        if (verifyEvent.EventValidity == true) {
+          return { verification: "successful" };
+        } else {
+          return { verification: "unsuccessful" };
+        }
+      } else {
+        return { unauthorized: true };
+      }
+    }),
   getEvent: publicProcedure
     .input(z.object({ eventName: z.string() }))
     .query(async ({ input, ctx }) => {

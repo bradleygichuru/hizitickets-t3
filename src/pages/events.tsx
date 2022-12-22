@@ -6,7 +6,7 @@ import ReactLoading from "react-loading";
 import Image from "next/image";
 import ticket from "../../public/ticket-svgrepo-com.svg";
 const EventsPage: NextPage = () => {
-  const { data, isLoading } = trpc.events.getEvents.useQuery();
+  const { data, isLoading } = trpc.events.getVerifiedEvents.useQuery();
   console.log(data);
   if (isLoading) {
     return (
@@ -14,13 +14,16 @@ const EventsPage: NextPage = () => {
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
       </div>
     );
-  }if(data?.events.length == 0){
-      return (
-    <Layout>
-      <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
+  }
+  if (data?.events.length == 0) {
+    return (
+      <Layout>
+        <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
           <Image src={ticket} width={200} alt="ticket" height={200} />
-          No Events</div> 
-    </Layout>);
+          No Events
+        </div>
+      </Layout>
+    );
   }
   return (
     <Layout>
