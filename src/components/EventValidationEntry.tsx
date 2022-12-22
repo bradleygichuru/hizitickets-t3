@@ -5,7 +5,7 @@ import { useToast } from "@chakra-ui/react";
 const EventInfo = (props: { EventValidity: boolean; EventName: string }) => {
   const toast = useToast();
   const [eventValidity, setEventValidity] = useState<boolean>();
-  const verifyMutation = trpc.event.verifyEvent.useMutation();
+  const verifyMutation = trpc.events.verifyEvent.useMutation();
   useEffect(() => {
     setEventValidity(props?.EventValidity);
   }, []);
