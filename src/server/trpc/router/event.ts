@@ -26,7 +26,7 @@ export const eventsRouter = router({
           where: { EventName: input?.eventName },
           data: { EventValidity: true },
         });
-        if (verifyEvent.EventValidity == true) {
+        if (verifiedEvent.EventValidity == true) {
           return { verification: "successful" };
         } else {
           return { verification: "unsuccessful" };
