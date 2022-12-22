@@ -12,7 +12,10 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
       const receiptNumber =
         req?.body.Body.stkCallback.CallbackMetadata.Item[1].Value;
       console.log({ receiptNumber });
-      console.log({transactionDate:req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value})
+      console.log({
+        transactionDate:
+          req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value,
+      });
       await prisma.transaction.update({
         where: {
           MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
@@ -21,8 +24,7 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
           Valid: true,
           completed: true,
           mpesaReceiptNumber: receiptNumber,
-          transactionDate:`${req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value}`
-          
+          transactionDate: `${req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value}`,
         },
       });
     }
