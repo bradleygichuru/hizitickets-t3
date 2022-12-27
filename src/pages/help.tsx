@@ -54,7 +54,7 @@ const HelpPage: NextPage = () => {
             </h2>
             <AccordionPanel mb={4} pb={4}>
               <div className="divider"></div>
-              To Regenerate lost tickets +254768085236 +254794292432
+              To Regenerate lost tickets contact +254768085236, +254794292432 or email hizitickets@gmail.com
             </AccordionPanel>
           </AccordionItem>
         </Accordion>
