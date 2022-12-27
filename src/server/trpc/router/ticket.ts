@@ -116,10 +116,16 @@ export const ticketRouter = router({
             ticketTypeTitle: input.ticketTypeTitle,
           },
         });
+
+        return {
+          transcation: unconfirmedTransaction,
+          status: "success",
+        };
+      } else {
+        return {
+          status: "error",
+        };
       }
-      return {
-        transcation: unconfirmedTransaction,
-      };
     }),
   generateTickets: publicProcedure
     .input(z.object({ transactionId: z.string() }))

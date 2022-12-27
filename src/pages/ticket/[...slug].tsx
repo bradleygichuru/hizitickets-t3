@@ -7,7 +7,7 @@ import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
 import Router from "next/router";
-
+import { useToast } from '@chakra-ui/react';
 type formSchema = {
   quantity: number;
   mobileNumber: number;
@@ -22,6 +22,7 @@ const features = [
 //TODO quantity will be reduced on ticket purchase
 
 const Ticket: React.FC<{ slug: string }> = (props) => {
+  const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const buyMutation = trpc.ticket.buyTicket.useMutation();
 
@@ -54,7 +55,14 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
             if (data.transcation) {
               Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
             } else {
-              console.log("error");
+              toast({
+                title: "Error",
+                description:
+                  "There was a problem purchasing your tickets",
+                status: "error",
+                duration: 9000,
+                isClosable: true,
+              });
             }
           },
         }
@@ -173,6 +181,8 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                   {...register("mobileNumber", {
                     required: true,
                     valueAsNumber: true,
+                    minLength:9,
+                    maxLength:9,
                   })}
                   className="input-bordered input"
                 />
