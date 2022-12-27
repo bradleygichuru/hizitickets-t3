@@ -110,7 +110,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
       </div>
     );
   }
-  if (generateTicketPdfs == undefined) {
+  if (generateTicketPdfs == undefined && valid == true) {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
