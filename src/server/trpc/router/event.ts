@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const eventsRouter = router({
-  getVerifiedEvents: protectedProcedure.query(async ({ ctx }) => {
+  getVerifiedEvents: publicProcedure.query(async ({ ctx }) => {
     const events = await ctx.prisma.event.findMany({
       where: { EventValidity: true },
     });
