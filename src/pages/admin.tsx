@@ -7,7 +7,7 @@ import EventInfo from "../components/EventValidationEntry";
 const AdminPage = () => {
   const { data: session, status } = useSession();
   const { data, isLoading } = trpc.events.getEvents.useQuery();
-  console.log(session)
+  console.log(session);
   if (status == "unauthenticated") {
     signIn();
   }
@@ -20,12 +20,16 @@ const AdminPage = () => {
       </div>
     );
   }
-  if ((session?.user?.email == "bradleygichuru@gmail.com") || (session?.user?.email == "jasonmwai.k@gmail.com") ) {
+  if (
+    session?.user?.email == "bradleygichuru@gmail.com" ||
+    session?.user?.email == "jasonmwai.k@gmail.com"
+  ) {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
         {data?.events?.map((event, index) => {
           return (
-            <EventInfo key={index}
+            <EventInfo
+              key={index}
               EventValidity={event?.EventValidity}
               EventName={event?.EventName}
             />
@@ -40,6 +44,12 @@ const AdminPage = () => {
       <span className="text-black">
         You are not authorized to view this page
       </span>
+      <button
+        className="btn-accent btn gap-2 rounded text-accent-content"
+        onClick={() => signIn()}
+      >
+        Sign in as admin
+      </button>
     </div>
   );
 };
