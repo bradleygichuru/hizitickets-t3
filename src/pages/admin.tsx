@@ -7,7 +7,7 @@ import EventInfo from "../components/EventValidationEntry";
 const AdminPage = () => {
   const { data: session, status } = useSession();
   const { data, isLoading } = trpc.events.getEvents.useQuery();
-
+  console.log(session)
   if (status == "unauthenticated") {
     signIn();
   }
