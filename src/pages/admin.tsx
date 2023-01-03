@@ -20,7 +20,7 @@ const AdminPage = () => {
       </div>
     );
   }
-  if (session?.user?.email === "bradleygichuru@gmail.com" || session?.user?.email === "jasonmwai.k@gmail.com" ) {
+  if ((session?.user?.email == "bradleygichuru@gmail.com") || (session?.user?.email == "jasonmwai.k@gmail.com") ) {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
         {data?.events?.map((event, index) => {
