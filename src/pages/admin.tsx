@@ -1,7 +1,7 @@
 import { trpc } from "../utils/trpc";
 import Image from "next/image";
 import error from "../../public/error.svg";
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import ReactLoading from "react-loading";
 import EventInfo from "../components/EventValidationEntry";
 const AdminPage = () => {
@@ -46,7 +46,10 @@ const AdminPage = () => {
       </span>
       <button
         className="btn-accent btn gap-2 rounded text-accent-content"
-        onClick={() => signIn()}
+        onClick={() => {
+          signOut();
+          signIn();
+        }}
       >
         Sign in as admin
       </button>
