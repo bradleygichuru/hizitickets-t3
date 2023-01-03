@@ -22,7 +22,8 @@ const AdminPage = () => {
   }
   if (
     session?.user?.email == "bradleygichuru@gmail.com" ||
-    session?.user?.email == "jasonmwai.k@gmail.com"
+    session?.user?.email == "jasonmwai.k@gmail.com" ||
+    session?.user?.email == "roboboy84@gmail.com"
   ) {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
@@ -48,7 +49,6 @@ const AdminPage = () => {
         className="btn-accent btn gap-2 rounded text-accent-content"
         onClick={() => {
           signOut();
-          signIn();
         }}
       >
         Sign in as admin
