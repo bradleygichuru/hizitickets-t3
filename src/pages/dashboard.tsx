@@ -555,7 +555,7 @@ const DashBoard = () => {
               {data?.events.map((event, index) => {
                 let ticketNumbers = 0;
                 let revenue = 0;
-                let ticketsScanned;
+                let ticketsScanned = [];
                 event.transactions.forEach((val, _) => {
                   revenue += val.TotalAmount;
                   ticketNumbers += val.tickets.length;
