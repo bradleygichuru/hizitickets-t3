@@ -10,7 +10,7 @@ import { trpc } from "../utils/trpc";
 import { z } from "zod";
 import { useToast } from "@chakra-ui/react";
 import Image from "next/image";
-import ticket from "../../public/ticket-svgrepo-com.svg";
+import ticketLogo from "../../public/ticket-svgrepo-com.svg";
 import { useSession, signIn } from "next-auth/react";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
@@ -547,7 +547,7 @@ const DashBoard = () => {
 
           {data?.events.length == 0 ? (
             <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
-              <Image src={ticket} width={200} alt="ticket" height={200} />
+              <Image src={ticketLogo} width={200} alt="ticket" height={200} />
               No Events
             </div>
           ) : (
@@ -555,9 +555,13 @@ const DashBoard = () => {
               {data?.events.map((event, index) => {
                 let ticketNumbers = 0;
                 let revenue = 0;
+                let ticketsScanned;
                 event.transactions.forEach((val, _) => {
                   revenue += val.TotalAmount;
                   ticketNumbers += val.tickets.length;
+                  ticketsScanned = val.tickets.filter((ticket)=>{
+                      return ticket.Scanned === true;
+                    })
                 });
                 return (
                   <>
@@ -591,8 +595,8 @@ const DashBoard = () => {
                           <div className="stat-title">Total Revenue</div>
                           <div className="stat-value">{revenue}</div>
                           <div className="stat-desc">
-                            21% more than last month
-                          </div>
+                          units in Kenyan Shillings
+                            </div>
                         </div>
                       </div>
                       <div className="stats m-1 shadow">
@@ -600,7 +604,15 @@ const DashBoard = () => {
                           <div className="stat-title">Total Tickets Sold</div>
                           <div className="stat-value">{ticketNumbers}</div>
                           <div className="stat-desc">
-                            21% more than last month
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="stats m-1 shadow">
+                        <div className="stat overflow-hidden">
+                          <div className="stat-title">Tickets Scanned at Gate</div>
+                          <div className="stat-value">{ticketsScanned.length}</div>
+                          <div className="stat-desc">
                           </div>
                         </div>
                       </div>
