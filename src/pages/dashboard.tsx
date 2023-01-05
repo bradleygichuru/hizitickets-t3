@@ -256,12 +256,7 @@ const DashBoard = () => {
                   <label htmlFor="eventTicketTypes" className="label">
                     Event Tickets
                   </label>
-                  {/*  <textarea
-                  className="m-2 textarea textarea-bordered"
-                  {...register("eventTicketTypes", { required: true })}
-                  id="eventTicketTypes"
-                  placeholder="Please follow this format, with each ticket type in its new line e.g Regular - 3000ksh - 12/08/2022 .......... format : TicketType - (price)ksh - dd/mm/yy "
-                /> */}
+                  
 
                   <div className="dropdown">
                     <label tabIndex={0} className="btn-outline btn m-1">
@@ -448,12 +443,7 @@ const DashBoard = () => {
                       </div>
                     </ul>
                   </div>
-                  {/* 
-                {errors.eventTicketTypes && (
-                  <label className="label">
-                    <span className="text-error-content">This field is required</span>
-                  </label>
-                )} */}
+                  
 
                   <label htmlFor="eventMaxTickets" className="label">
                     Maximum tickets for sale
