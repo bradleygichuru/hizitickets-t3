@@ -24,8 +24,12 @@ export const eventsRouter = router({
       if (
         ctx?.session.user.email == "bradleygichuru@gmail.com" ||
         ctx?.session?.user?.email == "jasonmwai.k@gmail.com" ||
-        ctx?.session?.user?.email == "roboboy84@gmail.com"
-      ) {
+        ctx?.session?.user?.email == "roboboy84@gmail.com" ||
+        
+        ctx?.session?.user?.email == "Mwasnoah@gmail.com"
+
+
+    ) {
         const verifiedEvent = await ctx.prisma.event.update({
           where: { EventName: input?.eventName },
           data: { EventValidity: true },

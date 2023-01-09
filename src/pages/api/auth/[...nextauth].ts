@@ -6,6 +6,8 @@ import { prisma } from "../../../server/db/client";
 
 export const authOptions: NextAuthOptions = {
   // Include user.id on session
+
+  session: { strategy: "jwt" },
   callbacks: {
     session({ session, user }) {
       if (session.user) {
