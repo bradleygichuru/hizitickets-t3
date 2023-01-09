@@ -23,7 +23,8 @@ const AdminPage = () => {
   if (
     session?.user?.email == "bradleygichuru@gmail.com" ||
     session?.user?.email == "jasonmwai.k@gmail.com" ||
-    session?.user?.email == "roboboy84@gmail.com"
+    session?.user?.email == "roboboy84@gmail.com" ||
+    session?.user?.email == "Mwasnoah@gmail.com"
   ) {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
