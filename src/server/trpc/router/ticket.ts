@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc";
 import axios from "axios";
-import { env } from "../../../env/server.mjs";
 import { createHash } from "crypto";
 import generateQR from "../../../utils/base64gen";
 const cK = "MN0MrspNCSebZAInOGIUQtCgjGdHzVcz";
