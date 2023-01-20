@@ -156,7 +156,7 @@ export const ticketRouter = router({
             .digest("hex");
           console.log(ticketHash);
           const imageData = await generateQR(ticketHash);
-          const ticketWithHash = await ctx.prisma.ticket.update({
+          await ctx.prisma.ticket.update({
             where: { TicketId: unhashedTicket.TicketId },
             data: { TicketHash: ticketHash, ImageData: imageData! },
           });
