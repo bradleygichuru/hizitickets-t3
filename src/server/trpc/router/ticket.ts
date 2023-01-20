@@ -35,7 +35,6 @@ export const ticketRouter = router({
       const password = Buffer.from(
         `${ShortCode}${passkey}${timestamp}`
       ).toString("base64");
-      const cKcS = Buffer.from(`${cK}${cS}`).toString("base64");
       const instanceAuthToken = await axios({
         url: "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
         method: "get",
