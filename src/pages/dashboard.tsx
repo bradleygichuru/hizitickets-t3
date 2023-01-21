@@ -3,7 +3,7 @@ import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
 import ReactLoading from "react-loading";
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Button, Alert, AlertIcon } from "@chakra-ui/react";
+import { Button, Alert, AlertIcon,AspectRatio } from "@chakra-ui/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
@@ -63,7 +63,6 @@ const DashBoard = () => {
     watch,
   } = useForm<FormSchemaType>();
   console.log(status);
-  const watchAllFields = watch();
   const { data, isLoading } = trpc.events.getUserEvents.useQuery(
     { eventOrganizer: session?.user?.name as string },
     {
@@ -152,12 +151,12 @@ const DashBoard = () => {
     }
   };
   if (status == "unauthenticated") {
-    signIn();
+    signIn(undefined,{callbackUrl:"/dashboard"});
   }
 
-  if (status != "authenticated") {
+  if (status == "loading") {
     return (
-      <div className=" grid h-screen place-items-center bg-base-100">
+      <div className="grid h-screen place-items-center bg-base-100">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
         <span className="text-black">Authenticating</span>
       </div>
@@ -256,7 +255,6 @@ const DashBoard = () => {
                   <label htmlFor="eventTicketTypes" className="label">
                     Event Tickets
                   </label>
-                  
 
                   <div className="dropdown">
                     <label tabIndex={0} className="btn-outline btn m-1">
@@ -443,7 +441,6 @@ const DashBoard = () => {
                       </div>
                     </ul>
                   </div>
-                  
 
                   <label htmlFor="eventMaxTickets" className="label">
                     Maximum tickets for sale
@@ -547,7 +544,7 @@ const DashBoard = () => {
 
           {data?.events.length == 0 ? (
             <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
-              <Image src={ticketLogo} width={200} alt="ticket" height={200} />
+              <Image src={ticketLogo} width={100} alt="ticket" height={100} />
               No Events
             </div>
           ) : (
@@ -559,9 +556,9 @@ const DashBoard = () => {
                 event.transactions.forEach((val, _) => {
                   revenue += val.TotalAmount;
                   ticketNumbers += val.tickets.length;
-                  ticketsScanned = val.tickets.filter((ticket)=>{
-                      return ticket.Scanned === true;
-                    })
+                  ticketsScanned = val.tickets.filter((ticket) => {
+                    return ticket.Scanned === true;
+                  });
                 });
                 return (
                   <>
@@ -569,12 +566,12 @@ const DashBoard = () => {
                       key={index}
                       className="lg:w-41 group relative m-3 mb-40 rounded-lg bg-neutral p-0 sm:mb-16 sm:w-52"
                     >
-                      <div className="min-h-80 aspect-w-1 aspect-h-1 lg:aspect-none overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
+                          <AspectRatio maxW='400px' ratio={1}>
                         <img
                           src={event.EventPosterUrl}
-                          className="lg:w-41 object-cover object-center lg:h-full" //TODO use next/image here
+                          className="lg:w-41 object-cover object-center " //TODO use next/image here
                         />
-                      </div>
+</AspectRatio>
                       <div className="m-1 flex justify-between">
                         <div>
                           <h3 className="rounded-lg  p-1 text-sm">
@@ -595,25 +592,45 @@ const DashBoard = () => {
                           <div className="stat-title">Total Revenue</div>
                           <div className="stat-value">{revenue}</div>
                           <div className="stat-desc">
-                          units in Kenyan Shillings
-                            </div>
+                            units in Kenyan Shillings
+                          </div>
                         </div>
                       </div>
                       <div className="stats m-1 shadow">
                         <div className="stat overflow-hidden">
                           <div className="stat-title">Total Tickets Sold</div>
                           <div className="stat-value">{ticketNumbers}</div>
-                          <div className="stat-desc">
-                          </div>
+                          <div className="stat-desc"></div>
                         </div>
                       </div>
-
+                      {event.ticketTypes.map((type, typeIndex) => {
+                        let typeCount = 0;
+                        event.transactions.forEach((val, _) => {
+                          if (val.ticketTypeTitle == type.title) {
+                            typeCount = typeCount + val.tickets.length;
+                          }
+                        });
+                        return (
+                          <div key={typeIndex} className="stats m-1 shadow">
+                            <div className="stat overflow-hidden">
+                              <div className="stat-title">
+                                {type.title} tickets sold
+                              </div>
+                              <div className="stat-value">{typeCount}</div>
+                              <div className="stat-desc"></div>
+                            </div>
+                          </div>
+                        );
+                      })}
                       <div className="stats m-1 shadow">
                         <div className="stat overflow-hidden">
-                          <div className="stat-title">Tickets Scanned at Gate</div>
-                          <div className="stat-value">{ticketsScanned.length}</div>
-                          <div className="stat-desc">
+                          <div className="stat-title">
+                            Tickets Scanned
                           </div>
+                          <div className="stat-value">
+                            {ticketsScanned.length}
+                          </div>
+                          <div className="stat-desc"></div>
                         </div>
                       </div>
                     </div>
