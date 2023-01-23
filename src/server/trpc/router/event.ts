@@ -75,6 +75,7 @@ export const eventsRouter = router({
         eventMaxTickets: z.number(),
         eventPosterUrl: z.string(),
         eventOrganizer: z.string(),
+      mobileContact:z.string(),
         eventDate: z.date(),
         eventicketTypesParsed: z.array(
           z.object({ price: z.number(), title: z.string(), deadline: z.date() })
@@ -91,6 +92,7 @@ export const eventsRouter = router({
           EventMaxTickets: input.eventMaxTickets,
           EventPosterUrl: input.eventPosterUrl,
           EventOrganizer: input.eventOrganizer,
+          MobileContact:input.mobileContact,
           ticketTypes: {
             createMany: {
               data: [...input.eventicketTypesParsed],

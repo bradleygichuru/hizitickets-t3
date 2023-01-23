@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
+import { AiOutlinePhone } from "react-icons/ai";
 import ReactLoading from "react-loading";
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Button, Alert, AlertIcon,AspectRatio } from "@chakra-ui/react";
+import { useToast,Button, Alert, AlertIcon, AspectRatio,Input,InputGroup,InputLeftElement } from "@chakra-ui/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
 import { z } from "zod";
-import { useToast } from "@chakra-ui/react";
 import Image from "next/image";
 import ticketLogo from "../../public/ticket-svgrepo-com.svg";
 import { useSession, signIn } from "next-auth/react";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
-console.log(yourDate.toISOString().split("T")[0]);
 
 const FormSchema = z.object({
+  mobileContact:z.string(),
   eventName: z.string(),
   eventDescription: z.string(),
   eventLocation: z.string(),
@@ -113,7 +113,7 @@ const DashBoard = () => {
             eventName: data.eventName,
             eventDate: data.eventDate,
             eventDescription: data.eventDescription,
-
+            mobileContact:data.mobileContact,
             eventicketTypesParsed: eventicketTypes.filter((type) => {
               if (type.title.split(" ")[0] != "e.g" && type.title.length != 0) {
                 console.log(type);
@@ -151,7 +151,7 @@ const DashBoard = () => {
     }
   };
   if (status == "unauthenticated") {
-    signIn(undefined,{callbackUrl:"/dashboard"});
+    signIn(undefined, { callbackUrl: "/dashboard" });
   }
 
   if (status == "loading") {
@@ -486,6 +486,18 @@ const DashBoard = () => {
                     </label>
                   )}
 
+                  <label htmlFor="mobileContact" className="label">
+                    Mobile Contact
+                  </label>
+                  <InputGroup className="m-2">
+                    <InputLeftElement pointerEvents="none">
+                      <AiOutlinePhone />
+                    </InputLeftElement>
+                    <Input {...register("mobileContact", {
+                      required: true,
+                    })} type="tel" placeholder="Phone number" />
+                    
+                  </InputGroup>
                   <div>
                     <label className="label">Event Poster</label>
                     <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
@@ -566,12 +578,12 @@ const DashBoard = () => {
                       key={index}
                       className="lg:w-41 group relative m-3 mb-40 rounded-lg bg-neutral p-0 sm:mb-16 sm:w-52"
                     >
-                          <AspectRatio maxW='400px' ratio={1}>
+                      <AspectRatio maxW="400px" ratio={1}>
                         <img
                           src={event.EventPosterUrl}
                           className="lg:w-41 object-cover object-center " //TODO use next/image here
                         />
-</AspectRatio>
+                      </AspectRatio>
                       <div className="m-1 flex justify-between">
                         <div>
                           <h3 className="rounded-lg  p-1 text-sm">
@@ -624,9 +636,7 @@ const DashBoard = () => {
                       })}
                       <div className="stats m-1 shadow">
                         <div className="stat overflow-hidden">
-                          <div className="stat-title">
-                            Tickets Scanned
-                          </div>
+                          <div className="stat-title">Tickets Scanned</div>
                           <div className="stat-value">
                             {ticketsScanned.length}
                           </div>
