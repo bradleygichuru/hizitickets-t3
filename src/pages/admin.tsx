@@ -1,5 +1,7 @@
 import { trpc } from "../utils/trpc";
 import Image from "next/image";
+
+import ticketLogo from "../../public/ticket-svgrepo-com.svg";
 import error from "../../public/error.svg";
 import { useSession, signIn, signOut } from "next-auth/react";
 import ReactLoading from "react-loading";
@@ -9,10 +11,10 @@ const AdminPage = () => {
   const { data, isLoading } = trpc.events.getEvents.useQuery();
   console.log(session);
   if (status == "unauthenticated") {
-    signIn();
+    signIn(undefined, { callbackUrl: "/admin" });
   }
-
-  if (status != "authenticated") {
+//TODO switch up logic to only evaluate authority of user on backend
+  if (status == "loading") {
     return (
       <div className=" grid h-screen place-items-center bg-base-100">
         <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
@@ -20,12 +22,23 @@ const AdminPage = () => {
       </div>
     );
   }
-  if (
-    session?.user?.email == "bradleygichuru@gmail.com" ||
-    session?.user?.email == "jasonmwai.k@gmail.com" ||
-    session?.user?.email == "roboboy84@gmail.com" ||
-    session?.user?.email == "Mwasnoah@gmail.com"
-  ) {
+
+  if (isLoading) {
+    return (
+      <div className=" grid h-screen place-items-center bg-base-100">
+        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
+        <span className="text-black">Fetching Data</span>
+      </div>
+    );
+  }
+  if(data?.events?.length == 0 ) {
+    return(
+            <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
+              <Image src={ticketLogo} width={100} alt="ticket" height={100} />
+              No Events
+            </div>)
+  }
+  if (data?.events) {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
         {data?.events?.map((event, index) => {
@@ -39,7 +52,7 @@ const AdminPage = () => {
         })}
       </div>
     );
-  }
+  }if(data?.unauthorized){
   return (
     <div className=" grid h-screen place-items-center bg-base-100">
       <Image src={error} alt="error" width={100} height={100} />
@@ -55,6 +68,6 @@ const AdminPage = () => {
         Sign in as admin
       </button>
     </div>
-  );
+  )}
 };
 export default AdminPage;
