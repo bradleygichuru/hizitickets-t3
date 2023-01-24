@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
 
 import { useToast } from "@chakra-ui/react";
-const EventInfo = (props: { EventValidity: boolean; EventName: string }) => {
+const EventInfo = (props: { EventValidity: boolean; EventName: string; MobileContact: string; EventOrganizer: string; }) => {
   const toast = useToast();
   const [eventValidity, setEventValidity] = useState<boolean>();
   const verifyMutation = trpc.events.verifyEvent.useMutation();
@@ -12,8 +12,11 @@ const EventInfo = (props: { EventValidity: boolean; EventName: string }) => {
   return (
     <div className="stats shadow">
       <div className="stat">
-        <div className="stat-title">Verified: {`${props?.EventValidity}`}</div>
+        <div className="stat-title">Verified: {props?.EventValidity}</div>
         <div className="stat-value">Event Name: {props?.EventName}</div>
+
+        <div className="stat-title">Event Organizer: {props?.EventOrganizer}</div>
+        <div className="stat-title">Mobile Contact: {props?.MobileContact}</div>
         <div className="stat-desc inline-flex">
           Valid{" "}
           <input

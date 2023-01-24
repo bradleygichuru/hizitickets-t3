@@ -48,6 +48,8 @@ const AdminPage = () => {
               key={index}
               EventValidity={event?.EventValidity}
               EventName={event?.EventName}
+              MobileContact={event?.MobileContact}
+              EventOrganizer={event?.EventOrganizer}
             />
           );
         })}
