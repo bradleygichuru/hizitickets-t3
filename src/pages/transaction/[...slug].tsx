@@ -3,9 +3,8 @@ import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { GetServerSideProps } from "next";
-import Image from "next/image";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { Event, Ticket, Transaction } from "@prisma/client";
+import { Event, Ticket } from "@prisma/client";
 import ReactLoading from "react-loading";
 import Router from "next/router";
 
