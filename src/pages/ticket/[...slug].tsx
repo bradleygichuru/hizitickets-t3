@@ -7,11 +7,14 @@ import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
 import Router from "next/router";
-import { useToast,Alert,
+import {
+  useToast,
+  Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription, } from '@chakra-ui/react';
-  
+  AlertDescription,
+} from "@chakra-ui/react";
+
 type formSchema = {
   quantity: number;
   mobileNumber: number;
@@ -61,8 +64,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
             } else {
               toast({
                 title: "Error",
-                description:
-                  "There was a problem purchasing your tickets",
+                description: "There was a problem purchasing your tickets",
                 status: "error",
                 duration: 9000,
                 isClosable: true,
@@ -97,11 +99,14 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
   return (
     <Layout>
       <div className=" sm:m-4 sm:ml-20 ">
-        <Alert status='info'>
-  <AlertIcon />
-  <AlertTitle>We currently only support mpesa payments.</AlertTitle>
-  <AlertDescription>We are working on adding other payment methods soon.</AlertDescription>
-</Alert>        <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 px-6 sm:px-6 sm:py-6 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
+        <Alert status="info">
+          <AlertIcon />
+          <AlertTitle>We currently only support mpesa payments.</AlertTitle>
+          <AlertDescription>
+            We are working on adding other payment methods soon.
+          </AlertDescription>
+        </Alert>{" "}
+        <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 px-6 sm:px-6 sm:py-6 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 ">
             <div className="group relative m-3 mb-16 flex-auto rounded-lg bg-neutral p-0">
               <div className="min-h-80 aspect-w-1  aspect-h-1 lg:aspect-none w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
@@ -144,7 +149,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               <label className="label">
                 {errors.ticketTypeTitle && (
                   <span className="label-text-alt text-red-600">
-                  {errors.ticketTypeTitle.message}
+                    {errors.ticketTypeTitle.message}
                   </span>
                 )}
               </label>
@@ -188,8 +193,8 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                   {...register("mobileNumber", {
                     required: "phone number is required",
                     valueAsNumber: true,
-                    minLength:9,
-                    maxLength:9,
+                    minLength: 9,
+                    maxLength: 9,
                   })}
                   className="input-bordered input"
                 />
@@ -198,7 +203,6 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                 {errors.mobileNumber && (
                   <span className="label-text-alt text-red-600">
                     {errors.mobileNumber.message}
-                    
                   </span>
                 )}
               </label>

@@ -13,7 +13,7 @@ const AdminPage = () => {
   if (status == "unauthenticated") {
     signIn(undefined, { callbackUrl: "/admin" });
   }
-//TODO switch up logic to only evaluate authority of user on backend
+  //TODO switch up logic to only evaluate authority of user on backend
   if (status == "loading") {
     return (
       <div className=" grid h-screen place-items-center bg-base-100">
@@ -31,12 +31,13 @@ const AdminPage = () => {
       </div>
     );
   }
-  if(data?.events?.length == 0 ) {
-    return(
-            <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
-              <Image src={ticketLogo} width={100} alt="ticket" height={100} />
-              No Events
-            </div>)
+  if (data?.events?.length == 0) {
+    return (
+      <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
+        <Image src={ticketLogo} width={100} alt="ticket" height={100} />
+        No Events
+      </div>
+    );
   }
   if (data?.events) {
     return (
@@ -52,22 +53,24 @@ const AdminPage = () => {
         })}
       </div>
     );
-  }if(data?.unauthorized){
-  return (
-    <div className=" grid h-screen place-items-center bg-base-100">
-      <Image src={error} alt="error" width={100} height={100} />
-      <span className="text-black">
-        You are not authorized to view this page
-      </span>
-      <button
-        className="btn-accent btn gap-2 rounded text-accent-content"
-        onClick={() => {
-          signOut();
-        }}
-      >
-        Sign in as admin
-      </button>
-    </div>
-  )}
+  }
+  if (data?.unauthorized) {
+    return (
+      <div className=" grid h-screen place-items-center bg-base-100">
+        <Image src={error} alt="error" width={100} height={100} />
+        <span className="text-black">
+          You are not authorized to view this page
+        </span>
+        <button
+          className="btn-accent btn gap-2 rounded text-accent-content"
+          onClick={() => {
+            signOut();
+          }}
+        >
+          Sign in as admin
+        </button>
+      </div>
+    );
+  }
 };
 export default AdminPage;

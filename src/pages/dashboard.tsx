@@ -4,7 +4,16 @@ import { AiOutlinePhone } from "react-icons/ai";
 import ReactLoading from "react-loading";
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useToast,Button, Alert, AlertIcon, AspectRatio,Input,InputGroup,InputLeftElement } from "@chakra-ui/react";
+import {
+  useToast,
+  Button,
+  Alert,
+  AlertIcon,
+  AspectRatio,
+  Input,
+  InputGroup,
+  InputLeftElement,
+} from "@chakra-ui/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
 import { trpc } from "../utils/trpc";
@@ -17,7 +26,7 @@ const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
 
 const FormSchema = z.object({
-  mobileContact:z.string(),
+  mobileContact: z.string(),
   eventName: z.string(),
   eventDescription: z.string(),
   eventLocation: z.string(),
@@ -113,7 +122,7 @@ const DashBoard = () => {
             eventName: data.eventName,
             eventDate: data.eventDate,
             eventDescription: data.eventDescription,
-            mobileContact:data.mobileContact,
+            mobileContact: data.mobileContact,
             eventicketTypesParsed: eventicketTypes.filter((type) => {
               if (type.title.split(" ")[0] != "e.g" && type.title.length != 0) {
                 console.log(type);
@@ -493,10 +502,13 @@ const DashBoard = () => {
                     <InputLeftElement pointerEvents="none">
                       <AiOutlinePhone />
                     </InputLeftElement>
-                    <Input {...register("mobileContact", {
-                      required: true,
-                    })} type="tel" placeholder="Phone number" />
-                    
+                    <Input
+                      {...register("mobileContact", {
+                        required: true,
+                      })}
+                      type="tel"
+                      placeholder="Phone number"
+                    />
                   </InputGroup>
                   <div>
                     <label className="label">Event Poster</label>

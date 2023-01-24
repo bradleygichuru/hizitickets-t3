@@ -10,8 +10,7 @@ export default function Section(props: {
   return (
     <div className="flex flex-col content-center ">
       <div className="container ml-12 mt-8 flex w-auto sm:ml-24 sm:w-auto">
-        <span className="font-sans text-sm font-bold ">
-        </span>
+        <span className="font-sans text-sm font-bold "></span>
       </div>
       <div className="mt-20 ml-10 mr-10 grid w-auto grid-cols-1 justify-center rounded-xl bg-base-100  p-3 sm:ml-24 sm:mt-20 sm:grid sm:grid-cols-4 sm:grid-rows-1 ">
         {props?.data?.map((val, index) => {
