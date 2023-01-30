@@ -1,14 +1,15 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc";
-import axios from "axios";
 import { createHash } from "crypto";
 import generateQR from "../../../utils/base64gen";
+import {Mpesa} from "../../../utils/index"; 
 const cK = "MN0MrspNCSebZAInOGIUQtCgjGdHzVcz";
 const cS = "Iw3MraZkQEuGFROv";
 const BusinessTill = 8071418;
 const ShortCode = 6135122;
 const passkey =
   "6e1b6160fb9604e2ea3ff0f283af8766372e261a7d9e98cf34486a107e145de2";
+const mpesa = new Mpesa(ShortCode,passkey,cK,cS,"production");
 export const ticketRouter = router({
   buyTicket: publicProcedure
     .input(
@@ -22,7 +23,7 @@ export const ticketRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       console.log(input);
-      const date = new Date();
+      /*const date = new Date();
 
       const timestamp =
         date.getFullYear() +
@@ -97,10 +98,13 @@ export const ticketRouter = router({
           console.log("Error", error.message);
         }
         console.log(error.config);
-      });
-      console.log(buyRequest);
+      });*/
       let unconfirmedTransaction;
-      if (buyRequest?.data?.ResponseCode == "0") {
+      
+      const buyRequest = await mpesa.simulateStkPush(`${input.mobileNumber}`,input.totalAmount,"hizitickets-enterprises","Ticket Purchase","CustomerBuyGoodsOnline",BusinessTill,`https://www.hizitickets.com/api/mpesaCallback`);
+      
+      console.log(buyRequest);
+    if (buyRequest?.ResponseCode == "0") {
         //TODO change this in prod
         unconfirmedTransaction = await ctx.prisma.transaction.create({
           data: {
@@ -109,8 +113,8 @@ export const ticketRouter = router({
             TransactionMethod: "MPESA",
             NumberOfTickets: input.quantity,
             TotalAmount: input.totalAmount,
-            MerchantRequestID: buyRequest?.data?.MerchantRequestID,
-            CheckoutRequestID: buyRequest?.data?.CheckoutRequestID,
+            MerchantRequestID: buyRequest?.MerchantRequestID,
+            CheckoutRequestID: buyRequest?.CheckoutRequestID,
             ticketTypeTitle: input.ticketTypeTitle,
           },
         });
