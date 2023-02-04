@@ -4,17 +4,10 @@ import GoogleProvider from "next-auth/providers/google";
 import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db/client";
 
+const debug = (env.NODE_ENV == "development" ? true : false); 
 export const authOptions: NextAuthOptions = {
   // Include user.id on session
-
-  callbacks: {
-    session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
-      return session;
-    },
-  },
+  debug:debug,
   // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
   providers: [
