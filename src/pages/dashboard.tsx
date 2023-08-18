@@ -643,7 +643,7 @@ const DashBoard = () => {
               No Events
             </div>
           ) : (
-            <div className="my-5 mx-auto w-screen flex flex-col rounded-3xl p-1">
+            <div className="m-5 mx-auto w-screen flex flex-col rounded-3xl p-1">
               {data?.events.map((event, index) => {
                 let ticketNumbers = 0;
                 let revenue = 0;
@@ -656,9 +656,9 @@ const DashBoard = () => {
                   });
                 });
                 return (
-                  <div key={index} className="lg:w-1/2 w-full rounded-lg h-fit bg-base-100 flex flex-col lg:flex-row">
+                  <div key={index} className="group relative lg:w-1/2 w-full rounded-lg h-fit bg-base-100 flex flex-col lg:flex-row">
 
-                    <div className="flex lg:w-1/2 h-fit flex-col rounded-lg bg-neutral p-0">
+                    <div className="flex lg:w-1/2 h-fit flex-col rounded-lg bg-neutral p-1">
                       <div className=" rounded-ld">
                         <img
                           src={event?.EventPosterUrl}
