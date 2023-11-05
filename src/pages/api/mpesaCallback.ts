@@ -35,8 +35,11 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
         where: {
           MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
         },
-        data: { cancelled: true },
-      });
+        data: {
+          cancelled: true,
+          mpesaTransactionDescription: req?.body.Body.stkCallback.ResultDesc,
+        },
+      }); //remove since else handles this
     } else {
       await prisma.transaction.update({
         where: {
