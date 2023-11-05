@@ -16,4 +16,16 @@ export const transactionRouter = router({
         mpesaResDescription: transaction?.mpesaTransactionDescription,
       };
     }),
+  findTransaction: publicProcedure
+    .input(z.object({ mpesaTransCode: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const transaction = await ctx.prisma.transaction.findFirst({
+        where: { mpesaReceiptNumber: input?.mpesaTransCode },
+      });
+      if (transaction) {
+        return { transaction, status: "success" };
+      } else {
+        return { status: "failed" };
+      }
+    }),
 });

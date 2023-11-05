@@ -6,9 +6,7 @@ import { trpc } from "../utils/trpc";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 const FormSchema = z.object({
-  phoneNumber: z.string(),
-  ticketType: z.string(),
-  eventName: z.string(),
+  mpesaTransCode: z.string(),
 });
 type FormSchemaType = z.infer<typeof FormSchema>;
 
@@ -19,16 +17,15 @@ const RecoverTicket: NextPage = () => {
     formState: { errors },
     watch,
   } = useForm<FormSchemaType>();
-  const findTicketsMutation = trpc.ticket.findMerchantId.useMutation();
+  const findTransactionMutation =
+    trpc.transaction.findTransaction.useMutation();
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    const res = await findTicketsMutation.mutateAsync({
-      phoneNumber: data.phoneNumber,
-      eventName: data.eventName,
-      ticketType: data.ticketType,
+    const res = await findTransactionMutation.mutateAsync({
+      mpesaTransCode: data?.mpesaTransCode,
     });
     if (res) {
-      console.log(res);
-      // Router.push(`/transaction/${res[0]?.MerchantRequestID}`);
+      Router.push(`/transaction/${res?.transaction?.MerchantRequestID}`);
+    } else {
     }
   };
   return (
@@ -49,58 +46,19 @@ const RecoverTicket: NextPage = () => {
               onSubmit={handleSubmit(onSubmit)}
             >
               <label className="label">
-                <span className="label-text">
-                  The ticket purchasers mobile number
-                </span>
+                <span className="label-text">Receipt Number</span>
               </label>
               <label className="input-group-md input-group input-group-vertical m-2">
-                <span>number</span>
+                <span></span>
                 <input
                   type="text"
                   placeholder="+2547 xxx xxxxx"
                   className="input-bordered input"
-                  {...register("phoneNumber", { required: true })}
+                  {...register("mpesaTransCode", { required: true })}
                 />
               </label>
 
-              {errors.phoneNumber && (
-                <label className="label">
-                  <span className="text-red-900">This field is required</span>
-                </label>
-              )}
-              <label className="label">
-                <span className="label-text">Ticket type</span>
-              </label>
-              <label className="input-group-md input-group input-group-vertical m-2">
-                <span>name</span>
-                <input
-                  type="text"
-                  placeholder="Group ticket"
-                  className="input-bordered input"
-                  {...register("ticketType", { required: true })}
-                />
-              </label>
-
-              {errors.ticketType && (
-                <label className="label">
-                  <span className="text-red-900">This field is required</span>
-                </label>
-              )}
-
-              <label className="label">
-                <span className="label-text">Event Name</span>
-              </label>
-              <label className="input-group-md input-group input-group-vertical m-2">
-                <span>Name</span>
-                <input
-                  type="text"
-                  placeholder="eg. OktoberFest "
-                  className="input-bordered input"
-                  {...register("eventName", { required: true })}
-                />
-              </label>
-
-              {errors.eventName && (
+              {errors.mpesaTransCode && (
                 <label className="label">
                   <span className="text-red-900">This field is required</span>
                 </label>
