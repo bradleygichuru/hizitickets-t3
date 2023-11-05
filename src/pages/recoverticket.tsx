@@ -5,6 +5,7 @@ import Router from "next/router";
 import { trpc } from "../utils/trpc";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { Button, useToast } from "@chakra-ui/react";
 const FormSchema = z.object({
   mpesaTransCode: z.string(),
 });
@@ -17,6 +18,7 @@ const RecoverTicket: NextPage = () => {
     formState: { errors },
     watch,
   } = useForm<FormSchemaType>();
+  const toast = useToast();
   const findTransactionMutation =
     trpc.transaction.findTransaction.useMutation();
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
@@ -26,6 +28,12 @@ const RecoverTicket: NextPage = () => {
     if (res) {
       Router.push(`/transaction/${res?.transaction?.MerchantRequestID}`);
     } else {
+      toast({
+        status: "error",
+        description: "transaction does not exist",
+        duration: 9000,
+        isClosable: true,
+      });
     }
   };
   return (
@@ -52,7 +60,7 @@ const RecoverTicket: NextPage = () => {
                 <span></span>
                 <input
                   type="text"
-                  placeholder="+2547 xxx xxxxx"
+                  placeholder="xxxxxxxxxx"
                   className="input-bordered input"
                   {...register("mpesaTransCode", { required: true })}
                 />
@@ -63,9 +71,13 @@ const RecoverTicket: NextPage = () => {
                   <span className="text-red-900">This field is required</span>
                 </label>
               )}
-              <button type="submit" className="btn m-2 bg-accent">
+              <Button
+                isLoading={findTransactionMutation?.isLoading}
+                type="submit"
+                className="btn m-2 bg-accent"
+              >
                 submit
-              </button>
+              </Button>
             </form>
           </div>
         </div>
