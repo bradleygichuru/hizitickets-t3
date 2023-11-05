@@ -41,7 +41,7 @@ const AdminPage = () => {
   }
   if (data?.events) {
     return (
-      <div className="grid h-screen place-items-center bg-base-100">
+      <div className="flex flex-row bg-base-100">
         {data?.events?.map((event, index) => {
           return (
             <EventInfo
