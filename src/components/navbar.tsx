@@ -67,7 +67,7 @@ export default function Nav() {
           </Link>
         </div>
         <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal p-0">
+          <ul className="menu menu-horizontal p-0 z-10">
             <li>
               <Link className="btn-ghost btn text-primary" href="/dashboard">
                 Dashboard
