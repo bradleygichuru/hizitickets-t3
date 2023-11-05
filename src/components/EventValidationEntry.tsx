@@ -44,7 +44,7 @@ const EventInfo = (props: {
                 if (verification == "successful") {
                   toast({
                     title: "Success.",
-                    description: "Your event was verified successfully",
+                    description: "Your event was invalidated successfully",
                     status: "success",
                     duration: 9000,
                     isClosable: true,
