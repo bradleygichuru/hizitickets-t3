@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BiAddToQueue, BiSearchAlt } from "react-icons/bi";
 import { AiOutlinePhone, AiOutlinePlus } from "react-icons/ai";
 import ReactLoading from "react-loading";
+
 import Layout from "../components/layout";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -41,6 +42,7 @@ const FormSchema = z.object({
   eventDate: z.date(),
   eventTicketPrice: z.number(),
   eventMaxTickets: z.number(),
+  eventPoster: z.custom<FileList>(),
   ticketType1Name: z.string(),
   ticketType1Price: z.number(),
   ticketType1Date: z.date(),
@@ -53,6 +55,15 @@ const FormSchema = z.object({
   ticketType4Price: z.number(),
   ticketType4Date: z.date().nullish(),
   ticketType4Name: z.string(),
+  merchSlotOneTitle: z.string().nullish(),
+  merchSlotOnePrice: z.number().nullish(),
+  merchSlotOnePoster: z.custom<FileList>().nullish(),
+  merchSlotTwoTitle: z.string().nullish(),
+  merchSlotTwoPrice: z.number().nullish(),
+  merchSlotTwoPoster: z.custom<FileList>().nullish(),
+  merchSlotThreeTitle: z.string().nullish(),
+  merchSlotThreePrice: z.number().nullish(),
+  merchSlotThreePoster: z.custom<FileList>().nullish(),
 });
 type FormSchemaType = z.infer<typeof FormSchema>;
 
@@ -63,13 +74,18 @@ const sorts = [
   "Tickets sold ",
   "Tickets remaining",
 ]; // TODO make sort types functional i.e work
-
+type Merch = { name: string; price: number; MerchPosterUrl: File };
 const DashBoard = () => {
   const toast = useToast();
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [eventPoster, setEventPoster] = useState<File>();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  //const [eventPoster, setEventPoster] = useState<File>();
   const [selectedSort, setSelectedSort] = useState(sorts[0]);
+  const [editAddEvent, setEditAddEvent] = useState(true);
+  const [editMerchSlotThree, setEditMerchSlotThree] = useState(false);
+  const [editMerchSlotTwo, setEditMerchSlotTwo] = useState(false);
+  const [editMerchSlotOne, setEditMerchSlotOne] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [merchandise, setMerchandise] = useState<Merch[]>();
   const { data: session, status } = useSession();
   /* console.log(session) */
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
@@ -81,6 +97,16 @@ const DashBoard = () => {
     watch,
   } = useForm<FormSchemaType>();
   console.log(status);
+  const merchSlotOnePosterReference = watch("merchSlotOnePoster");
+  const merchSlotTwoPosterReference = watch("merchSlotTwoPoster");
+  const merchSlotThreePosterReference = watch("merchSlotThreePoster");
+  const eventPoster = watch("eventPoster");
+  console.log({
+    merchSlotOnePosterReference,
+    merchSlotTwoPosterReference,
+    merchSlotThreePosterReference,
+    eventPoster,
+  });
   const { data, isLoading } = trpc.events.getUserEvents.useQuery(
     { eventOrganizer: session?.user?.name as string },
     {
@@ -94,7 +120,83 @@ const DashBoard = () => {
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log(data);
-    console.log({ errors })
+    console.log({ errors });
+    type MerchPayload = Array<{
+      merchandiseName: string;
+      merchandisePrice: number;
+      merchandisePoster: string;
+    }>;
+    const addedMerch: MerchPayload = [];
+    if (data?.merchSlotOnePrice && data?.merchSlotOneTitle) {
+      const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
+
+      const snapshot = await uploadBytes(
+        storageRef,
+        merchSlotOnePosterReference?.[0] as Blob
+      );
+      const url = await getDownloadURL(snapshot.ref);
+      if (url) {
+        addedMerch.push({
+          merchandiseName: data?.merchSlotOneTitle,
+          merchandisePrice: data?.merchSlotOnePrice,
+          merchandisePoster: url,
+        });
+      } else {
+        toast({
+          description: "Error uploading merch poster",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    }
+    if (data.merchSlotTwoPrice && data.merchSlotTwoTitle) {
+      const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
+
+      const snapshot = await uploadBytes(
+        storageRef,
+        merchSlotOnePosterReference?.[0] as Blob
+      );
+      const url = await getDownloadURL(snapshot.ref);
+      if (url) {
+        addedMerch.push({
+          merchandiseName: data.merchSlotTwoTitle,
+          merchandisePrice: data.merchSlotTwoPrice,
+          merchandisePoster: url,
+        });
+      } else {
+        toast({
+          description: "Error uploading merch poster",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    }
+    if (data.merchSlotThreePrice && data.merchSlotThreeTitle) {
+      const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
+
+      const snapshot = await uploadBytes(
+        storageRef,
+        merchSlotOnePosterReference?.[0] as Blob
+      );
+      const url = await getDownloadURL(snapshot.ref);
+      if (url) {
+        addedMerch.push({
+          merchandiseName: data.merchSlotThreeTitle,
+          merchandisePrice: data.merchSlotThreePrice,
+          merchandisePoster: url,
+        });
+      } else {
+        toast({
+          description: "Error uploading merch poster",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    }
+
     const eventicketTypes = [
       {
         title: data.ticketType1Name,
@@ -117,11 +219,14 @@ const DashBoard = () => {
         price: data.ticketType4Price,
       },
     ];
-    if (eventPoster) {
-      console.log(eventPoster);
+    if (eventPoster?.[0]) {
+      console.log(eventPoster?.[0]);
       setIsSubmitting((isSubmitting) => !isSubmitting);
-      const storageRef = ref(storage, eventPoster.name);
-      const snapshot = await uploadBytes(storageRef, eventPoster);
+      //const storageRef = ref(storage, eventPoster.name);
+      const storageRef = ref(storage, eventPoster?.[0]?.name);
+
+      //const snapshot = await uploadBytes(storageRef, eventPoster);
+      const snapshot = await uploadBytes(storageRef, eventPoster?.[0] as Blob);
       const url = await getDownloadURL(snapshot.ref);
 
       if (url) {
@@ -133,6 +238,7 @@ const DashBoard = () => {
             eventDate: data.eventDate,
             eventDescription: data.eventDescription,
             mobileContact: data.mobileContact,
+            merch: addedMerch,
             eventicketTypesParsed: eventicketTypes.filter((type) => {
               if (type.title.split(" ")[0] != "e.g" && type.title.length != 0) {
                 console.log(type);
@@ -169,7 +275,12 @@ const DashBoard = () => {
           });
       }
     } else {
-      toast({ title: "Field empty", description: "Event poster required", status: "error", duration: 9000 })
+      toast({
+        title: "Field empty",
+        description: "Event poster required",
+        status: "error",
+        duration: 9000,
+      });
     }
   };
   if (status == "unauthenticated") {
@@ -204,451 +315,783 @@ const DashBoard = () => {
             Add Event
             <BiAddToQueue className="ml-6 h-6 w-6" />
           </button>
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>
-                Add Event
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <div className="mt-2">
-                  <form
-                    className="form-control"
-                    onSubmit={handleSubmit(onSubmit)}
-                  >
-                    <label htmlFor="eventName" className="label">
-                      Event name
-                    </label>
-                    <input
-                      className="input-bordered input m-2 w-full max-w-xs"
-                      {...register("eventName", { required: true })}
-                      id="eventName"
-                      placeholder="event name"
-                    />
-                    {errors.eventName && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
+          {editAddEvent ? (
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Add Event</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <div className="mt-2">
+                    <form
+                      className="form-control"
+                      onSubmit={handleSubmit(onSubmit)}
+                    >
+                      <label htmlFor="eventName" className="label">
+                        Event name
                       </label>
-                    )}
+                      <input
+                        className="input-bordered input m-2 w-full max-w-xs"
+                        {...register("eventName", { required: true })}
+                        id="eventName"
+                        placeholder="event name"
+                      />
+                      {errors.eventName && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
 
-                    <label htmlFor="eventDescription" className="label">
-                      Event description
-                    </label>
-                    <textarea
-                      className="textarea-bordered textarea m-2"
-                      {...register("eventDescription", { required: true })}
-                      id="eventDescription"
-                      placeholder="event description ............"
-                    />
-                    {errors.eventDescription && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
+                      <label htmlFor="eventDescription" className="label">
+                        Event description
                       </label>
-                    )}
+                      <textarea
+                        className="textarea-bordered textarea m-2"
+                        {...register("eventDescription", { required: true })}
+                        id="eventDescription"
+                        placeholder="event description ............"
+                      />
+                      {errors.eventDescription && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
 
-                    <label htmlFor="eventdescription" className="label">
-                      Event location
-                    </label>
-                    <input
-                      className="input-bordered input m-2 w-full max-w-xs"
-                      {...register("eventLocation", { required: true })}
-                      id="eventLocation"
-                      placeholder="event location ............"
-                    />
-                    {errors.eventLocation && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
+                      <label htmlFor="eventdescription" className="label">
+                        Event location
                       </label>
-                    )}
+                      <input
+                        className="input-bordered input m-2 w-full max-w-xs"
+                        {...register("eventLocation", { required: true })}
+                        id="eventLocation"
+                        placeholder="event location ............"
+                      />
+                      {errors.eventLocation && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
 
-                    <Alert className="m-4" status="info">
-                      <AlertIcon />
-                      On the Events Tickets section, filling the first ticket type
-                      is mandatory
-                    </Alert>
-                    <label htmlFor="eventTicketTypes" className="label">
-                      Event Tickets
-                    </label>
-
-                    <div className="dropdown">
-                      <label tabIndex={0} className="btn-outline btn m-1">
-                        Edit ticket type 1
+                      <Alert className="m-4" status="info">
+                        <AlertIcon />
+                        On the Events Tickets section, filling the first ticket
+                        type is mandatory
+                      </Alert>
+                      <label htmlFor="eventTicketTypes" className="label">
+                        Event Tickets
                       </label>
 
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
-                      >
-                        {" "}
-                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
-                          <label tabIndex={0} className="label m-1">
-                            Ticket title
-                          </label>
-                          <input
-                            type="text"
-                            {...register("ticketType1Name", { required: true })}
-                            placeholder="e.g Regular"
-                            id="ticketType1Name"
+                      <div className="dropdown">
+                        <label tabIndex={0} className="btn-outline btn m-1">
+                          Edit ticket type 1
+                        </label>
 
-                            className="input-bordered input m-2 "
-                          />
-                          {errors.ticketType1Name && (
-                            <label className="label">
-                              <span className="text-red-900">
-                                This field is required
-                              </span>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1]  menu rounded-box w-52 bg-base-100 p-2 shadow"
+                        >
+                          {" "}
+                          <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
+                            <label tabIndex={0} className="label m-1">
+                              Ticket title
                             </label>
-                          )}
+                            <input
+                              type="text"
+                              {...register("ticketType1Name", {
+                                required: true,
+                              })}
+                              placeholder="e.g Regular"
+                              id="ticketType1Name"
+                              className="input-bordered input m-2 "
+                            />
+                            {errors.ticketType1Name && (
+                              <label className="label">
+                                <span className="text-red-900">
+                                  This field is required
+                                </span>
+                              </label>
+                            )}
 
-                          <label tabIndex={0} className="label m-1">
-                            Price
-                          </label>
-                          <input
-                            type="number"
-                            {...register("ticketType1Price", {
-                              required: true,
-                              valueAsNumber: true,
-                            })}
-                            placeholder="Price"
-                            className="input-bordered input m-2 "
-                          />
-                          {errors.ticketType1Price && (
-                            <label className="label">
-                              <span className="text-red-900">
-                                This field is required
-                              </span>
+                            <label tabIndex={0} className="label m-1">
+                              Price
                             </label>
-                          )}
+                            <input
+                              type="number"
+                              {...register("ticketType1Price", {
+                                required: true,
+                                valueAsNumber: true,
+                              })}
+                              placeholder="Price"
+                              className="input-bordered input m-2 "
+                            />
+                            {errors.ticketType1Price && (
+                              <label className="label">
+                                <span className="text-red-900">
+                                  This field is required
+                                </span>
+                              </label>
+                            )}
 
-                          <label tabIndex={0} className="label m-1">
-                            Purchase Deadline
-                          </label>
-                          <input
-                            type="date"
-                            {...register("ticketType1Date", {
-                              valueAsDate: true, required: true
-                            })}
-                            placeholder="Deadline"
-                            className="input-bordered input m-2 "
-                          />
-                          {errors.ticketType1Date && (
-                            <label className="label">
-                              <span className="text-red-900">
-                                This field is required
-                              </span>
+                            <label tabIndex={0} className="label m-1">
+                              Purchase Deadline
                             </label>
-                          )}
+                            <input
+                              type="date"
+                              {...register("ticketType1Date", {
+                                valueAsDate: true,
+                                required: true,
+                              })}
+                              placeholder="Deadline"
+                              className="input-bordered input m-2 "
+                            />
+                            {errors.ticketType1Date && (
+                              <label className="label">
+                                <span className="text-red-900">
+                                  This field is required
+                                </span>
+                              </label>
+                            )}
+                          </div>
+                        </ul>
+                      </div>
+                      {(errors.ticketType1Date ||
+                        errors.ticketType1Price ||
+                        errors.ticketType1Name) && (
+                          <label className="label">
+                            <span className="text-red-900">
+                              This field is required
+                            </span>
+                          </label>
+                        )}
 
-                        </div>
-                      </ul>
-                    </div>
-                    {(errors.ticketType1Date || errors.ticketType1Price || errors.ticketType1Name) && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
+                      <div className="dropdown">
+                        <label tabIndex={0} className="btn-outline btn m-1 ">
+                          Edit ticket type 2
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu rounded-box w-52 bg-base-100 p-2 shadow"
+                        >
+                          <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
+                            <label tabIndex={0} className="label m-1">
+                              Ticket title
+                            </label>
+                            <input
+                              type="text"
+                              {...register("ticketType2Name")}
+                              placeholder="e.g Vip"
+                              className="input-bordered input m-2 "
+                            />
+                            <label tabIndex={0} className="label m-1">
+                              Price
+                            </label>
+                            <input
+                              {...register("ticketType2Price", {
+                                valueAsNumber: true,
+                              })}
+                              placeholder="Price"
+                              className="input-bordered input m-2 "
+                            />
+                            <label tabIndex={0} className="label m-1">
+                              Purchase Deadline
+                            </label>
+                            <input
+                              type="date"
+                              {...register("ticketType2Date", {
+                                valueAsDate: true,
+                              })}
+                              placeholder="Deadline"
+                              className="input-bordered input m-2 "
+                            />
+                          </div>
+                        </ul>
+                      </div>
+                      <div className="dropdown">
+                        <label tabIndex={0} className="btn-outline btn m-1 ">
+                          Edit ticket type 3
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu rounded-box w-52 bg-base-100 p-2 shadow"
+                        >
+                          <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
+                            <label tabIndex={0} className="label m-1">
+                              Ticket title
+                            </label>
+                            <input
+                              type="text"
+                              {...register("ticketType3Name")}
+                              placeholder="e.g Group"
+                              className="input-bordered input m-2 "
+                            />
+                            <label tabIndex={0} className="label m-1">
+                              Price
+                            </label>
+                            <input
+                              type="number"
+                              {...register("ticketType3Price", {
+                                valueAsNumber: true,
+                              })}
+                              placeholder="Price"
+                              className="input-bordered input m-2 "
+                            />
+                            <label tabIndex={0} className="label m-1">
+                              Purchase deadline
+                            </label>
+                            <input
+                              type="date"
+                              {...register("ticketType3Date", {
+                                valueAsDate: true,
+                              })}
+                              placeholder="Deadline"
+                              className="input-bordered input m-2 "
+                            />
+                          </div>
+                        </ul>
+                      </div>
+                      <div className="dropdown">
+                        <label tabIndex={0} className="btn-outline btn m-1 ">
+                          Edit ticket type 4
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu rounded-box w-52 bg-base-100 p-2 shadow"
+                        >
+                          <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
+                            <label tabIndex={0} className="label m-1">
+                              Ticket title
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g Advance Ticket"
+                              {...register("ticketType4Name")}
+                              className="input-bordered input m-2 "
+                            />
+                            <label tabIndex={0} className="label m-1">
+                              Price
+                            </label>
+                            <input
+                              type="number"
+                              {...register("ticketType4Price", {
+                                valueAsNumber: true,
+                              })}
+                              defaultValue={0}
+                              placeholder="Price"
+                              className="input-bordered input m-2 "
+                            />
+                            <label tabIndex={0} className="label m-1">
+                              Purchase deadline
+                            </label>
+                            <input
+                              type="date"
+                              {...register("ticketType4Date", {
+                                valueAsDate: true,
+                              })}
+                              placeholder="Deadline"
+                              className="input-bordered input m-2 "
+                            />
+                          </div>
+                        </ul>
+                      </div>
+
+                      <label htmlFor="eventMaxTickets" className="label">
+                        Maximum tickets for sale
                       </label>
-                    )}
 
-
-                    <div className="dropdown">
-                      <label tabIndex={0} className="btn-outline btn m-1 ">
-                        Edit ticket type 2
-                      </label>
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
-                      >
-                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
-                          <label tabIndex={0} className="label m-1">
-                            Ticket title
-                          </label>
-                          <input
-                            type="text"
-                            {...register("ticketType2Name")}
-                            placeholder="e.g Vip"
-                            className="input-bordered input m-2 "
-                          />
-                          <label tabIndex={0} className="label m-1">
-                            Price
-                          </label>
-                          <input
-                            {...register("ticketType2Price", {
-                              valueAsNumber: true,
-                            })}
-                            placeholder="Price"
-                            className="input-bordered input m-2 "
-                          />
-                          <label tabIndex={0} className="label m-1">
-                            Purchase Deadline
-                          </label>
-                          <input
-                            type="date"
-                            {...register("ticketType2Date", {
-                              valueAsDate: true,
-                            })}
-                            placeholder="Deadline"
-                            className="input-bordered input m-2 "
-                          />
-                        </div>
-                      </ul>
-                    </div>
-                    <div className="dropdown">
-                      <label tabIndex={0} className="btn-outline btn m-1 ">
-                        Edit ticket type 3
-                      </label>
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
-                      >
-                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
-                          <label tabIndex={0} className="label m-1">
-                            Ticket title
-                          </label>
-                          <input
-                            type="text"
-                            {...register("ticketType3Name")}
-                            placeholder="e.g Group"
-                            className="input-bordered input m-2 "
-                          />
-                          <label tabIndex={0} className="label m-1">
-                            Price
-                          </label>
-                          <input
-                            type="number"
-                            {...register("ticketType3Price", {
-                              valueAsNumber: true,
-                            })}
-                            placeholder="Price"
-                            className="input-bordered input m-2 "
-                          />
-                          <label tabIndex={0} className="label m-1">
-                            Purchase deadline
-                          </label>
-                          <input
-                            type="date"
-                            {...register("ticketType3Date", {
-                              valueAsDate: true,
-                            })}
-                            placeholder="Deadline"
-                            className="input-bordered input m-2 "
-                          />
-                        </div>
-                      </ul>
-                    </div>
-                    <div className="dropdown">
-                      <label tabIndex={0} className="btn-outline btn m-1 ">
-                        Edit ticket type 4
-                      </label>
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content menu rounded-box w-52 bg-base-100 p-2 shadow"
-                      >
-                        <div className="m-2 flex flex-col rounded-lg border-2 border-neutral">
-                          <label tabIndex={0} className="label m-1">
-                            Ticket title
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="e.g Advance Ticket"
-                            {...register("ticketType4Name")}
-                            className="input-bordered input m-2 "
-                          />
-                          <label tabIndex={0} className="label m-1">
-                            Price
-                          </label>
-                          <input
-                            type="number"
-                            {...register("ticketType4Price", {
-                              valueAsNumber: true,
-                            })}
-                            defaultValue={0}
-                            placeholder="Price"
-                            className="input-bordered input m-2 "
-                          />
-                          <label tabIndex={0} className="label m-1">
-                            Purchase deadline
-                          </label>
-                          <input
-                            type="date"
-                            {...register("ticketType4Date", {
-                              valueAsDate: true,
-                            })}
-                            placeholder="Deadline"
-                            className="input-bordered input m-2 "
-                          />
-                        </div>
-                      </ul>
-                    </div>
-
-                    <label htmlFor="eventMaxTickets" className="label">
-                      Maximum tickets for sale
-                    </label>
-
-                    <input
-                      className="input-bordered input m-2 w-full max-w-xs"
-                      {...register("eventMaxTickets", {
-                        required: true,
-                        valueAsNumber: true,
-                      })}
-                      id="eventMaxTickets"
-                      placeholder="maximum ticket for sale"
-                      type="number"
-                    />
-
-                    {errors.eventMaxTickets && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
-                      </label>
-                    )}
-
-                    <label htmlFor="eventDate" className="label">
-                      Event date
-                    </label>
-                    <input
-                      className="input-bordered input m-2 w-full max-w-xs"
-                      {...register("eventDate", {
-                        required: true,
-                        valueAsDate: true,
-                      })}
-                      id="eventDate"
-                      type="date"
-                      placeholder="event date"
-                    />
-                    {errors.eventDate && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
-                      </label>
-                    )}
-
-                    <label htmlFor="mobileContact" className="label">
-                      Mobile Contact
-                    </label>
-                    <InputGroup className="m-2">
-                      <InputLeftElement pointerEvents="none">
-                        <AiOutlinePhone />
-                      </InputLeftElement>
-                      <Input
-                        {...register("mobileContact", {
+                      <input
+                        className="input-bordered input m-2 w-full max-w-xs"
+                        {...register("eventMaxTickets", {
                           required: true,
+                          valueAsNumber: true,
                         })}
-                        type="tel"
-                        placeholder="Phone number"
+                        id="eventMaxTickets"
+                        placeholder="maximum ticket for sale"
+                        type="number"
                       />
 
-                    </InputGroup>
+                      {errors.eventMaxTickets && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
 
-                    {errors.mobileContact && (
-                      <label className="label">
-                        <span className="text-red-900">
-                          This field is required
-                        </span>
+                      <label htmlFor="eventDate" className="label">
+                        Event date
                       </label>
-                    )}
-                    <div>
-                      <label className="label">Event Poster</label>
-                      <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
-                        <div className="space-y-1 text-center">
-                          <svg
-                            className="mx-auto h-12 w-12 text-gray-400"
-                            stroke="currentColor"
-                            fill="none"
-                            viewBox="0 0 48 48"
-                            aria-hidden="true"
-                          >
-                            <path
-                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          <div className="flex text-sm text-gray-600">
-                            <label
-                              htmlFor="file-upload"
-                              className="l relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                      <input
+                        className="input-bordered input m-2 w-full max-w-xs"
+                        {...register("eventDate", {
+                          required: true,
+                          valueAsDate: true,
+                        })}
+                        id="eventDate"
+                        type="date"
+                        placeholder="event date"
+                      />
+                      {errors.eventDate && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
+
+                      <label htmlFor="mobileContact" className="label">
+                        Mobile Contact
+                      </label>
+                      <InputGroup className="m-2">
+                        <InputLeftElement pointerEvents="none">
+                          <AiOutlinePhone />
+                        </InputLeftElement>
+                        <Input
+                          {...register("mobileContact", {
+                            required: true,
+                          })}
+                          type="tel"
+                          placeholder="Phone number"
+                        />
+                      </InputGroup>
+
+                      {errors.mobileContact && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
+                      <div>
+                        <label className="label">Event Poster</label>
+                        <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+                          <div className="space-y-1 text-center">
+                            <svg
+                              className="mx-auto h-12 w-12 text-gray-400"
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                              aria-hidden="true"
                             >
-                              {eventPoster ? (<span>{eventPoster.name}</span>) : (<span>Upload a file</span>)}
-                              <input
-                                id="file-upload"
-                                name="file-upload"
-                                type="file"
-                                className="sr-only"
-                                onChange={(e) => {
-                                  setEventPoster(e.target.files?.[0]);
-                                }}
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                               />
-                            </label>
+                            </svg>
+                            <div className="flex text-sm text-gray-600">
+                              <label className="relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500">
+                                {eventPoster?.[0] ? (
+                                  <span>{eventPoster?.[0]?.name}</span>
+                                ) : (
+                                  <span>Upload a file</span>
+                                )}
+                                <input
+                                  className="sr-only"
+                                  accept=".jpg, .png"
+                                  type="file"
+                                  {...register("eventPoster", {
+                                    required: true,
+                                  })}
+                                />
+                              </label>
 
-
-                            {eventPoster ? ("") : (<p className="pl-1">or drag and drop</p>)}
+                              {eventPoster?.[0] ? (
+                                ""
+                              ) : (
+                                <p className="pl-1">or drag and drop</p>
+                              )}
+                            </div>
+                            {eventPoster?.[0] ? (
+                              ""
+                            ) : (
+                              <p className="text-xs text-gray-500">
+                                PNG, JPG up to 10MB
+                              </p>
+                            )}
                           </div>
-                          {eventPoster ? ("") : (<p className="text-xs text-gray-500">
-                            PNG, JPG, GIF up to 10MB
-                          </p>
-                          )}
                         </div>
                       </div>
-                    </div>
-                    <div>
+                      {errors.eventPoster && (
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
 
-                      <label className="label">Sellable items</label>
-                      <div className="flex flex-row ">
-                        <label tabIndex={0} className="btn m-1">
-                          <AiOutlinePlus />
-                        </label>
-                        <label tabIndex={0} className="btn m-1">
-                          <AiOutlinePlus />
-                        </label>
-                        <label tabIndex={0} className="btn m-1">
-                          <AiOutlinePlus />
-                        </label>
+                      <div>
+                        <label className="label">Sellable items</label>
+                        <div className="flex flex-row ">
+                          <label
+                            tabIndex={0}
+                            onClick={() => {
+                              setEditMerchSlotOne(true);
+                            }}
+                            className="btn m-1"
+                          >
+                            <AiOutlinePlus />
+                          </label>
+                          <label
+                            onClick={() => {
+                              setEditMerchSlotTwo(true);
+                            }}
+                            tabIndex={0}
+                            className="btn m-1"
+                          >
+                            <AiOutlinePlus />
+                          </label>
+                          <label
+                            onClick={() => {
+                              setEditMerchSlotThree(true);
+                            }}
+                            tabIndex={0}
+                            className="btn m-1"
+                          >
+                            <AiOutlinePlus />
+                          </label>
+                        </div>
+                      </div>
 
+                      <Button
+                        variant="outline"
+                        isLoading={isSubmitting}
+                        className="mt-4 bg-accent"
+                        type="submit"
+                      >
+                        Submit
+                      </Button>
+                    </form>
+                  </div>
+                </ModalBody>
+
+                <ModalFooter></ModalFooter>
+              </ModalContent>
+            </Modal>
+          ) : (
+            ""
+          )}
+
+          {editMerchSlotOne ? (
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>merch slot 1</ModalHeader>
+                <ModalBody>
+                  <label htmlFor="eventDate" className="label">
+                    Merch title
+                  </label>
+                  <input
+                    {...register("merchSlotOneTitle")}
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="merch title"
+                  />
+
+                  <label className="label">Merch price</label>
+                  <input
+                    {...register("merchSlotOnePrice", { valueAsNumber: true })}
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="in kes"
+                    type="number"
+                  />
+
+                  {/*<label className="label">Maximum merchandise inventory</label>
+                  <input
+
+                    {...register("merchSlotOne",{valueAsNumber:true})}
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="0"
+                  />*/}
+                  <div>
+                    <label className="label">Merch Image</label>
+                    <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600">
+                          <label className="relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500">
+                            {merchSlotOnePosterReference?.[0] ? (
+                              <span>
+                                {merchSlotOnePosterReference?.[0]?.name}
+                              </span>
+                            ) : (
+                              <span>Upload a file</span>
+                            )}
+                            <input
+                              type="file"
+                              className="sr-only"
+                              accept=".jpg, .png"
+                              {...register("merchSlotOnePoster")}
+                            />
+                          </label>
+
+                          {merchSlotOnePosterReference?.[0] ? (
+                            ""
+                          ) : (
+                            <p className="pl-1">or drag and drop</p>
+                          )}
+                        </div>
+                        {merchSlotOnePosterReference?.[0] ? (
+                          ""
+                        ) : (
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        )}
                       </div>
                     </div>
+                  </div>
+                </ModalBody>
 
-                    <Button
-                      variant="outline"
-                      isLoading={isSubmitting}
-                      className="mt-4 bg-accent"
-                      type="submit"
-                    >
-                      Submit
-                    </Button>
-                  </form>
-                </div>
+                <ModalFooter>
+                  <Button
+                    colorScheme="blue"
+                    mr={3}
+                    onClick={() => {
+                      //onClose();
+                      setEditMerchSlotOne(false);
+                      //setEditAddEvent(true);
+                    }}
+                  >
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          ) : (
+            ""
+          )}
+          {editMerchSlotTwo ? (
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>merch slot 2</ModalHeader>
+                <ModalBody>
+                  <label htmlFor="eventDate" className="label">
+                    Merch title
+                  </label>
+                  <input
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="merch title"
+                    {...register("merchSlotTwoTitle")}
+                  />
 
-              </ModalBody>
+                  <label className="label">Merch price</label>
+                  <input
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="in kes"
+                    type="number"
+                    {...register("merchSlotTwoPrice", { valueAsNumber: true })}
+                  />
 
-              <ModalFooter>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+                  {/* <label className="label">Maximum merchandise inventory</label>
+                  <input
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="0"
+                  /> */}
+                  <div>
+                    <label className="label">Merch Image</label>
+                    <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600">
+                          <label className="relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500">
+                            {merchSlotTwoPosterReference?.[0] ? (
+                              <span>
+                                {merchSlotTwoPosterReference?.[0]?.name}
+                              </span>
+                            ) : (
+                              <span>Upload a file</span>
+                            )}
+                            <input
+                              type="file"
+                              className="sr-only"
+                              accept=".jpg, .png"
+                              {...register("merchSlotTwoPoster")}
+                            />
+                          </label>
 
+                          {merchSlotTwoPosterReference?.[0] ? (
+                            ""
+                          ) : (
+                            <p className="pl-1">or drag and drop</p>
+                          )}
+                        </div>
+                        {merchSlotTwoPosterReference?.[0] ? (
+                          ""
+                        ) : (
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG up to 10MB
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </ModalBody>
 
-          {data?.events.length == 0 ? (
+                <ModalFooter>
+                  <Button
+                    colorScheme="blue"
+                    mr={3}
+                    onClick={() => {
+                      //onClose();
+                      setEditMerchSlotTwo(false);
+                      //setEditAddEvent(true);
+                    }}
+                  >
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          ) : (
+            ""
+          )}
+          {editMerchSlotThree ? (
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>merch slot 3</ModalHeader>
+                <ModalBody>
+                  <label htmlFor="eventDate" className="label">
+                    Merch title
+                  </label>
+                  <input
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="merch title"
+                    {...register("merchSlotThreeTitle")}
+                  />
+
+                  <label className="label">Merch price</label>
+                  <input
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="in kes"
+                    type="number"
+                    {...register("merchSlotThreePrice", {
+                      valueAsNumber: true,
+                    })}
+                  />
+
+                  {/* <label className="label">Maximum merchandise inventory</label>
+                  <input
+                    className="input-bordered input m-2 w-full max-w-xs"
+                    placeholder="0"
+                  /> */}
+                  <div>
+                    <label className="label">Merch Image</label>
+                    <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+                      <div className="space-y-1 text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <div className="flex text-sm text-gray-600">
+                          <label className="relative cursor-pointer rounded-md font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500">
+                            {merchSlotThreePosterReference?.[0] ? (
+                              <span>
+                                {merchSlotThreePosterReference?.[0]?.name}
+                              </span>
+                            ) : (
+                              <span>Upload a file</span>
+                            )}
+                            <input
+                              type="file"
+                              className="sr-only"
+                              accept=".jpg, .png"
+                              {...register("merchSlotThreePoster")}
+                            />
+                          </label>
+
+                          {merchSlotThreePosterReference?.[0] ? (
+                            ""
+                          ) : (
+                            <p className="pl-1">or drag and drop</p>
+                          )}
+                        </div>
+                        {merchSlotThreePosterReference?.[0] ? (
+                          ""
+                        ) : (
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button
+                    colorScheme="blue"
+                    mr={3}
+                    onClick={() => {
+                      //onClose();
+                      setEditMerchSlotThree(false);
+                      //setEditAddEvent(true);
+                    }}
+                  >
+                    Close
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          ) : (
+            ""
+          )}
+
+          {data?.events?.length == 0 ? (
             <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl  text-base-content">
               <Image src={ticketLogo} width={100} alt="ticket" height={100} />
               No Events
             </div>
           ) : (
             <div className="m-5 mx-auto w-screen flex flex-col rounded-3xl p-1">
-              {data?.events.map((event, index) => {
+              {data?.events?.map((event, index: number) => {
                 let ticketNumbers = 0;
                 let revenue = 0;
                 let ticketsScanned = [];
-                event.transactions.forEach((val, _) => {
+                event.transactions.forEach((val) => {
                   revenue += val.TotalAmount;
                   ticketNumbers += val.tickets.length;
                   ticketsScanned = val.tickets.filter((ticket) => {
@@ -656,8 +1099,10 @@ const DashBoard = () => {
                   });
                 });
                 return (
-                  <div key={index} className="group relative lg:w-1/2 w-full rounded-lg h-fit bg-base-100 flex flex-col lg:flex-row">
-
+                  <div
+                    key={index}
+                    className="group relative lg:w-1/2 w-full rounded-lg h-fit bg-base-100 flex flex-col lg:flex-row"
+                  >
                     <div className="flex lg:w-1/2 h-fit flex-col rounded-lg bg-neutral p-1">
                       <div className=" rounded-ld">
                         <img
@@ -666,7 +1111,6 @@ const DashBoard = () => {
                         />
                       </div>
                       <div className="m-1 place-items-center grid  rounded-lg">
-
                         <h3 className="rounded-lg text-neutral-content p-1">
                           <span
                             aria-hidden="true"
@@ -674,7 +1118,6 @@ const DashBoard = () => {
                           />
                           {event?.EventName}
                         </h3>
-
                       </div>
                     </div>
 
@@ -730,7 +1173,7 @@ const DashBoard = () => {
             </div>
           )}
         </div>
-      </Layout >
+      </Layout>
     );
   }
 };

@@ -63,21 +63,24 @@ model VerificationToken {
 }
 
 model Event {
-  EventId          String        @id @default(cuid())
-  EventName        String        @unique
-  EventDescription String        @db.MediumText()
-  EventLocation    String
-  EventMaxTickets  Int
-  EventDate        DateTime
-  EventPosterUrl   String
-  EventOrganizer   String
-  EventValidity    Boolean       @default(false)
-  eventOrganizer   User          @relation(fields: [EventOrganizer], references: [name])
-  ticketTypes      TicketTypes[]
-  transactions     Transaction[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  MobileContact    String
+  EventId                String                   @id @default(cuid())
+  EventName              String                   @unique
+  EventDescription       String                   @db.MediumText()
+  EventLocation          String
+  EventMaxTickets        Int
+  EventDate              DateTime
+  EventPosterUrl         String
+  EventOrganizer         String
+  EventValidity          Boolean                  @default(false)
+  eventOrganizer         User                     @relation(fields: [EventOrganizer], references: [name])
+  ticketTypes            TicketTypes[]
+  transactions           Transaction[]
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  MobileContact          String
+  MerchandiseTransaction MerchandiseTransaction[]
+  Merchandise            Merchandise[]
+
   @@index([EventOrganizer])
 }
 
@@ -114,13 +117,48 @@ model TicketTypes {
 }
 
 model Ticket {
-  TicketId        String      @id @default(cuid())
-  TransactionId   String
-  TransactionHash String
-  ImageData       String      @db.LongText
-  TicketHash      String      @unique @default(cuid())
-  Scanned         Boolean     @default(false)
-  transaction     Transaction @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)
+  TicketId                 String                 @id @default(cuid())
+  TransactionId            String
+  TransactionHash          String
+  ImageData                String                 @db.LongText
+  TicketHash               String                 @unique @default(cuid())
+  Scanned                  Boolean                @default(false)
+  merchandiseTransactionId String?
+  merchandiseTransaction   MerchandiseTransaction? @relation(fields: [merchandiseTransactionId], references: [merchandiseTransactionId])
+  transaction              Transaction            @relation(fields: [TransactionId], references: [TransactionId], onDelete: Cascade)
 
   @@index([TransactionId])
+}
+
+model Merchandise {
+  merchandiseId             String                  @id @unique @default(cuid())
+  merchandisePoster         String
+  merchandiseName           String
+  merchandisePrice          Int
+  merchandiseInventoryCount Int?
+  eventName                 String
+  event                     Event                   @relation(fields: [eventName], references: [EventName])
+  MerchandiseTransaction    MerchandiseTransaction? @relation(fields: [merchandiseTransactionId], references: [merchandiseTransactionId])
+  merchandiseTransactionId  String?
+
+  @@index([merchandiseId, merchandiseName])
+}
+
+model MerchandiseTransaction {
+  merchandiseTransactionId String        @id @default(cuid())
+  MobileNumber             String
+  EventName                String
+  TransactionMethod        String
+  MerchantRequestID        String        @unique
+  CheckoutRequestID        String        @unique
+  TotalAmount              Int
+  Valid                    Boolean       @default(false)
+  event                    Event         @relation(fields: [EventName], references: [EventName])
+  cancelled                Boolean       @default(false)
+  mpesaReceiptNumber       String?
+  transactionDate          String?
+  completed                Boolean       @default(false)
+  merchandiseCollected     Boolean       @default(false)
+  Merchandise              Merchandise[]
+  Ticket                   Ticket[]
 }
