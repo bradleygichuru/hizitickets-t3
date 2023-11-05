@@ -25,6 +25,7 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
           completed: true,
           mpesaReceiptNumber: receiptNumber,
           transactionDate: `${req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value}`,
+          mpesaTransactionDescription: req?.body.Body.stkCallback.ResultDesc,
         },
       });
     }
@@ -41,7 +42,10 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
         where: {
           MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
         },
-        data: { cancelled: true },
+        data: {
+          cancelled: true,
+          mpesaTransactionDescription: req?.body.Body.stkCallback.ResultDesc,
+        },
       });
     }
     res.status(200).send("received");

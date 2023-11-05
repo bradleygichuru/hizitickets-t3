@@ -101,6 +101,7 @@ model Transaction {
   mpesaReceiptNumber String?
   transactionDate    String?
   completed          Boolean  @default(false)
+  mpesaTransactionDescription String? 
 
   @@index([EventName])
 }

@@ -82,6 +82,13 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
           console.log(res.validity);
 
           if (res.validity == true && res.cancelled == false) {
+            toast({
+              title: "Transaction was valid",
+              description: res?.mpesaResDescription,
+              status: "info",
+              isClosable: true,
+              duration: 9000,
+            });
             setValid(true);
             setTransactionId(res.transactionId);
 
@@ -95,7 +102,8 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
           }
           if (res.cancelled == true && res.validity == false) {
             toast({
-              description: "Transaction was not valid",
+              title: "Transaction was not valid",
+              description: res?.mpesaResDescription,
               status: "info",
               isClosable: true,
               duration: 9000,
