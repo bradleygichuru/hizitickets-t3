@@ -17,7 +17,7 @@ const EventInfo = (props: {
     setEventValidity(props?.EventValidity);
   }, []);
   return (
-    <div className="stats shadow">
+    <div className="stats shadow m-3">
       <div className="stat">
         <div className="stat-title">Verified: {props?.EventValidity}</div>
         <div className="stat-value">Event Name: {props?.EventName}</div>
