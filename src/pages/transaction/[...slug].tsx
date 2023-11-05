@@ -7,6 +7,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Event, Ticket } from "@prisma/client";
 import ReactLoading from "react-loading";
 import Router from "next/router";
+import { useToast } from "@chakra-ui/react";
 
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
   const [valid, setValid] = useState<boolean>(false);
@@ -72,7 +73,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
   const checkTransactioMutation =
     trpc.transaction.checkTransaction.useMutation();
   const generateTicketsMutation = trpc.ticket.generateTickets.useMutation();
-
+  const toast = useToast();
   useEffect(() => {
     const timer = setInterval(() => {
       checkTransactioMutation
@@ -93,6 +94,12 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
             clearInterval(timer);
           }
           if (res.cancelled == true && res.validity == false) {
+            toast({
+              description: "Transaction was not valid",
+              status: "info",
+              isClosable: true,
+              duration: 9000,
+            });
             setValid(true);
             clearInterval(timer);
             Router.push("/events");

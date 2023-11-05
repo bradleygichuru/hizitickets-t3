@@ -37,7 +37,12 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
         data: { cancelled: true },
       });
     } else {
-      console.log("error");
+      await prisma.transaction.update({
+        where: {
+          MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
+        },
+        data: { cancelled: true },
+      });
     }
     res.status(200).send("received");
   } catch (error) {
