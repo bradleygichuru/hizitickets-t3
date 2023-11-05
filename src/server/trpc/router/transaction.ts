@@ -12,6 +12,7 @@ export const transactionRouter = router({
         validity: transaction?.Valid,
         transactionId: transaction?.TransactionId,
         cancelled: transaction?.cancelled,
+        completed: transaction?.completed,
         mpesaResDescription: transaction?.mpesaTransactionDescription,
       };
     }),

@@ -81,7 +81,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
         .then((res) => {
           console.log(res.validity);
 
-          if (res.validity == true && res.cancelled == false) {
+          if (res?.completed === true && res?.validity === true) {
             toast({
               title: "Transaction was valid",
               description: res?.mpesaResDescription,
@@ -100,7 +100,7 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
             setValid(true);
             clearInterval(timer);
           }
-          if (res.cancelled == true && res.validity == false) {
+          if (res.cancelled === true) {
             toast({
               title: "Transaction was not valid",
               description: res?.mpesaResDescription,
