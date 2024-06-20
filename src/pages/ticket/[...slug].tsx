@@ -5,7 +5,7 @@ import { GetServerSideProps, NextPage } from "next";
 import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import {
   useToast,
   Alert,
@@ -28,7 +28,8 @@ const features = [
 
 //TODO quantity will be reduced on ticket purchase
 
-const Ticket: NextPage<{ slug: string }> = (props) => {
+const Ticket: NextPage = () => {
+  const router = useRouter()
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const buyMutation = trpc.ticket.buyTicket.useMutation();
@@ -40,7 +41,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
   } = useForm<formSchema>();
 
   const { data, isFetched } = trpc.events.getEvent.useQuery({
-    eventName: props.slug,
+    eventName: router?.query?.slug?.[0] as string,
   });
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
     const searchObj = data?.event?.ticketTypes?.find(
@@ -81,7 +82,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
   
   //TODO handle errors
 
-  console.log(props.slug);
+  console.log(router?.query.slug);
   console.log({ data });
 
   
@@ -134,7 +135,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
               >
                 {data?.event?.ticketTypes.map((val, index) => (
                   <option key={index} value={val.title}>
-                    {`${val.title} ${val.price} ksh`}
+                    {`${val?.title} ${val?.price} ksh`}
                   </option>
                 ))}
               </select>
@@ -245,13 +246,4 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
     </Layout>
   );
 }
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  let { slug } = context.query;
-
-  slug = slug?.[0];
-  console.log(slug);
-  return {
-    props: { slug },
-  };
-};
 export default Ticket;
