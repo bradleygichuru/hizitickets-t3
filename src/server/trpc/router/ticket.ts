@@ -41,7 +41,7 @@ export const ticketRouter = router({
           username: `${cK}`,
           password: `${cS}`,
         },
-      }).catch(function(error) {
+      }).catch(function (error) {
         if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
@@ -80,7 +80,7 @@ export const ticketRouter = router({
         headers: {
           authorization: `Bearer ${instanceAuthToken?.data?.access_token}`,
         },
-      }).catch(function(error) {
+      }).catch(function (error) {
         if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
@@ -129,59 +129,65 @@ export const ticketRouter = router({
   generateTickets: publicProcedure
     .input(z.object({ transactionId: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const transaction = await ctx.prisma.transaction.findUnique({
-        where: { TransactionId: input.transactionId },
-        include: { tickets: true },
-      });
-      if (transaction?.tickets.length == 0) {
-        const transactionHash = createHash("sha256")
-          .update(
-            `${transaction?.Valid}${transaction?.EventName}${transaction?.TotalAmount}${transaction?.MobileNumber}${transaction?.TransactionId}${transaction?.CheckoutRequestID}${transaction?.TransactionMethod}${transaction?.NumberOfTickets}${transaction?.MerchantRequestID}`
-          )
-          .digest("hex");
-
-        for (let i = 1; i <= transaction?.NumberOfTickets; i += 1) {
-          const unhashedTicket = await ctx.prisma.ticket.create({
-            data: {
-              TransactionHash: transactionHash,
-              TransactionId: transaction?.TransactionId,
-              ImageData: "",
-            },
-          });
-
-          const ticketHash = createHash("sha256")
-            .update(
-              `${unhashedTicket.Scanned}${unhashedTicket.TicketId}${unhashedTicket.TicketHash}${unhashedTicket.TransactionHash}`
-            )
-            .digest("hex");
-          console.log(ticketHash);
-          const imageData = await generateQR(ticketHash);
-          await ctx.prisma.ticket.update({
-            where: { TicketId: unhashedTicket.TicketId },
-            data: { TicketHash: ticketHash, ImageData: imageData! },
-          });
-        }
-        const transactionWithTickets = await ctx.prisma.transaction.findUnique({
-          where: { TransactionId: input.transactionId },
-          select: {
-            event: true,
-            TransactionId: true,
-            ticketTypeTitle: true,
-            tickets: true,
-          },
-        });
-        return { transaction: transactionWithTickets };
-      } else {
+      try {
         const transaction = await ctx.prisma.transaction.findUnique({
           where: { TransactionId: input.transactionId },
-          select: {
-            event: true,
-            TransactionId: true,
-            ticketTypeTitle: true,
-            tickets: true,
-          },
+          include: { tickets: true },
         });
-        return { transaction };
+        if (transaction?.tickets.length == 0) {
+          const transactionHash = createHash("sha256")
+            .update(
+              `${transaction?.Valid}${transaction?.EventName}${transaction?.TotalAmount}${transaction?.MobileNumber}${transaction?.TransactionId}${transaction?.CheckoutRequestID}${transaction?.TransactionMethod}${transaction?.NumberOfTickets}${transaction?.MerchantRequestID}`
+            )
+            .digest("hex");
+
+          for (let i = 1; i <= transaction?.NumberOfTickets; i += 1) {
+            const unhashedTicket = await ctx.prisma.ticket.create({
+              data: {
+                TransactionHash: transactionHash,
+                TransactionId: transaction?.TransactionId,
+                ImageData: "",
+              },
+            });
+
+            const ticketHash = createHash("sha256")
+              .update(
+                `${unhashedTicket.Scanned}${unhashedTicket.TicketId}${unhashedTicket.TicketHash}${unhashedTicket.TransactionHash}`
+              )
+              .digest("hex");
+            console.log(ticketHash);
+            const imageData = await generateQR(ticketHash);
+            await ctx.prisma.ticket.update({
+              where: { TicketId: unhashedTicket.TicketId },
+              data: { TicketHash: ticketHash, ImageData: imageData! },
+            });
+          }
+          const transactionWithTickets =
+            await ctx.prisma.transaction.findUnique({
+              where: { TransactionId: input.transactionId },
+              select: {
+                event: true,
+                TransactionId: true,
+                ticketTypeTitle: true,
+                tickets: true,
+              },
+            });
+          return { transaction: transactionWithTickets };
+        } else {
+          const transaction = await ctx.prisma.transaction.findUnique({
+            where: { TransactionId: input.transactionId },
+            select: {
+              event: true,
+              TransactionId: true,
+              ticketTypeTitle: true,
+              tickets: true,
+            },
+          });
+          return { transaction };
+        }
+      } catch (e) {
+        console.error(e);
+        return { result: "an internal error occured " };
       }
     }),
   findMerchantId: publicProcedure
@@ -193,52 +199,64 @@ export const ticketRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const transactions = await ctx.prisma.transaction.findMany({
-        where: {
-          MobileNumber: input.phoneNumber,
-          EventName: input.eventName,
-          ticketTypeTitle: input.ticketType,
-        },
-      });
-      return transactions;
+      try {
+        const transactions = await ctx.prisma.transaction.findMany({
+          where: {
+            MobileNumber: input.phoneNumber,
+            EventName: input.eventName,
+            ticketTypeTitle: input.ticketType,
+          },
+        });
+        return transactions;
+      } catch (e) {
+        console.error(e);
+        return { result: "an internal error occured " };
+      }
     }),
   fetchTicket: publicProcedure
     .input(z.object({ ticketHash: z.string() }))
     .query(async ({ input, ctx }) => {
-      const ticket = await ctx.prisma.ticket.findFirst({
-        where: { TicketHash: input.ticketHash },
-        include: {
-          transaction: {
-            select: { ticketTypeTitle: true, EventName: true, Valid: true },
-          },
-        },
-      });
-      if (!ticket) {
-        return { result: "qrcode invalid ticket doesnt exist" };
-      }
-      if (ticket?.transaction.Valid === true && ticket.Scanned == false) {
-        const ticketScanned = await ctx.prisma.ticket.update({
-          where: { TicketId: ticket.TicketId },
-          data: { Scanned: true },
+      try {
+        const ticket = await ctx.prisma.ticket.findFirst({
+          where: { TicketHash: input.ticketHash },
           include: {
             transaction: {
               select: { ticketTypeTitle: true, EventName: true, Valid: true },
             },
           },
         });
-        if (ticketScanned.Scanned === true) {
+        if (!ticket) {
+          return { result: "qrcode invalid ticket doesnt exist" };
+        }
+        if (ticket?.transaction.Valid === true && ticket.Scanned == false) {
+          const ticketScanned = await ctx.prisma.ticket.update({
+            where: { TicketId: ticket.TicketId },
+            data: { Scanned: true },
+            include: {
+              transaction: {
+                select: { ticketTypeTitle: true, EventName: true, Valid: true },
+              },
+            },
+          });
+          if (ticketScanned.Scanned === true) {
+            return {
+              result: `ticket scanned of type ${ticketScanned.transaction.ticketTypeTitle}`,
+            };
+          }
+        }
+        if (ticket?.Scanned === true) {
           return {
-            result: `ticket scanned of type ${ticketScanned.transaction.ticketTypeTitle}`,
+            result: `ticket of type ${ticket.transaction.ticketTypeTitle} was already scanned`,
           };
         }
-      }
-      if (ticket?.Scanned === true) {
-        return {
-          result: `ticket of type ${ticket.transaction.ticketTypeTitle} was already scanned`,
-        };
-      }
-      if (ticket?.transaction.Valid == false) {
-        return { result: "the transaction involved with ticket was not valid" };
+        if (ticket?.transaction.Valid == false) {
+          return {
+            result: "the transaction involved with ticket was not valid",
+          };
+        }
+      } catch (e) {
+        console.error(e);
+        return { result: "an internal error occured " };
       }
     }),
 });
