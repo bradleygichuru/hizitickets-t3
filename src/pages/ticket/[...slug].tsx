@@ -28,7 +28,7 @@ const features = [
 
 //TODO quantity will be reduced on ticket purchase
 
-export default function Ticket(props:{ slug: string }){
+const Ticket: NextPage<{ slug: string }> = (props) => {
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const buyMutation = trpc.ticket.buyTicket.useMutation();
