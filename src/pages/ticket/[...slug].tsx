@@ -87,7 +87,7 @@ const Ticket: NextPage = () => {
 
   return (
     <Layout>
-      <Skeleton isLoaded={isFetched} className="w-screen h-screen">
+      <Skeleton isLoaded={isFetched} className="w-screen h-screen z-0">
         <div className=" sm:m-4 sm:ml-20 ">
           <Alert status="info">
             <AlertIcon />
@@ -98,20 +98,19 @@ const Ticket: NextPage = () => {
           </Alert>{" "}
           <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 px-6 sm:px-6 sm:py-6 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 ">
-            
-<div className="card w-96 bg-base-100 shadow-xl">
-        <figure>
-          <Image
-            width={384}
-            height={100}
-            src={data?.event?.EventPosterUrl as string}
-            alt="Shoes"
-          />
-        </figure>
-        <div className="card-body">
-          <h2 className="card-title">{data?.event?.EventName}</h2>
-        </div>
-      </div>
+              <div className="card w-96 bg-base-100 shadow-xl">
+                <figure>
+                  <Image
+                    width={384}
+                    height={100}
+                    src={data?.event?.EventPosterUrl as string}
+                    alt={data?.event?.EventName as string}
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">{data?.event?.EventName}</h2>
+                </div>
+              </div>
             </div>
             <div className="relative grid grid-cols-1 gap-4  sm:gap-6 lg:grid-cols-2 lg:gap-8 ">
               <form className="form-control" onSubmit={handleSubmit(onSubmit)}>
@@ -212,19 +211,17 @@ const Ticket: NextPage = () => {
               </p>
 
               <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
-                {features.map((feature) => (
-                  <div
-                    key={feature.name}
+                <div
                     className="border-t border-gray-200 pt-0"
                   >
                     <dt className="font-medium text-base-content">
-                      {feature.name}
+                      Time
                     </dt>
                     <dd className="mb-20 text-sm text-base-content">
                       {data?.event?.EventDate.toDateString()}
                     </dd>
                   </div>
-                ))}
+
               </dl>
             </div>
           </div>
