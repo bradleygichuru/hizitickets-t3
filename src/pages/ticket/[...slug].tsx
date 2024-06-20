@@ -259,3 +259,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: { slug },
   };
 };
+export default Ticket;
