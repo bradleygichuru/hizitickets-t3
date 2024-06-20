@@ -15,7 +15,7 @@ const EventsPage: NextPage = () => {
       </div>
     );
   }
-  if (data?.events.length == 0) {
+  if (data?.events?.length == 0) {
     return (
       <Layout>
         <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
