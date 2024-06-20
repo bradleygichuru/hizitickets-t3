@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaMoneyCheckAlt } from "react-icons/fa";
 import ReactLoading from "react-loading";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
@@ -28,7 +28,7 @@ const features = [
 
 //TODO quantity will be reduced on ticket purchase
 
-const Ticket: React.FC<{ slug: string }> = (props) => {
+export default function Ticket(props:{ slug: string }){
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const buyMutation = trpc.ticket.buyTicket.useMutation();
@@ -249,7 +249,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
       </div>
     </Layout>
   );
-};
+}
 export const getServerSideProps: GetServerSideProps = async (context) => {
   let { slug } = context.query;
 
@@ -259,4 +259,3 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: { slug },
   };
 };
-export default Ticket;
