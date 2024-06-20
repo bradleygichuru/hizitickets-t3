@@ -138,7 +138,6 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
               <select
                 {...register("ticketTypeTitle", { required: true })}
                 className="select-bordered select "
-                placeholder="select ticket"
               >
                 {data?.event?.ticketTypes.map((val, index) => (
                   <option key={index} value={val.title}>
@@ -163,7 +162,7 @@ const Ticket: React.FC<{ slug: string }> = (props) => {
                   valueAsNumber: true,
                 })}
                 className="select-bordered select "
-                placeholder="1"
+
               >
                 {quantitys.map((val, index) => {
                   return (

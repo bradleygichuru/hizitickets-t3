@@ -6,7 +6,8 @@ import error from "../../public/error.svg";
 import { useSession, signIn, signOut } from "next-auth/react";
 import ReactLoading from "react-loading";
 import EventInfo from "../components/EventValidationEntry";
-const AdminPage = () => {
+import type { NextPage } from "next";
+const AdminPage:NextPage = () => {
   const { data: session, status } = useSession();
   const { data, isLoading } = trpc.events.getEvents.useQuery();
   console.log(session);
