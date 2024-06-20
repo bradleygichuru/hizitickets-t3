@@ -13,6 +13,7 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Skeleton,
 } from "@chakra-ui/react";
 
 type formSchema = {
@@ -39,7 +40,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
     formState: { errors },
   } = useForm<formSchema>();
 
-  const { data, isLoading, error } = trpc.events.getEvent.useQuery({
+  const { data, isLoading, error,isFetched } = trpc.events.getEvent.useQuery({
     eventName: props.slug,
   });
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
@@ -88,16 +89,12 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
   console.log(props.slug);
   console.log({ data });
 
-  if (isLoading) {
-    return (
-      <div className="grid h-screen place-items-center bg-base-100 text-base-content">
-        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
-      </div>
-    );
-  }
+  
 
   return (
     <Layout>
+      
+      <Skeleton isLoaded={isFetched} className="w-screen">
       <div className=" sm:m-4 sm:ml-20 ">
         <Alert status="info">
           <AlertIcon />
@@ -248,6 +245,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
           </div>
         </div>
       </div>
+</Skeleton>
     </Layout>
   );
 }
