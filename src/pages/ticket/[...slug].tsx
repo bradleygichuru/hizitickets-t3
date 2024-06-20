@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { FaMoneyCheckAlt } from "react-icons/fa";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { GetServerSideProps, NextPage } from "next";
+import type { SubmitHandler} from "react-hook-form";
+import { useForm } from "react-hook-form";
+import type { NextPage } from "next";
 import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
-import Router, { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import {
   useToast,
   Alert,
@@ -30,7 +31,7 @@ const features = [
 //TODO quantity will be reduced on ticket purchase
 
 const Ticket: NextPage = () => {
-  const router = useRouter();
+  const Router = useRouter()
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const buyMutation = trpc.ticket.buyTicket.useMutation();
@@ -42,7 +43,7 @@ const Ticket: NextPage = () => {
   } = useForm<formSchema>();
 
   const { data, isFetched } = trpc.events.getEvent.useQuery({
-    eventName: router?.query?.slug?.[0] as string,
+    eventName: Router?.query?.slug?.[0] as string,
   });
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
     const searchObj = data?.event?.ticketTypes?.find(
@@ -82,7 +83,7 @@ const Ticket: NextPage = () => {
 
   //TODO handle errors
 
-  console.log(router?.query.slug);
+  console.log(Router?.query.slug);
   console.log({ data });
 
   return (
