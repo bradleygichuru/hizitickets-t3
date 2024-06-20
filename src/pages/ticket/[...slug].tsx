@@ -111,6 +111,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
             <div className="group relative m-3 mb-16 flex-auto rounded-lg bg-neutral p-0">
               <div className="min-h-80 aspect-w-1  aspect-h-1 lg:aspect-none w-full overflow-hidden rounded-md group-hover:opacity-75 lg:h-80">
                 <img
+                alt={data?.event?.EventName}
                   src={data?.event?.EventPosterUrl}
                   className="object-cover object-center lg:h-full lg:w-full" //TODO use next/image here
                 />

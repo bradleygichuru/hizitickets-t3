@@ -1,4 +1,4 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import Layout from "../components/layout";
 import { trpc } from "../utils/trpc";
 import Section from "../components/section";
