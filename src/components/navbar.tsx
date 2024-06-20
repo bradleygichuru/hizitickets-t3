@@ -63,7 +63,7 @@ export default function Nav() {
             </ul>
           </div>
           <Link href="/events" className="btn-ghost btn text-xl normal-case">
-            <Image src={logo} alt="hizitickets" />
+            <Image priority={true} src={logo} alt="hizitickets" />
           </Link>
         </div>
         <div className="navbar-center hidden lg:flex">

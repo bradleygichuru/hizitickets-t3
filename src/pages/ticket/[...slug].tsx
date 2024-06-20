@@ -94,7 +94,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
   return (
     <Layout>
       
-      <Skeleton isLoaded={isFetched} className="w-screen">
+      <Skeleton isLoaded={isFetched} className="w-screen h-screen">
       <div className=" sm:m-4 sm:ml-20 ">
         <Alert status="info">
           <AlertIcon />

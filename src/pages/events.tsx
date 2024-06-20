@@ -12,7 +12,7 @@ const EventsPage: NextPage = () => {
   console.log(data);
   return (
     <Layout>
-      <Skeleton isLoaded={isFetched}>
+      <Skeleton className="w-screen h-screen" isLoaded={isFetched}>
         {data?.events?.length == 0 ? (
           <div className="grid h-screen place-items-center font-extrabold bg-base-100  text-xl m-10 text-base-content">
             <Image src={ticket} width={200} alt="ticket" height={200} />
