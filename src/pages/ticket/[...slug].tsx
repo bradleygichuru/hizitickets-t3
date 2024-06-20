@@ -79,11 +79,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
     console.log(formData);
   };
 
-  const quantitys = Array.from(
-    { length: data?.event?.EventMaxTickets as number },
-    (_, i) => i + 1
-  );
-
+  
   //TODO handle errors
 
   console.log(props.slug);
@@ -159,10 +155,11 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
                   required: true,
                   valueAsNumber: true,
                 })}
+                
                 className="select-bordered select "
 
               >
-                {quantitys.map((val, index) => {
+                { data?.quantity?.map((val, index) => {
                   return (
                     <option key={index} value={val}>
                       {val}

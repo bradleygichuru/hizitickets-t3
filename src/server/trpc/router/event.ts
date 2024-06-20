@@ -100,8 +100,13 @@ export const eventsRouter = router({
           where: { EventName: input.eventName },
           include: { ticketTypes: true },
         });
+        const quantity = Array.from(
+          { length: event?.EventMaxTickets as number },
+          (_, i) => i + 1
+        );
         return {
           event: event,
+          quantity,
         };
       } catch (e) {
         console.error(e);
