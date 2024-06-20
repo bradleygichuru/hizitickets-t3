@@ -2,12 +2,11 @@ import type { NextPage } from "next";
 import Layout from "../components/layout";
 import { trpc } from "../utils/trpc";
 import Section from "../components/section";
-import ReactLoading from "react-loading";
 import Image from "next/image";
 import ticket from "../../public/ticket-svgrepo-com.svg";
 import { Skeleton } from "@chakra-ui/react";
 const EventsPage: NextPage = () => {
-  const { data, isLoading, isFetched } =
+  const { data, isFetched } =
     trpc.events.getVerifiedEvents.useQuery();
   console.log(data);
   return (

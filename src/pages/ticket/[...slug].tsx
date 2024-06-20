@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { FaMoneyCheckAlt } from "react-icons/fa";
-import ReactLoading from "react-loading";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { GetServerSideProps, NextPage } from "next";
 import React from "react";
@@ -40,7 +39,7 @@ const Ticket: NextPage<{ slug: string }> = (props) => {
     formState: { errors },
   } = useForm<formSchema>();
 
-  const { data, isLoading, error,isFetched } = trpc.events.getEvent.useQuery({
+  const { data, isFetched } = trpc.events.getEvent.useQuery({
     eventName: props.slug,
   });
   const onSubmit: SubmitHandler<formSchema> = async (formData) => {
