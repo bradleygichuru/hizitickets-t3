@@ -71,6 +71,7 @@ model Event {
   EventDate              DateTime
   EventPosterUrl         String
   EventOrganizer         String
+  TicketRevenue          Decimal @default(0.0)
   EventValidity          Boolean                  @default(false)
   eventOrganizer         User                     @relation(fields: [EventOrganizer], references: [name])
   ticketTypes            TicketTypes[]
@@ -93,7 +94,7 @@ model Transaction {
   NumberOfTickets    Int
   MerchantRequestID  String   @unique
   CheckoutRequestID  String   @unique
-  TotalAmount        Int
+  TotalAmount        Decimal
   Valid              Boolean  @default(false)
   event              Event    @relation(fields: [EventName], references: [EventName])
   tickets            Ticket[]
@@ -135,7 +136,7 @@ model Merchandise {
   merchandiseId             String                  @id @unique @default(cuid())
   merchandisePoster         String
   merchandiseName           String
-  merchandisePrice          Int
+  merchandisePrice          Decimal
   merchandiseInventoryCount Int?
   eventName                 String
   event                     Event                   @relation(fields: [eventName], references: [EventName])
@@ -152,7 +153,7 @@ model MerchandiseTransaction {
   TransactionMethod        String
   MerchantRequestID        String        @unique
   CheckoutRequestID        String        @unique
-  TotalAmount              Int
+  TotalAmount              Decimal
   Valid                    Boolean       @default(false)
   event                    Event         @relation(fields: [EventName], references: [EventName])
   cancelled                Boolean       @default(false)

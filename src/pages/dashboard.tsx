@@ -30,6 +30,7 @@ import { z } from "zod";
 import Image from "next/image";
 import ticketLogo from "../../public/ticket-svgrepo-com.svg";
 import { useSession, signIn } from "next-auth/react";
+import Decimal from "decimal.js";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
@@ -463,12 +464,12 @@ const DashBoard = () => {
                       {(errors.ticketType1Date ||
                         errors.ticketType1Price ||
                         errors.ticketType1Name) && (
-                          <label className="label">
-                            <span className="text-red-900">
-                              This field is required
-                            </span>
-                          </label>
-                        )}
+                        <label className="label">
+                          <span className="text-red-900">
+                            This field is required
+                          </span>
+                        </label>
+                      )}
 
                       <div className="dropdown">
                         <label tabIndex={0} className="btn-outline btn m-1 ">
@@ -1089,10 +1090,9 @@ const DashBoard = () => {
             <div className="m-5 mx-auto w-screen flex flex-col rounded-3xl p-1">
               {data?.events?.map((event, index: number) => {
                 let ticketNumbers = 0;
-                let revenue = 0;
+                // const revenue = new Decimal(0);
                 let ticketsScanned = [];
                 event.transactions.forEach((val) => {
-                  revenue += val.TotalAmount;
                   ticketNumbers += val.tickets.length;
                   ticketsScanned = val.tickets.filter((ticket) => {
                     return ticket.Scanned === true;
@@ -1125,7 +1125,9 @@ const DashBoard = () => {
                       <div className="stats m-1 shadow">
                         <div className="stat overflow-hidden">
                           <div className="stat-title">Total Revenue</div>
-                          <div className="stat-value">{revenue}</div>
+                          <div className="stat-value">
+                            {new Decimal(event?.TicketRevenue).toNumber()}
+                          </div>
                           <div className="stat-desc">
                             units in Kenyan Shillings
                           </div>
@@ -1133,7 +1135,7 @@ const DashBoard = () => {
                       </div>
                       <div className="stats m-1 shadow">
                         <div className="stat overflow-hidden">
-                          <div className="stat-title">Total Tickets Sold</div>
+                          <div className="stat-title">Total Tickets distributed</div>
                           <div className="stat-value">{ticketNumbers}</div>
                           <div className="stat-desc"></div>
                         </div>
@@ -1149,7 +1151,7 @@ const DashBoard = () => {
                           <div key={typeIndex} className="stats m-1 shadow">
                             <div className="stat overflow-hidden">
                               <div className="stat-title">
-                                {type.title} tickets sold
+                                {type.title} tickets distributed
                               </div>
                               <div className="stat-value">{typeCount}</div>
                               <div className="stat-desc"></div>

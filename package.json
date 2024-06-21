@@ -29,6 +29,7 @@
     "@vercel/speed-insights": "^1.0.12",
     "axios": "^1.7.2",
     "crypto-ts": "^1.0.2",
+    "decimal.js": "^10.4.3",
     "firebase": "^9.23.0",
     "framer-motion": "^7.10.3",
     "next": "14.2.0",

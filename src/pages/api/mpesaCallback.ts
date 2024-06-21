@@ -1,6 +1,7 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { prisma } from "../../server/db/client";
+import Decimal from "decimal.js";
 
 const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -16,7 +17,7 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
         transactionDate:
           req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value,
       });
-      await prisma.transaction.update({
+      const transaction = await prisma.transaction.update({
         where: {
           MerchantRequestID: req?.body.Body.stkCallback.MerchantRequestID,
         },
@@ -26,6 +27,19 @@ const mpesaCallback = async (req: NextApiRequest, res: NextApiResponse) => {
           transactionDate: `${req?.body.Body.stkCallback.CallbackMetadata.Item[3].Value}`,
           mpesaTransactionDescription: req?.body.Body.stkCallback.ResultDesc,
         },
+      });
+      const transactions = await prisma.transaction.findMany({
+        where: { EventName: transaction?.EventName, completed: true },
+      });
+      const rev = new Decimal(0);
+      const totalRev = transactions.reduce(
+        (accumulator: Decimal, currentValue) =>
+          accumulator.add(currentValue.TotalAmount),
+        rev
+      );
+      await prisma.event.update({
+        where: { EventName: transaction.EventName },
+        data: { TicketRevenue: totalRev },
       });
     } else {
       await prisma.transaction.update({

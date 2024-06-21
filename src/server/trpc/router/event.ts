@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
+import Decimal from "decimal.js";
 
 export const eventsRouter = router({
   getVerifiedEvents: publicProcedure.query(async ({ ctx }) => {
@@ -121,9 +122,28 @@ export const eventsRouter = router({
           where: { EventOrganizer: input.eventOrganizer, EventValidity: true },
           include: {
             ticketTypes: true,
-            transactions: { include: { tickets: true } },
+            transactions: {
+              where: { completed: true },
+              include: { tickets: true },
+            },
           },
         });
+        events.forEach(async (event, index) => {
+          const transactions = await ctx.prisma.transaction.findMany({
+            where: { EventName: event?.EventName, completed: true },
+          });
+          const rev = new Decimal(0);
+          const totalRev = transactions.reduce(
+            (accumulator: Decimal, currentValue) =>
+              accumulator.add(currentValue.TotalAmount),
+            rev
+          );
+          await ctx.prisma.event.update({
+            where: { EventName: event?.EventName },
+            data: { TicketRevenue: totalRev },
+          });
+        });
+
         return { events: events };
       } catch (e) {
         console.error(e);
