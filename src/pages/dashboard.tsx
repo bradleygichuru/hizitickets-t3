@@ -1135,7 +1135,9 @@ const DashBoard = () => {
                       </div>
                       <div className="stats m-1 shadow">
                         <div className="stat overflow-hidden">
-                          <div className="stat-title">Total Tickets distributed</div>
+                          <div className="stat-title">
+                            Total Tickets distributed
+                          </div>
                           <div className="stat-value">{ticketNumbers}</div>
                           <div className="stat-desc"></div>
                         </div>
@@ -1168,6 +1170,8 @@ const DashBoard = () => {
                           <div className="stat-desc"></div>
                         </div>
                       </div>
+
+                    {/*<Button className="m-2">Withdraw cash</Button>*/}
                     </div>
                   </div>
                 );
