@@ -31,6 +31,7 @@ import Image from "next/image";
 import ticketLogo from "../../public/ticket-svgrepo-com.svg";
 import { useSession, signIn } from "next-auth/react";
 import Decimal from "decimal.js";
+import CashWithdrawalModal from "../components/cash-withdrawal-modal";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
@@ -78,7 +79,15 @@ const sorts = [
 type Merch = { name: string; price: number; MerchPosterUrl: File };
 const DashBoard = () => {
   const toast = useToast();
+  const [targetEventName, setTargetEventName] = useState<string | undefined>(
+    undefined
+  );
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenCashModal,
+    onOpen: onOpenCashModal,
+    onClose: onCloseCashModal,
+  } = useDisclosure();
   //const [eventPoster, setEventPoster] = useState<File>();
   const [selectedSort, setSelectedSort] = useState(sorts[0]);
   const [editAddEvent, setEditAddEvent] = useState(true);
@@ -306,6 +315,12 @@ const DashBoard = () => {
   if (status == "authenticated") {
     return (
       <Layout>
+        <CashWithdrawalModal
+          isOpen={isOpenCashModal}
+          onOpen={onOpenCashModal}
+          onClose={onCloseCashModal}
+          eventName={targetEventName as string}
+        />
         <div className="grid h-screen grid-cols-1 p-1 sm:ml-24">
           <button
             onClick={() => {
@@ -1171,7 +1186,15 @@ const DashBoard = () => {
                         </div>
                       </div>
 
-                    {/*<Button className="m-2">Withdraw cash</Button>*/}
+                      <Button
+                        onClick={() => {
+                          setTargetEventName(event?.EventName);
+                          onOpenCashModal();
+                        }}
+                        className="m-2"
+                      >
+                        Withdraw cash
+                      </Button>
                     </div>
                   </div>
                 );

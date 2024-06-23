@@ -224,4 +224,33 @@ export const eventsRouter = router({
         return { result: "an internal error occured submiting this event" };
       }
     }),
+  eventRevenueWithdrawal: publicProcedure
+    .input(
+      z.object({
+        amount: z.number(),
+        transactionMethod: z.string(),
+        eventName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const eventRevenueWithdrawal =
+          await ctx.prisma.eventRevenueWithdrawal.create({
+            data: {
+              Amount: input?.amount,
+              EventName: input?.eventName,
+              fillingDate: new Date(),
+              TransactionMethod: input?.transactionMethod,
+            },
+          });
+        if (eventRevenueWithdrawal) {
+          return { status: "Withdrawal request filed" };
+        } else {
+          return { status: "Error filing request" };
+        }
+      } catch (e) {
+        console.error(e);
+        return { status: "an internal error occured submiting this event" };
+      }
+    }),
 });
