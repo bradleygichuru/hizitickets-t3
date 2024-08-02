@@ -63,24 +63,24 @@ model VerificationToken {
 }
 
 model Event {
-  EventId                String                   @id @default(cuid())
-  EventName              String                   @unique
-  EventDescription       String                   @db.MediumText()
-  EventLocation          String
-  EventMaxTickets        Int
-  EventDate              DateTime
-  EventPosterUrl         String
-  EventOrganizer         String
-  TicketRevenue          Decimal                  @default(0.0)
-  EventValidity          Boolean                  @default(false)
-  eventOrganizer         User                     @relation(fields: [EventOrganizer], references: [name])
-  ticketTypes            TicketTypes[]
-  transactions           Transaction[]
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
-  MobileContact          String
-  MerchandiseTransaction MerchandiseTransaction[]
-  Merchandise            Merchandise[]
+  EventId                 String                   @id @default(cuid())
+  EventName               String                   @unique
+  EventDescription        String                   @db.MediumText()
+  EventLocation           String
+  EventMaxTickets         Int
+  EventDate               DateTime
+  EventPosterUrl          String
+  EventOrganizer          String
+  TicketRevenue           Decimal                  @default(0.0)
+  EventValidity           Boolean                  @default(false)
+  eventOrganizer          User                     @relation(fields: [EventOrganizer], references: [name])
+  ticketTypes             TicketTypes[]
+  transactions            Transaction[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  MobileContact           String
+  MerchandiseTransaction  MerchandiseTransaction[]
+  Merchandise             Merchandise[]
   EventRevenueWithdrawals EventRevenueWithdrawal[]
 
   @@index([EventOrganizer])
@@ -167,14 +167,14 @@ model MerchandiseTransaction {
 }
 
 model EventRevenueWithdrawal {
-  id                 String  @id @default(cuid())
+  id                 String    @id @default(cuid())
   Amount             Decimal
   EventName          String
   TransactionMethod  String
   MpesaReceiptNumber String?
-  TransactionDate    String?
-  completed          Boolean @default(false)
+  TransactionDate    DateTime?
+  completed          Boolean   @default(false)
   BankAccountNumber  String?
-  fullfilmentDate
-  event Event @relation(fields: [EventName],references: [EventName])
+  fullfilmentDate    DateTime?
+  event              Event     @relation(fields: [EventName], references: [EventName])
 }
