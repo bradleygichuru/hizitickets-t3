@@ -6,9 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  //relationMode = "prisma"
 }
 
 // Necessary for Next auth
@@ -65,7 +65,7 @@ model VerificationToken {
 model Event {
   EventId                 String                   @id @default(cuid())
   EventName               String                   @unique
-  EventDescription        String                   @db.MediumText()
+  EventDescription        String
   EventLocation           String
   EventMaxTickets         Int
   EventDate               DateTime
@@ -123,7 +123,7 @@ model Ticket {
   TicketId                 String                  @id @default(cuid())
   TransactionId            String
   TransactionHash          String
-  ImageData                String                  @db.LongText
+  ImageData                String
   TicketHash               String                  @unique @default(cuid())
   Scanned                  Boolean                 @default(false)
   merchandiseTransactionId String?
