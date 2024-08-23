@@ -72,6 +72,7 @@ model Event {
   EventPosterUrl          String
   EventOrganizer          String
   TicketRevenue           Decimal                  @default(0.0)
+  DemoMode                Boolean                  @default(false)
   EventValidity           Boolean                  @default(false)
   eventOrganizer          User                     @relation(fields: [EventOrganizer], references: [name])
   ticketTypes             TicketTypes[]

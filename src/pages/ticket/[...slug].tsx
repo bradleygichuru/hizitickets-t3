@@ -167,7 +167,6 @@ const Ticket: NextPage = () => {
                 </label>
                 <label className="input-group">
                   <div className="join">
-
                     <button className="btn join-item rounded-r-full">
                       +254
                     </button>
@@ -178,10 +177,9 @@ const Ticket: NextPage = () => {
                         minLength: 9,
                         maxLength: 9,
                       })}
-
-                    type="tel"
+                      type="tel"
                       className="input input-bordered join-item"
-                    placeholder="71234567"
+                      placeholder="71234567"
                     />
                   </div>
                 </label>
