@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { FaMoneyCheckAlt } from "react-icons/fa";
-import type { SubmitHandler} from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import type { NextPage } from "next";
 import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import {
   useToast,
   Alert,
@@ -31,7 +31,7 @@ const features = [
 //TODO quantity will be reduced on ticket purchase
 
 const Ticket: NextPage = () => {
-  const Router = useRouter()
+  const Router = useRouter();
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const buyMutation = trpc.ticket.buyTicket.useMutation();
@@ -166,19 +166,24 @@ const Ticket: NextPage = () => {
                   <span className="label-text">Your mpesa number</span>
                 </label>
                 <label className="input-group">
-                  <span>+254</span>
+                  <div className="join">
 
-                  <input
+                    <button className="btn join-item rounded-r-full">
+                      +254
+                    </button>
+                    <input
+                      {...register("mobileNumber", {
+                        required: "phone number is required",
+                        valueAsNumber: true,
+                        minLength: 9,
+                        maxLength: 9,
+                      })}
+
                     type="tel"
+                      className="input input-bordered join-item"
                     placeholder="71234567"
-                    {...register("mobileNumber", {
-                      required: "phone number is required",
-                      valueAsNumber: true,
-                      minLength: 9,
-                      maxLength: 9,
-                    })}
-                    className="input-bordered input"
-                  />
+                    />
+                  </div>
                 </label>
                 <label className="label">
                   {errors.mobileNumber && (
@@ -212,17 +217,12 @@ const Ticket: NextPage = () => {
               </p>
 
               <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
-                <div
-                    className="border-t border-gray-200 pt-0"
-                  >
-                    <dt className="font-medium text-base-content">
-                      Time
-                    </dt>
-                    <dd className="mb-20 text-sm text-base-content">
-                      {data?.event?.EventDate.toDateString()}
-                    </dd>
-                  </div>
-
+                <div className="border-t border-gray-200 pt-0">
+                  <dt className="font-medium text-base-content">Time</dt>
+                  <dd className="mb-20 text-sm text-base-content">
+                    {data?.event?.EventDate.toDateString()}
+                  </dd>
+                </div>
               </dl>
             </div>
           </div>
