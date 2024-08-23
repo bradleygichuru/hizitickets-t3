@@ -11,6 +11,7 @@ import { useToast } from "@chakra-ui/react";
 
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
   const [valid, setValid] = useState<boolean>(false);
+  const [generated,setGenerated] = useState(false);
   const [transactionId, setTransactionId] = useState<string>();
   const [transaction, setTransaction] = useState<{
     event: Event;
@@ -70,13 +71,13 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
     );
   });
 
-  const checkTransactioMutation =
+  const checkTransactionMutation =
     trpc.transaction.checkTransaction.useMutation();
   const generateTicketsMutation = trpc.ticket.generateTickets.useMutation();
   const toast = useToast();
   useEffect(() => {
     const timer = setInterval(() => {
-      checkTransactioMutation
+      checkTransactionMutation
         .mutateAsync({ merchantRequestID: props.slug })
         .then((res) => {
           console.log(res.validity);

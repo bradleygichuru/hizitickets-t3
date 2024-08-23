@@ -62,8 +62,8 @@ const Ticket: NextPage = () => {
         {
           onSuccess(data) {
             setIsSubmitting(false);
-            if (data.transcation) {
-              Router.push(`/transaction/${data.transcation.MerchantRequestID}`);
+            if (data.transaction) {
+              Router.push(`/transaction/${data.transaction.MerchantRequestID}`);
             } else {
               toast({
                 title: "Error",

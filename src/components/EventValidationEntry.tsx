@@ -10,16 +10,20 @@ const EventInfo = (props: {
 }) => {
   const toast = useToast();
   const [eventValidity, setEventValidity] = useState<boolean>();
+  const makeDemoEventMutation = trpc.events.setDemoEvent.useMutation();
 
+  const unMakeDemoEventMutation = trpc.events.unDemoEvent.useMutation();
   const invalidateMutation = trpc.events.invalidateEvent.useMutation();
   const verifyMutation = trpc.events.verifyEvent.useMutation();
   useEffect(() => {
     setEventValidity(props?.EventValidity);
   }, []);
   return (
-    <div className="stats shadow m-3">
+    <div className={props.EventValidity?"stats shadow m-3 bg-green":"stats shadow m-3 bg-rose-500"}>
       <div className="stat">
-        <div className="stat-title">Verified: {props?.EventValidity}</div>
+        <div className="stat-title">
+          
+        </div>
         <div className="stat-value">Event Name: {props?.EventName}</div>
 
         <div className="stat-title">
@@ -91,6 +95,63 @@ const EventInfo = (props: {
           }}
         >
           Verify
+        </button>
+
+        <button
+          className="m-2 btn btn-accent btn-wide"
+          onClick={() => {
+            makeDemoEventMutation
+              .mutateAsync({ eventName: props?.EventName })
+              .then((data) => {
+                if (data.status === "successful") {
+                  toast({
+                    title: "Success.",
+                    description: "Converted to demo event",
+                    status: "success",
+                    duration: 9000,
+                    isClosable: true,
+                  });
+                } else {
+                  toast({
+                    title: "Error.",
+                    description: "Error converting to demo mode",
+                    status: "error",
+                    duration: 9000,
+                    isClosable: true,
+                  });
+                }
+              });
+          }}
+        >
+          Activate Demo mode
+        </button>
+        <button
+          className="m-2 btn btn-accent btn-wide"
+          onClick={() => {
+            unMakeDemoEventMutation
+              .mutateAsync({ eventName: props?.EventName })
+              .then((data) => {
+                if (data.status === "successful") {
+                  toast({
+                    title: "Success.",
+                    description: "Removed deactivated mode",
+                    status: "success",
+                    duration: 9000,
+                    isClosable: true,
+                  });
+                } else {
+                  toast({
+                    title: "Error.",
+                    description: "Error deactivating demo mode",
+                    status: "error",
+                    duration: 9000,
+                    isClosable: true,
+                  });
+                }
+              });
+          }}
+        >
+          Deactivate Demo mode
         </button>
       </div>
     </div>
