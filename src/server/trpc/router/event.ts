@@ -65,6 +65,61 @@ export const eventsRouter = router({
         return { result: "an internal error occured " };
       }
     }),
+  setDemoEvent: protectedProcedure
+    .input(z.object({ eventName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (
+          ctx?.session.user.email == "bradleygichuru@gmail.com" ||
+          ctx?.session?.user?.email == "jasonmwai.k@gmail.com" ||
+          ctx?.session?.user?.email == "roboboy84@gmail.com" ||
+          ctx?.session?.user?.email == "mwasnoah@gmail.com"
+        ) {
+          const demoEvent = await ctx.prisma.event.update({
+            where: { EventName: input?.eventName },
+            data: { DemoMode: true },
+          });
+          if (demoEvent.DemoMode == true) {
+            return { status: "successful" };
+          } else {
+            return { status: "unsuccessful" };
+          }
+        } else {
+          return { unauthorized: true };
+        }
+      } catch (e) {
+        console.error(e);
+        return { result: "an internal error occured " };
+      }
+    }),
+
+  unDemoEvent: protectedProcedure
+    .input(z.object({ eventName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (
+          ctx?.session.user.email == "bradleygichuru@gmail.com" ||
+          ctx?.session?.user?.email == "jasonmwai.k@gmail.com" ||
+          ctx?.session?.user?.email == "roboboy84@gmail.com" ||
+          ctx?.session?.user?.email == "mwasnoah@gmail.com"
+        ) {
+          const demoEvent = await ctx.prisma.event.update({
+            where: { EventName: input?.eventName },
+            data: { DemoMode: false },
+          });
+          if (demoEvent.DemoMode == false) {
+            return { status: "successful" };
+          } else {
+            return { status: "unsuccessful" };
+          }
+        } else {
+          return { unauthorized: true };
+        }
+      } catch (e) {
+        console.error(e);
+        return { result: "an internal error occured " };
+      }
+    }),
   invalidateEvent: protectedProcedure
     .input(z.object({ eventName: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -150,6 +205,7 @@ export const eventsRouter = router({
         return { result: "an internal error occured " };
       }
     }),
+
   addEvent: publicProcedure
     .input(
       z.object({
