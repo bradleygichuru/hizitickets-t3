@@ -16,7 +16,17 @@ import {
   Skeleton,
 } from "@chakra-ui/react";
 import Image from "next/image";
-
+import { Calendar, Clock, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 type formSchema = {
   quantity: number;
   mobileNumber: number;
@@ -39,44 +49,23 @@ const Ticket: NextPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
+    getValues,
+    watch,
     formState: { errors },
   } = useForm<formSchema>();
-
+  const vals = watch();
   const { data, isFetched } = trpc.events.getEvent.useQuery({
     eventName: Router?.query?.slug?.[0] as string,
   });
-  const onSubmit: SubmitHandler<formSchema> = async (formData) => {
-    const searchObj = data?.event?.ticketTypes?.find(
-      (type) => type.title == formData.ticketTypeTitle
-    );
+
+  const searchObj = data?.event?.ticketTypes?.find(
+    (type) => type.title == vals.ticketTypeTitle
+  );
+  console.log({ liveFormData: watch() });
+  const onSubmit: SubmitHandler<formSchema> = async (formData, e) => {
+    e?.preventDefault();
     setIsSubmitting(true);
-    if (searchObj?.price) {
-      buyMutation.mutateAsync(
-        {
-          mobileNumber: formData.mobileNumber,
-          quantity: formData.quantity,
-          ticketTypeTitle: formData.ticketTypeTitle,
-          eventName: data?.event?.EventName as string,
-          totalAmount: searchObj?.price * formData.quantity,
-        },
-        {
-          onSuccess(data) {
-            setIsSubmitting(false);
-            if (data.transaction) {
-              Router.push(`/transaction/${data.transaction.MerchantRequestID}`);
-            } else {
-              toast({
-                title: "Error",
-                description: "There was a problem purchasing your tickets",
-                status: "error",
-                duration: 9000,
-                isClosable: true,
-              });
-            }
-          },
-        }
-      );
-    }
 
     console.log(formData);
   };
@@ -89,139 +78,173 @@ const Ticket: NextPage = () => {
   return (
     <Layout>
       <Skeleton isLoaded={isFetched} className="w-screen h-screen z-0">
-        <div className=" sm:m-4 sm:ml-20 ">
-          <Alert status="info">
-            <AlertIcon />
-            <AlertTitle>We currently only support mpesa payments.</AlertTitle>
-            <AlertDescription>
-              We are working on adding other payment methods soon.
-            </AlertDescription>
-          </Alert>{" "}
-          <div className="mx-auto grid max-w-2xl grid-cols-1 items-center gap-y-16 gap-x-8 px-6 sm:px-6 sm:py-6 lg:max-w-7xl lg:grid-cols-2 lg:px-8">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 ">
-              <div className="card w-96 bg-base-100 shadow-xl">
-                <figure>
-                  <Image
-                    width={384}
-                    height={100}
-                    src={data?.event?.EventPosterUrl as string}
-                    alt={data?.event?.EventName as string}
-                  />
-                </figure>
-                <div className="card-body">
-                  <h2 className="card-title">{data?.event?.EventName}</h2>
+        {" "}
+        <Alert status="info">
+          <AlertIcon />
+          <AlertTitle>We currently only support mpesa payments.</AlertTitle>
+          <AlertDescription>
+            We are working on adding other payment methods soon.
+          </AlertDescription>
+        </Alert>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Event Poster Section */}
+            <div className="rounded-lg overflow-hidden shadow-lg">
+              <Image
+                width={384}
+                height={100}
+                src={data?.event?.EventPosterUrl as string}
+                alt={data?.event?.EventName as string}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+
+            {/* Event Details and Purchase Form Section */}
+            <div className="space-y-6">
+              <h1 className="text-3xl font-bold">{data?.event?.EventName}</h1>
+
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-muted-foreground">
+                  <Calendar className="h-5 w-5" />
+                  <span>{data?.event?.EventDate.toDateString()}</span>
                 </div>
               </div>
-            </div>
-            <div className="relative grid grid-cols-1 gap-4  sm:gap-6 lg:grid-cols-2 lg:gap-8 ">
-              <form className="form-control" onSubmit={handleSubmit(onSubmit)}>
-                <label className="label">
-                  <span className="label-text">select ticket type</span>
-                </label>
-                <select
-                  {...register("ticketTypeTitle", { required: true })}
-                  className="select-bordered select "
-                >
-                  {data?.event?.ticketTypes.map((val, index) => (
-                    <option key={index} value={val.title}>
-                      {`${val?.title} ${val?.price} ksh`}
-                    </option>
-                  ))}
-                </select>
-                <label className="label">
-                  {errors.ticketTypeTitle && (
-                    <span className="label-text-alt text-red-600">
-                      {errors.ticketTypeTitle.message}
-                    </span>
-                  )}
-                </label>
 
-                <label className="label">
-                  <span className="label-text">select quantity of tickets</span>
-                </label>
-                <select
-                  {...register("quantity", {
-                    required: true,
-                    valueAsNumber: true,
-                  })}
-                  className="select-bordered select "
-                >
-                  {data?.quantity?.map((val, index) => {
-                    return (
-                      <option key={index} value={val}>
-                        {val}
-                      </option>
-                    );
-                  })}
-                </select>
-                <label className="label">
-                  {errors.quantity && (
-                    <span className="label-text-alt text-red-600">
-                      {errors.quantity.message}
-                    </span>
-                  )}
-                </label>
-
-                <label className="label">
-                  <span className="label-text">Your mpesa number</span>
-                </label>
-                <label className="input-group">
-                  <div className="join">
-                    <button className="btn join-item rounded-r-full">
-                      +254
-                    </button>
-                    <input
-                      {...register("mobileNumber", {
-                        required: "phone number is required",
-                        valueAsNumber: true,
-                        minLength: 9,
-                        maxLength: 9,
-                      })}
-                      type="tel"
-                      className="input input-bordered join-item"
-                      placeholder="71234567"
-                    />
-                  </div>
-                </label>
-                <label className="label">
-                  {errors.mobileNumber && (
-                    <span className="label-text-alt text-red-600">
-                      {errors.mobileNumber.message}
-                    </span>
-                  )}
-                </label>
-
-                <button
-                  className={
-                    isSubmitting
-                      ? "btn-disabled loading btn gap-2 rounded"
-                      : "btn-accent btn gap-2 rounded"
-                  }
-                  disabled={isSubmitting ? true : false}
-                  type="submit"
-                >
-                  <FaMoneyCheckAlt />
-                  checkout
-                </button>
-              </form>
-            </div>
-
-            <div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-base-content sm:text-4xl">
-                Event Description
-              </h2>
-              <p className="mt-4 text-base-content">
+              <p className="text-muted-foreground">
                 {data?.event?.EventDescription}
               </p>
 
-              <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
-                <div className="border-t border-gray-200 pt-0">
-                  <dt className="font-medium text-base-content">Time</dt>
-                  <dd className="mb-20 text-sm text-base-content">
-                    {data?.event?.EventDate.toDateString()}
-                  </dd>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ticketType">Ticket Type</Label>
+                  <Select
+                    onValueChange={(e) => {
+                      console.log(e);
+                      setValue("ticketTypeTitle", e);
+                    }}
+                  >
+                    <SelectTrigger id="ticketType">
+                      <SelectValue placeholder="Select ticket type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {data?.event?.ticketTypes.map((val, index) => (
+                        <SelectItem key={index} value={val.title}>
+                          {`${val?.title} ${val?.price} ksh`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </dl>
+
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">Quantity</Label>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        setValue(
+                          "quantity",
+                          Math.max(getValues("quantity") - 1)
+                        )
+                      }
+                    >
+                      -
+                    </Button>
+                    <Input
+                      type="number"
+                      id="quantity"
+                      defaultValue={1}
+                      {...register("quantity", {
+                        required: true,
+
+                        valueAsNumber: true,
+                      })}
+                      onChange={(e) =>
+                        setValue(
+                          "quantity",
+                          Math.max(1, parseInt(e.target.value) || 1)
+                        )
+                      }
+                      className="w-20 text-center"
+                      min="1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        setValue("quantity", getValues("quantity") + 1)
+                      }
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    {...register("mobileNumber", {
+                      required: "phone number is required",
+                      valueAsNumber: true,
+                      minLength: 9,
+                      maxLength: 9,
+                    })}
+                    type="tel"
+                    placeholder="71234567"
+                  />
+                </div>
+
+                <button
+                  className={
+                    buyMutation?.isLoading
+                      ? "btn-disabled w-full loading btn gap-2 rounded"
+                      : "btn-accent w-full btn gap-2 rounded"
+                  }
+                  onClick={() => {
+                    if (searchObj?.price) {
+                      buyMutation.mutateAsync(
+                        {
+                          mobileNumber: vals?.mobileNumber,
+                          quantity: vals?.quantity,
+                          ticketTypeTitle: vals?.ticketTypeTitle,
+                          eventName: data?.event?.EventName as string,
+                          totalAmount: searchObj?.price * vals?.quantity,
+                        },
+                        {
+                          onSuccess(data) {
+                            setIsSubmitting(false);
+                            if (data.transaction) {
+                              Router.push(
+                                `/transaction/${data.transaction.MerchantRequestID}`
+                              );
+                            } else {
+                              toast({
+                                title: "Error",
+                                description:
+                                  "There was a problem purchasing your tickets",
+                                status: "error",
+                                duration: 9000,
+                                isClosable: true,
+                              });
+                            }
+                          },
+                        }
+                      );
+                    }
+                  }}
+                  disabled={buyMutation?.isLoading ? true : false}
+                >
+                  {buyMutation?.isLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    ""
+                  )}
+                  Purchase Tickets
+                </button>
+              </div>
             </div>
           </div>
         </div>
