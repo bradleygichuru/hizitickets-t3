@@ -141,12 +141,16 @@ function ProfileDropdown({ mobile = false }: { mobile?: boolean }) {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
+      {router.pathname == "/dashboard" ? (
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      ) : (
+        ""
+      )}
     </DropdownMenu>
   );
 }
