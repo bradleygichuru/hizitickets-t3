@@ -92,7 +92,8 @@ const Ticket: NextPage = () => {
             <div className="rounded-lg overflow-hidden shadow-lg">
               <Image
                 width={384}
-                height={100}
+                height={384}
+                quality={100}
                 src={data?.event?.EventPosterUrl as string}
                 alt={data?.event?.EventName as string}
                 className="w-full h-auto object-cover"

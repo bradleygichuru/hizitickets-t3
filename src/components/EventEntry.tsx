@@ -7,19 +7,25 @@ export default function EventEntry(props: {
 }) {
   console.log(props);
   return (
-    <Link href={`/ticket/${props.eventName}`} passHref>
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <figure>
-          <Image
-            width={384}
-            height={100}
-            src={`${props.eventPosterUrl}`}
-            alt="Shoes"
-          />
-        </figure>
-        <div className="card-body">
-          <h2 className="card-title">{props.eventName}</h2>
-        </div>
+    <Link
+      href={`/ticket/${props.eventName}`}
+      className="bg-white rounded-lg shadow-md overflow-hidden"
+      passHref
+    >
+      <Image
+        src={props.eventPosterUrl}
+        alt={props.eventName}
+        width={400}
+        height={200}
+        className="w-full h-48 object-cover"
+      />
+      <div className="p-4">
+        <h2 className="text-xl font-semibold mb-2">{props.eventName}</h2>
+        <p className="text-gray-600 mb-2">{""}</p>
+        <p className="text-gray-600">{""}</p>
+        <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+          Book Tickets
+        </button>
       </div>
     </Link>
   );

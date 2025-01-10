@@ -1,64 +1,74 @@
 import type { NextPage } from "next";
+import { useState } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  Box,
-} from "@chakra-ui/react";
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import Layout from "../components/layout";
 import Link from "next/link";
+const faqs = [
+  {
+    question: "Need help buying tickets?",
+    answer:
+      "1. Click on the event you wish to purchase tickets for on the events page 2. Purchase tickets on the page you will be redirected to and wait for transaction confirmation before your tickets are generated 3. Download your tickets",
+  },
+  {
+    question: "lost your ticket?",
+    answer:
+      "To Regenerate lost tickets contact +254768085236, +254794292432 or email hizitickets@gmail.com",
+  },
+];
 const HelpPage: NextPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredFaqs = faqs.filter(
+    (faq) =>
+      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Layout>
-      <div className="my-2 mx-2 h-screen rounded bg-base-100 p-10">
-        <h1 className="mx-2 mb-2 grid text-5xl font-medium leading-tight text-accent">
-          FAQ
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Frequently Asked Questions
         </h1>
-        <Accordion allowToggle p="10px">
-          <AccordionItem border="2px" borderRadius="6px" m="5px">
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Need help buying tickets?
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel mb={4} pb={4}>
-              <div className="divider"></div>
-              <p>
-                1. Click on the event you wish to purchase tickets for on the{" "}
-                <Link className="link-primary link" href="/events" passHref>
-                  events page
-                </Link>
-                <br></br>
-                2. Purchase tickets on the page you will be redirected to and
-                wait for transaction confirmation before your tickets are
-                generated
-                <br></br>
-                3. Download your tickets
-              </p>
-            </AccordionPanel>
-          </AccordionItem>
 
-          <AccordionItem border="2px" borderRadius="6px" m="5px">
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  lost your ticket?
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel mb={4} pb={4}>
-              <div className="divider"></div>
-              To Regenerate lost tickets contact +254768085236, +254794292432 or
-              email hizitickets@gmail.com
-            </AccordionPanel>
-          </AccordionItem>
+        <div className="relative mb-6 max-w-md mx-auto">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Search FAQs..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full"
+          />
+        </div>
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full max-w-2xl mx-auto"
+        >
+          {filteredFaqs.map((faq, index) => (
+            <AccordionItem value={`item-${index}`} key={index}>
+              <AccordionTrigger className="text-left">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent>{faq.answer}</AccordionContent>
+            </AccordionItem>
+          ))}
         </Accordion>
+
+        {filteredFaqs.length === 0 && (
+          <p className="text-center text-gray-500 mt-4">
+            No FAQs found matching your search. Please try a different term.
+          </p>
+        )}
       </div>
     </Layout>
   );
