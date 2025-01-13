@@ -8,21 +8,222 @@ import { Event, Ticket } from "@prisma/client";
 import ReactLoading from "react-loading";
 import Router from "next/router";
 import { useToast } from "@chakra-ui/react";
-
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, Loader2, MapPin } from "lucide-react";
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
-  const [valid, setValid] = useState<boolean>(false);
-  const [generated,setGenerated] = useState(false);
-  const [transactionId, setTransactionId] = useState<string>();
-  const [transaction, setTransaction] = useState<{
-    event: Event;
-    ticketTypeTitle: string;
-    TransactionId: string;
-    tickets: Ticket[];
-  } | null>();
+  const generateTicketsMutation = trpc.ticket.generateTickets.useMutation();
 
-  const generateTicketPdfs = transaction?.tickets.map((val, index) => {
+  const [valid, setValid] = useState<boolean>(false);
+  const [generated, setGenerated] = useState(false);
+  const [transactionId, setTransactionId] = useState<string>();
+
+  const [dots, setDots] = useState(".");
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prevDots) => (prevDots.length < 3 ? prevDots + "." : "."));
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+  const generateTicketPdfs =
+    generateTicketsMutation?.data?.transaction?.tickets.map((val, index) => {
+      return (
+        <Card key={val.TicketId} className="flex flex-col">
+          <CardHeader>
+            <CardTitle>
+              {generateTicketsMutation?.data?.transaction?.event.EventName}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>
+                  {new Date(
+                    generateTicketsMutation?.data?.transaction?.event
+                      ?.EventDate as Date
+                  ).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <MapPin className="mr-2 h-4 w-4" />
+                <span>
+                  {
+                    generateTicketsMutation?.data?.transaction?.event
+                      .EventLocation
+                  }
+                </span>
+              </div>
+              <div>
+                <strong>Ticket Type:</strong>{" "}
+                {generateTicketsMutation?.data?.transaction?.ticketTypeTitle}
+              </div>
+              <div>
+                <strong>Purchased:</strong>{" "}
+                {new Date(
+                  generateTicketsMutation?.data?.transaction
+                    ?.transactionDate as string
+                ).toLocaleDateString()}
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full">
+              <PDFDownloadLink
+                key={index}
+                document={
+                  <TicketTemplate
+                    eventName={
+                      generateTicketsMutation?.data?.transaction?.event
+                        ?.EventName as string
+                    }
+                    imageData={val?.ImageData}
+                    hash={val.TicketHash}
+                    date={
+                      generateTicketsMutation?.data?.transaction?.event
+                        ?.EventDate as Date
+                    }
+                    type={
+                      generateTicketsMutation?.data?.transaction
+                        ?.ticketTypeTitle as string
+                    }
+                  />
+                }
+                fileName={`ticket${index}.pdf`}
+              >{`Download ticket ${index + 1}`}</PDFDownloadLink>
+            </Button>
+          </CardFooter>
+        </Card>
+      );
+    });
+
+  const checkTransactionMutation =
+    trpc.transaction.checkTransaction.useMutation();
+  const toast = useToast();
+  useEffect(() => {
+    const timer = setInterval(() => {
+      checkTransactionMutation
+        .mutateAsync({ merchantRequestID: props.slug })
+        .then((res) => {
+          console.log(res.validity);
+
+          if (res?.completed === true && res?.validity === true) {
+            toast({
+              title: "Transaction was valid",
+              description: res?.mpesaResDescription,
+              status: "info",
+              isClosable: true,
+              duration: 9000,
+            });
+            setValid(true);
+            setTransactionId(res.transactionId);
+
+            generateTicketsMutation
+              .mutateAsync({ transactionId: res?.transactionId as string })
+              .then((res) => {
+                //setTransaction(res?.transaction);
+              });
+            setValid(true);
+            clearInterval(timer);
+          }
+          if (res.cancelled === true) {
+            toast({
+              title: "Transaction was not valid",
+              description: res?.mpesaResDescription,
+              status: "info",
+              isClosable: true,
+              duration: 9000,
+            });
+            setValid(true);
+            clearInterval(timer);
+            Router.push("/events");
+          }
+        });
+      return () => clearInterval(timer);
+    }, 6000);
+  }, []);
+  if (valid == false) {
     return (
-      <div key={index} className="card m-3 w-96 bg-base-100 shadow-xl">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">
+              Transaction in Progress
+            </CardTitle>
+            <CardDescription className="text-center">
+              Please wait while we confirm your transaction
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center space-y-6">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <p className="text-lg font-medium text-center">
+              Confirming your transaction{dots}
+            </p>
+            <p className="text-sm text-muted-foreground text-center">
+              This may take a few moments. Please do not close this page.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  if (generateTicketPdfs == undefined && valid == true) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">
+              Generation in Progress
+            </CardTitle>
+            <CardDescription className="text-center">
+              Please wait while we generate your tickets
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center space-y-6">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <p className="text-lg font-medium text-center">
+              Generating your tickets{dots}
+            </p>
+            <p className="text-sm text-muted-foreground text-center">
+              This may take a few moments. Please do not close this page.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Your Tickets</h1>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {generateTicketPdfs}
+      </div>
+    </div>
+  );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  let { slug } = context.query;
+
+  slug = slug?.[0];
+  console.log(slug);
+  return {
+    props: { slug },
+  };
+};
+
+export default TransactionPage;
+{
+  /*
+<div key={index} className="card m-3 w-96 bg-base-100 shadow-xl">
         <div className="card-body  items-center text-center">
           <h3 className="card-title">
             Your {transaction?.ticketTypeTitle} ticket
@@ -68,91 +269,5 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
           </div>
         </div>
       </div>
-    );
-  });
-
-  const checkTransactionMutation =
-    trpc.transaction.checkTransaction.useMutation();
-  const generateTicketsMutation = trpc.ticket.generateTickets.useMutation();
-  const toast = useToast();
-  useEffect(() => {
-    const timer = setInterval(() => {
-      checkTransactionMutation
-        .mutateAsync({ merchantRequestID: props.slug })
-        .then((res) => {
-          console.log(res.validity);
-
-          if (res?.completed === true && res?.validity === true) {
-            toast({
-              title: "Transaction was valid",
-              description: res?.mpesaResDescription,
-              status: "info",
-              isClosable: true,
-              duration: 9000,
-            });
-            setValid(true);
-            setTransactionId(res.transactionId);
-
-            generateTicketsMutation
-              .mutateAsync({ transactionId: res?.transactionId as string })
-              .then((res) => {
-                setTransaction(res?.transaction);
-              });
-            setValid(true);
-            clearInterval(timer);
-          }
-          if (res.cancelled === true) {
-            toast({
-              title: "Transaction was not valid",
-              description: res?.mpesaResDescription,
-              status: "info",
-              isClosable: true,
-              duration: 9000,
-            });
-            setValid(true);
-            clearInterval(timer);
-            Router.push("/events");
-          }
-        });
-      return () => clearInterval(timer);
-    }, 6000);
-  }, []);
-  if (valid == false) {
-    return (
-      <div className="grid h-screen place-items-center bg-base-100">
-        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
-        <p className="text-black"> confirming transaction</p>
-      </div>
-    );
-  }
-  if (generateTicketPdfs == undefined && valid == true) {
-    return (
-      <div className="grid h-screen place-items-center bg-base-100">
-        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
-        <p className="text-black">generating tickets</p>
-      </div>
-    );
-  }
-  return (
-    <div data-theme="light">
-      <h2 className="text-extrabold m-2 text-center text-3xl">
-        Download your tickets
-      </h2>
-      <div className="flex  h-screen flex-row flex-wrap overflow-auto">
-        {generateTicketPdfs}
-      </div>
-    </div>
-  );
-};
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  let { slug } = context.query;
-
-  slug = slug?.[0];
-  console.log(slug);
-  return {
-    props: { slug },
-  };
-};
-
-export default TransactionPage;
+*/
+}

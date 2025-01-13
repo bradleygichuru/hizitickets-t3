@@ -31,6 +31,16 @@ import Image from "next/image";
 import ticketLogo from "../../public/ticket-svgrepo-com.svg";
 import { useSession, signIn } from "next-auth/react";
 import Decimal from "decimal.js";
+import { DollarSign, Loader2, QrCode, Share2, Ticket } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 let yourDate = new Date();
 const offset = yourDate.getTimezoneOffset();
 yourDate = new Date(yourDate.getTime() - offset * 60 * 1000);
@@ -291,7 +301,7 @@ const DashBoard = () => {
   if (status == "loading") {
     return (
       <div className="grid h-screen place-items-center bg-base-100">
-        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
+        <Loader2 type="spin" color="#0000FF" height={100} width={100} />
         <span className="text-black">Authenticating</span>
       </div>
     );
@@ -299,7 +309,7 @@ const DashBoard = () => {
   if (isLoading) {
     return (
       <div className="grid h-screen place-items-center bg-base-100 text-base-content">
-        <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
+        <Loader2 type="spin" height={100} width={100} />
       </div>
     );
   }
@@ -1099,49 +1109,60 @@ const DashBoard = () => {
                   });
                 });
                 return (
-                  <div
-                    key={index}
-                    className="group relative lg:w-1/2 w-full rounded-lg h-fit bg-base-100 flex flex-col lg:flex-row"
-                  >
-                    <div className="flex lg:w-1/2 h-fit flex-col rounded-lg bg-neutral p-1">
-                      <div className=" rounded-ld">
-                        <img
-                          src={event?.EventPosterUrl}
-                          className="" //TODO use next/image here
-                        />
-                      </div>
-                      <div className="m-1 place-items-center grid  rounded-lg">
-                        <h3 className="rounded-lg text-neutral-content p-1">
-                          <span
-                            aria-hidden="true"
-                            className="absolute inset-0 font-sans text-4xl font-bold"
-                          />
-                          {event?.EventName}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <div className="lg:w-1/2 mb-14 flex flex-col">
-                      <div className="stats m-1 shadow">
-                        <div className="stat overflow-hidden">
-                          <div className="stat-title">Total Revenue</div>
-                          <div className="stat-value">
-                            {new Decimal(event?.TicketRevenue).toNumber()}
+                  <div className="border-4 rounded-xl border-black p-5 m-2">
+                    <div className="grid gap-1 md:grid-cols-4 lg:grid-cols-4 mb-8">
+                      <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">
+                            Total Tickets Purchased
+                          </CardTitle>
+                          <Ticket className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {ticketNumbers.toLocaleString()}
                           </div>
-                          <div className="stat-desc">
-                            units in Kenyan Shillings
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">
+                            Total Revenue Earned
+                          </CardTitle>
+                          <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {new Decimal(event?.TicketRevenue).toNumber()}KES{" "}
                           </div>
-                        </div>
-                      </div>
-                      <div className="stats m-1 shadow">
-                        <div className="stat overflow-hidden">
-                          <div className="stat-title">
-                            Total Tickets distributed
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">
+                            Total Tickets Distributed
+                          </CardTitle>
+                          <Share2 className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {ticketsScanned?.length?.toLocaleString()}
                           </div>
-                          <div className="stat-value">{ticketNumbers}</div>
-                          <div className="stat-desc"></div>
-                        </div>
-                      </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">
+                            Total Tickets Scanned
+                          </CardTitle>
+                          <QrCode className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">
+                            {ticketsScanned?.length?.toLocaleString()}
+                          </div>
+                        </CardContent>
+                      </Card>
                       {event.ticketTypes.map((type, typeIndex) => {
                         let typeCount = 0;
                         event.transactions.forEach((val, _) => {
@@ -1150,29 +1171,51 @@ const DashBoard = () => {
                           }
                         });
                         return (
-                          <div key={typeIndex} className="stats m-1 shadow">
-                            <div className="stat overflow-hidden">
-                              <div className="stat-title">
+                          <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">
                                 {type.title} tickets distributed
+                              </CardTitle>
+                              <QrCode className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-2xl font-bold">
+                                {typeCount.toLocaleString()}
                               </div>
-                              <div className="stat-value">{typeCount}</div>
-                              <div className="stat-desc"></div>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         );
                       })}
-                      <div className="stats m-1 shadow">
-                        <div className="stat overflow-hidden">
-                          <div className="stat-title">Tickets Scanned</div>
-                          <div className="stat-value">
-                            {ticketsScanned.length}
-                          </div>
-                          <div className="stat-desc"></div>
-                        </div>
-                      </div>
-
-                    {/*<Button className="m-2">Withdraw cash</Button>*/}
                     </div>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Event Details</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Event Name</TableHead>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Location</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className="font-medium">
+                                {event?.EventName}
+                              </TableCell>
+                              <TableCell>
+                                {new Date(
+                                  event?.EventDate
+                                ).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>{event.EventLocation}</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
                   </div>
                 );
               })}

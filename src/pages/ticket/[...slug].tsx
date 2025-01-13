@@ -7,19 +7,13 @@ import React from "react";
 import { trpc } from "../../utils/trpc";
 import Layout from "../../components/layout";
 import { useRouter } from "next/router";
-import {
-  useToast,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Skeleton,
-} from "@chakra-ui/react";
+import { useToast, Skeleton } from "@chakra-ui/react";
 import Image from "next/image";
-import { Calendar, Clock, Loader2 } from "lucide-react";
+import { Calendar, Clock, HandCoins, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -78,14 +72,13 @@ const Ticket: NextPage = () => {
   return (
     <Layout>
       <Skeleton isLoaded={isFetched} className="w-screen h-screen z-0">
-        {" "}
-        <Alert status="info">
-          <AlertIcon />
-          <AlertTitle>We currently only support mpesa payments.</AlertTitle>
+        <Alert className="m-3">
+          <HandCoins className="h-4 w-4" />
+          <AlertTitle>We currently only support mpesa payments</AlertTitle>
           <AlertDescription>
             We are working on adding other payment methods soon.
           </AlertDescription>
-        </Alert>
+        </Alert>{" "}
         <div className="container mx-auto px-4 py-8">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Event Poster Section */}
@@ -198,12 +191,7 @@ const Ticket: NextPage = () => {
                   />
                 </div>
 
-                <button
-                  className={
-                    buyMutation?.isLoading
-                      ? "btn-disabled w-full loading btn gap-2 rounded"
-                      : "btn-accent w-full btn gap-2 rounded"
-                  }
+                <Button
                   onClick={() => {
                     if (searchObj?.price) {
                       buyMutation.mutateAsync(
@@ -244,7 +232,7 @@ const Ticket: NextPage = () => {
                     ""
                   )}
                   Purchase Tickets
-                </button>
+                </Button>
               </div>
             </div>
           </div>
