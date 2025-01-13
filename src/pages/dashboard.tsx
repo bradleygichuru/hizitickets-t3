@@ -1109,7 +1109,10 @@ const DashBoard = () => {
                   });
                 });
                 return (
-                  <div key={event.EventId} className="border-4 rounded-xl border-black p-5 m-2">
+                  <div
+                    key={event.EventId}
+                    className="border-4 rounded-xl border-black p-5 m-2"
+                  >
                     <div className="grid gap-1 md:grid-cols-4 lg:grid-cols-4 mb-8">
                       <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -1171,7 +1174,7 @@ const DashBoard = () => {
                           }
                         });
                         return (
-                          <Card>
+                          <Card key={type.title}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                               <CardTitle className="text-sm font-medium">
                                 {type.title} tickets distributed
