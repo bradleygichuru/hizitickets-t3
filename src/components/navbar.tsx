@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { env } from "@/env/client.mjs";
 export default function Nav() {
   const [isDashboard, setIsDashboard] = useState<boolean>(false);
   const { data: session, status } = useSession();
@@ -44,6 +45,9 @@ export default function Nav() {
               <NavLink href="/dashboard">Dashboard</NavLink>
               <NavLink href="/events">Events</NavLink>
               <NavLink href="/help">Get Help</NavLink>
+              <NavLink href={env?.NEXT_PUBLIC_BLOG_URL} >
+                Blog
+              </NavLink>
               <ProfileDropdown />
             </div>
           </div>
@@ -76,6 +80,10 @@ export default function Nav() {
             </NavLink>
             <NavLink href="/help" mobile>
               Get Help
+            </NavLink>
+
+            <NavLink href={env?.NEXT_PUBLIC_BLOG_URL} mobile>
+              Blog
             </NavLink>
             <div className="pt-4">
               <ProfileDropdown mobile />
