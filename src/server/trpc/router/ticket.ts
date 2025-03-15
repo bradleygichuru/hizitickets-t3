@@ -95,7 +95,7 @@ export const ticketRouter = router({
             PartyA: parseInt(`254${input?.mobileNumber}`),
             PartyB: BusinessTill,
             PhoneNumber: parseInt(`254${input?.mobileNumber}`),
-            CallBackURL: `https://www.hizitickets.com/api/mpesaCallback`,
+            CallBackURL: `https://hizitickets-t3.vercel.app/api/mpesaCallback`,
             AccountReference: "hizitickets-enterprises",
             TransactionDesc: "Ticket Purchase",
           },
