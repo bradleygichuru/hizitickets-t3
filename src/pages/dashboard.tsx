@@ -91,6 +91,7 @@ const DashBoard = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   //const [eventPoster, setEventPoster] = useState<File>();
   const [selectedSort, setSelectedSort] = useState(sorts[0]);
+  const [mpesaWithdrawNo, setMpesaWithdrawNo] = useState("");
   const [editAddEvent, setEditAddEvent] = useState(true);
   const [editMerchSlotThree, setEditMerchSlotThree] = useState(false);
   const [editMerchSlotTwo, setEditMerchSlotTwo] = useState(false);
@@ -1111,7 +1112,7 @@ const DashBoard = () => {
                 return (
                   <div
                     key={event.EventId}
-                    className="border-4 rounded-xl border-black p-5 m-2"
+                    className="border-2 rounded-xl shadow-lg p-5 m-2"
                   >
                     <div className="grid gap-1 md:grid-cols-4 lg:grid-cols-4 mb-8">
                       <Card>
@@ -1219,6 +1220,22 @@ const DashBoard = () => {
                         </Table>
                       </CardContent>
                     </Card>
+                    {/*<Card className="m-3">
+                      <CardHeader>
+                        <CardTitle>WithDraw Funds</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Input
+                          onChange={(e) => {
+                            setMpesaWithdrawNo(e.target.value.trim());
+                          }}
+                          value={mpesaWithdrawNo}
+                          className="m-2"
+                          placeholder="enter mpesa number"
+                        />
+                        <Button className="m-1">Withrdraw</Button>
+                      </CardContent>
+                        </Card>*/}
                   </div>
                 );
               })}
