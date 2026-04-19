@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 
 function isBase64Image(str: string): boolean {
-  return str && str.startsWith("data:image");
+  return !!str && str.startsWith("data:image");
 }
 
 export default function EventEntry(props: {
