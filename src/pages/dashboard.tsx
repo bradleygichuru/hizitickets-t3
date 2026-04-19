@@ -130,169 +130,86 @@ const DashBoard = () => {
   /*  console.log("Fields",watchAllFields); */
   const addEventMutation = trpc.events.addEvent.useMutation();
 
-  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log(data);
-    console.log({ errors });
-    type MerchPayload = Array<{
-      merchandiseName: string;
-      merchandisePrice: number;
-      merchandisePoster: string;
-    }>;
-    const addedMerch: MerchPayload = [];
-    if (data?.merchSlotOnePrice && data?.merchSlotOneTitle) {
-      const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
-
-      const snapshot = await uploadBytes(
-        storageRef,
-        merchSlotOnePosterReference?.[0] as Blob
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      if (url) {
-        addedMerch.push({
-          merchandiseName: data?.merchSlotOneTitle,
-          merchandisePrice: data?.merchSlotOnePrice,
-          merchandisePoster: url,
-        });
-      } else {
-        toast({
-          description: "Error uploading merch poster",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      }
+    
+    if (!eventPoster?.[0]) {
+      toast({ title: "Error", description: "Event poster required", status: "error", duration: 9000, isClosable: true });
+      return;
     }
-    if (data.merchSlotTwoPrice && data.merchSlotTwoTitle) {
-      const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
-
-      const snapshot = await uploadBytes(
-        storageRef,
-        merchSlotOnePosterReference?.[0] as Blob
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      if (url) {
-        addedMerch.push({
-          merchandiseName: data.merchSlotTwoTitle,
-          merchandisePrice: data.merchSlotTwoPrice,
-          merchandisePoster: url,
-        });
-      } else {
-        toast({
-          description: "Error uploading merch poster",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      }
-    }
-    if (data.merchSlotThreePrice && data.merchSlotThreeTitle) {
-      const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
-
-      const snapshot = await uploadBytes(
-        storageRef,
-        merchSlotOnePosterReference?.[0] as Blob
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      if (url) {
-        addedMerch.push({
-          merchandiseName: data.merchSlotThreeTitle,
-          merchandisePrice: data.merchSlotThreePrice,
-          merchandisePoster: url,
-        });
-      } else {
-        toast({
-          description: "Error uploading merch poster",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      }
-    }
-
-    const eventicketTypes = [
-      {
-        title: data.ticketType1Name,
-        deadline: data.ticketType1Date,
-        price: data.ticketType1Price,
-      },
-      {
-        title: data.ticketType2Name,
-        deadline: data.ticketType2Date!,
-        price: data.ticketType2Price,
-      },
-      {
-        title: data.ticketType3Name,
-        deadline: data.ticketType3Date!,
-        price: data.ticketType3Price,
-      },
-      {
-        title: data.ticketType4Name,
-        deadline: data.ticketType4Date!,
-        price: data.ticketType4Price,
-      },
-    ];
-    if (eventPoster?.[0]) {
-      console.log(eventPoster?.[0]);
-      setIsSubmitting((isSubmitting) => !isSubmitting);
-      //const storageRef = ref(storage, eventPoster.name);
-      const storageRef = ref(storage, eventPoster?.[0]?.name);
-
-      //const snapshot = await uploadBytes(storageRef, eventPoster);
-      const snapshot = await uploadBytes(storageRef, eventPoster?.[0] as Blob);
-      const url = await getDownloadURL(snapshot.ref);
-
-      if (url) {
-        console.log(`${url}`);
-
-        addEventMutation
-          .mutateAsync({
-            eventName: data.eventName,
-            eventDate: data.eventDate,
-            eventDescription: data.eventDescription,
-            mobileContact: data.mobileContact,
-            merch: addedMerch,
-            eventicketTypesParsed: eventicketTypes.filter((type) => {
-              if (type.title.split(" ")[0] != "e.g" && type.title.length != 0) {
-                console.log(type);
-                return type;
-              }
-            }),
-            eventLocation: data.eventLocation,
-            eventMaxTickets: data.eventMaxTickets,
-            eventPosterUrl: url,
-            eventOrganizer: session?.user?.name as string,
-          })
-          .then(({ result }) => {
-            if (result == "success") {
-              setIsSubmitting(false);
-              toast({
-                title: "Success.",
-                description: "Your event was submitted successfully",
-                status: "success",
-                duration: 9000,
-                isClosable: true,
-              });
-              onClose();
-            } else {
-              toast({
-                title: "Error",
-                description:
-                  "there was a problem submitting your event details",
-                status: "error",
-                duration: 9000,
-                isClosable: true,
-              });
-            }
-            console.log(result);
-          });
-      }
-    } else {
-      toast({
-        title: "Field empty",
-        description: "Event poster required",
-        status: "error",
-        duration: 9000,
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Convert event poster to base64
+      const file = eventPoster?.[0] as File;
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsDataURL(file);
       });
+      
+      // Build merch array
+      type Merch = { merchandiseName: string; merchandisePrice: number; merchandisePoster: string; };
+      const addedMerch: Merch[] = [];
+      
+      if (data?.merchSlotOnePrice && data?.merchSlotOneTitle && merchSlotOnePosterReference?.[0]) {
+        const storageRef = ref(storage, merchSlotOnePosterReference?.[0]?.name);
+        const snapshot = await uploadBytes(storageRef, merchSlotOnePosterReference?.[0] as Blob);
+        const url = await getDownloadURL(snapshot.ref);
+        addedMerch.push({ merchandiseName: data?.merchSlotOneTitle, merchandisePrice: data?.merchSlotOnePrice, merchandisePoster: url });
+      }
+      
+      if (data.merchSlotTwoPrice && data.merchSlotTwoTitle && merchSlotTwoPosterReference?.[0]) {
+        const storageRef = ref(storage, merchSlotTwoPosterReference?.[0]?.name);
+        const snapshot = await uploadBytes(storageRef, merchSlotTwoPosterReference?.[0] as Blob);
+        const url = await getDownloadURL(snapshot.ref);
+        addedMerch.push({ merchandiseName: data.merchSlotTwoTitle, merchandisePrice: data.merchSlotTwoPrice, merchandisePoster: url });
+      }
+      
+      if (data.merchSlotThreePrice && data.merchSlotThreeTitle && merchSlotThreePosterReference?.[0]) {
+        const storageRef = ref(storage, merchSlotThreePosterReference?.[0]?.name);
+        const snapshot = await uploadBytes(storageRef, merchSlotThreePosterReference?.[0] as Blob);
+        const url = await getDownloadURL(snapshot.ref);
+        addedMerch.push({ merchandiseName: data.merchSlotThreeTitle, merchandisePrice: data.merchSlotThreePrice, merchandisePoster: url });
+      }
+      
+      // Build ticket types
+      const eventicketTypes = [
+        { title: data.ticketType1Name, deadline: data.ticketType1Date, price: data.ticketType1Price },
+        { title: data.ticketType2Name, deadline: data.ticketType2Date!, price: data.ticketType2Price },
+        { title: data.ticketType3Name, deadline: data.ticketType3Date!, price: data.ticketType3Price },
+        { title: data.ticketType4Name, deadline: data.ticketType4Date!, price: data.ticketType4Price },
+      ].filter(t => t.title && t.title.length > 0 && t.title.split(" ")[0] !== "e.g");
+      
+      // Call mutation
+      const result = await addEventMutation.mutateAsync({
+        eventName: data.eventName,
+        eventDate: data.eventDate,
+        eventDescription: data.eventDescription,
+        mobileContact: data.mobileContact,
+        merch: addedMerch,
+        eventicketTypesParsed: eventicketTypes,
+        eventLocation: data.eventLocation,
+        eventMaxTickets: data.eventMaxTickets,
+        eventPosterUrl: "", // Use empty for URL as we use data instead
+        eventPosterData: base64Data,
+        eventOrganizer: session?.user?.name as string,
+      });
+      
+      setIsSubmitting(false);
+      
+      if (result.result == "success") {
+        toast({ title: "Success.", description: "Your event was submitted successfully", status: "success", duration: 9000, isClosable: true });
+        onClose();
+      } else {
+        toast({ title: "Error", description: result.result || "Failed to create event", status: "error", duration: 9000, isClosable: true });
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error(error);
+      toast({ title: "Error", description: "Failed to create event", status: "error", duration: 9000, isClosable: true });
     }
   };
   if (status == "unauthenticated") {

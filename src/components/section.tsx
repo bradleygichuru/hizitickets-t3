@@ -4,6 +4,14 @@ import { BiCaretDownCircle } from "react-icons/bi";
 import { loadGetInitialProps } from "next/dist/shared/lib/utils";
 import { Key } from "react";
 import { Wrap, WrapItem } from "@chakra-ui/react";
+
+function getEventImage(event: Event): string {
+  if (event.EventPosterData) {
+    return event.EventPosterData;
+  }
+  return event.EventPosterUrl || "";
+}
+
 export default function Section(props: {
   data: Event[] | undefined;
   sectionName: string;
@@ -15,7 +23,7 @@ export default function Section(props: {
           <WrapItem key={index}>
             <EventEntry
               eventName={val.EventName}
-              eventPosterUrl={val.EventPosterUrl}
+              eventPosterUrl={getEventImage(val)}
             />
           </WrapItem>
         );

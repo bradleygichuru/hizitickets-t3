@@ -70,6 +70,7 @@ model Event {
   EventMaxTickets         Int
   EventDate               DateTime
   EventPosterUrl          String
+  EventPosterData        String?                  @db.Text
   EventOrganizer          String
   TicketRevenue           Decimal                  @default(0.0)
   DemoMode                Boolean                  @default(false)
@@ -106,6 +107,9 @@ model Transaction {
   completed                   Boolean  @default(false)
   DemoMode                    Boolean  @default(false)
   mpesaTransactionDescription String?
+  ipn_token                    String?
+  payment_url                  String?
+  email                        String?
 
   @@index([EventName])
 }

@@ -4,6 +4,15 @@ import { env } from "../../../env/server.mjs";
 import { createContext } from "../../../server/trpc/context";
 import { appRouter } from "../../../server/trpc/router/_app";
 
+// Increase body size limit to support Base64 image uploads
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+};
+
 // export API handler
 export default createNextApiHandler({
   router: appRouter,

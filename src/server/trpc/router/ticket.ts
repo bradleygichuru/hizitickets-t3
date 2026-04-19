@@ -3,12 +3,69 @@ import { router, publicProcedure } from "../trpc";
 import axios from "axios";
 import { createHash, randomUUID } from "crypto";
 import generateQR from "../../../utils/base64gen";
+import { env } from "../../../env/server.mjs";
+
+const PAYGATE_API_BASE = "https://api.paygate.to";
+const CHECKOUT_BASE = "https://checkout.paygate.to";
+
 const cK = "MN0MrspNCSebZAInOGIUQtCgjGdHzVcz";
 const cS = "Iw3MraZkQEuGFROv";
 const BusinessTill = 8071418;
 const ShortCode = 6135122;
 const passkey =
   "6e1b6160fb9604e2ea3ff0f283af8766372e261a7d9e98cf34486a107e145de2";
+
+async function createPayGatePayment(
+  totalAmount: number,
+  email: string,
+  transactionId: string
+) {
+  // PayGate requires HTTPS callback - use production URL
+  const callbackUrl = "https://hizitickets-t3.vercel.app/api/paygateCallback";
+  
+  // Fixed exchange rate: 1 USD = 129.10 KES
+  const KES_TO_USD_RATE = 129.10;
+  const usdAmount = Number((totalAmount / KES_TO_USD_RATE).toFixed(2));
+  
+  console.log("PayGate: Converting KES to USD using flat rate:", totalAmount, "KES /", KES_TO_USD_RATE, "=", usdAmount, "USD");
+  console.log("PayGate: Payout wallet:", env.PAYGATE_USDC_ADDRESS);
+  console.log("PayGate: Callback URL:", callbackUrl);
+  
+  // Step 1: Generate wallet using correct params (match virtotp-monorepo)
+  console.log("PayGate: Generating wallet...");
+  const walletUrl = `${PAYGATE_API_BASE}/control/wallet.php?address=${encodeURIComponent(env.PAYGATE_USDC_ADDRESS)}&callback=${encodeURIComponent(callbackUrl)}`;
+  console.log("PayGate: Wallet URL:", walletUrl);
+  
+  const walletResponse = await axios({
+    url: walletUrl,
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+    },
+  }).catch(err => {
+    console.error("PayGate wallet error:", err.response?.data || err.message);
+    throw err;
+  });
+  
+  console.log("PayGate: Wallet response:", walletResponse.data);
+  
+  // Use address_in from response - it's already the encrypted address
+  const encryptedAddress = walletResponse.data.address_in;
+  const ipnToken = walletResponse.data.ipn_token;
+  console.log("PayGate: Encrypted address (address_in):", encryptedAddress);
+  console.log("PayGate: IPN token:", ipnToken);
+  
+  // Step 2: Build payment URL - DON'T encode address_in, it's already properly formatted
+  const paymentUrl = `${CHECKOUT_BASE}/process-payment.php?address=${encryptedAddress}&amount=${usdAmount}&provider=stripe&email=${encodeURIComponent(email)}&currency=USD`;
+  console.log("PayGate: Payment URL:", paymentUrl);
+  
+  return {
+    ipn_token: ipnToken,
+    payment_url: paymentUrl,
+    usd_amount: usdAmount,
+  };
+}
+
 export const ticketRouter = router({
   buyTicket: publicProcedure
     .input(
@@ -18,20 +75,23 @@ export const ticketRouter = router({
         ticketTypeTitle: z.string(),
         eventName: z.string(),
         totalAmount: z.number(),
+        email: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      console.log(input);
+      console.log("buyTicket input:", input);
       const date = new Date();
       const event = await ctx.prisma.event.findFirst({
         where: { EventName: input?.eventName },
       });
+      console.log("Event DemoMode:", event?.DemoMode);
+      
       if (event?.DemoMode) {
         const transaction = await ctx.prisma.transaction.create({
           data: {
             MobileNumber: `254${input.mobileNumber}`,
             EventName: input.eventName,
-            TransactionMethod: "MPESA",
+            TransactionMethod: "PAYGATE",
             NumberOfTickets: input.quantity,
             Valid: true,
             DemoMode: true,
@@ -40,6 +100,7 @@ export const ticketRouter = router({
             MerchantRequestID: randomUUID(),
             CheckoutRequestID: randomUUID(),
             ticketTypeTitle: input.ticketTypeTitle,
+            email: input.email,
           },
         });
         return {
@@ -47,107 +108,75 @@ export const ticketRouter = router({
           status: "success",
         };
       } else {
-        const timestamp =
-          date.getFullYear() +
-          ("0" + (date.getMonth() + 1)).slice(-2) +
-          ("0" + date.getDate()).slice(-2) +
-          ("0" + date.getHours()).slice(-2) +
-          ("0" + date.getMinutes()).slice(-2) +
-          ("0" + date.getSeconds()).slice(-2);
-        const password = Buffer.from(
-          `${ShortCode}${passkey}${timestamp}`
-        ).toString("base64");
-        const instanceAuthToken = await axios({
-          url: "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-          method: "get",
-          auth: {
-            username: `${cK}`,
-            password: `${cS}`,
-          },
-        }).catch(function (error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(error.request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", error.message);
-          }
-          console.log(error.config);
+        let transactionId = randomUUID();
+        
+        // Verify this ID doesn't exist, regenerate if needed
+        const existingById = await ctx.prisma.transaction.findUnique({
+          where: { MerchantRequestID: transactionId },
         });
-        console.log(instanceAuthToken?.data?.access_token);
-
-        const buyRequest = await axios({
-          url: "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
-          data: {
-            BusinessShortCode: ShortCode,
-            Password: password,
-            Timestamp: timestamp,
-            TransactionType: "CustomerBuyGoodsOnline",
-            Amount: input?.totalAmount,
-            PartyA: parseInt(`254${input?.mobileNumber}`),
-            PartyB: BusinessTill,
-            PhoneNumber: parseInt(`254${input?.mobileNumber}`),
-            CallBackURL: `https://hizitickets-t3.vercel.app/api/mpesaCallback`,
-            AccountReference: "hizitickets-enterprises",
-            TransactionDesc: "Ticket Purchase",
+        if (existingById) {
+          transactionId = randomUUID();
+        }
+        
+        console.log("Creating PayGate payment for:", input.totalAmount, "KES to", input.email);
+        
+        // Check for existing pending transaction first
+        const existingPending = await ctx.prisma.transaction.findFirst({
+          where: {
+            MobileNumber: `254${input.mobileNumber}`,
+            EventName: input.eventName,
+            ticketTypeTitle: input.ticketTypeTitle,
+            completed: false,
+            cancelled: false,
           },
-          method: "post",
-          headers: {
-            authorization: `Bearer ${instanceAuthToken?.data?.access_token}`,
-          },
-        }).catch(function (error) {
-          if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error(error.response.data);
-            console.error(error.response.status);
-            console.error(error.response.headers);
-          } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.error(error.request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", error.message);
-          }
-          console.log(error.config);
         });
-        console.log(buyRequest?.data);
-        let unconfirmedTransaction;
-        if (buyRequest?.data?.ResponseCode === "0") {
-          //TODO change this in prod
-          unconfirmedTransaction = await ctx.prisma.transaction.create({
-            data: {
-              MobileNumber: `254${input.mobileNumber}`,
-              EventName: input.eventName,
-              TransactionMethod: "MPESA",
-              NumberOfTickets: input.quantity,
-              Valid: true,
-              TotalAmount: input.totalAmount,
-              MerchantRequestID: buyRequest?.data?.MerchantRequestID,
-              CheckoutRequestID: buyRequest?.data?.CheckoutRequestID,
-              ticketTypeTitle: input.ticketTypeTitle,
-            },
-          });
-
+        
+        if (existingPending?.payment_url) {
           return {
-            transaction: unconfirmedTransaction,
-            status: "success",
-          };
-        } else {
-          return {
-            status: "error",
+            transaction: existingPending,
+            status: "pending_exists",
+            paymentUrl: existingPending.payment_url,
           };
         }
+        
+        // Create PayGate payment
+        let paygateData;
+        try {
+          paygateData = await createPayGatePayment(
+            input.totalAmount,
+            input.email,
+            transactionId
+          );
+        } catch (error) {
+          console.error("PayGate payment creation failed:", error);
+          return {
+            status: "error",
+            error: "Failed to create payment. Please try again.",
+          };
+        }
+        
+        const unconfirmedTransaction = await ctx.prisma.transaction.create({
+          data: {
+            MobileNumber: `254${input.mobileNumber}`,
+            EventName: input.eventName,
+            TransactionMethod: "PAYGATE",
+            NumberOfTickets: input.quantity,
+            Valid: true,
+            TotalAmount: input.totalAmount,
+            MerchantRequestID: transactionId,
+            CheckoutRequestID: transactionId, // Use our unique UUID to avoid constraint violation
+            ticketTypeTitle: input.ticketTypeTitle,
+            ipn_token: paygateData.ipn_token,
+            payment_url: paygateData.payment_url,
+            email: input.email,
+          },
+        });
+
+        return {
+          transaction: unconfirmedTransaction,
+          status: "success",
+          paymentUrl: paygateData.payment_url,
+        };
       }
     }),
   generateTickets: publicProcedure

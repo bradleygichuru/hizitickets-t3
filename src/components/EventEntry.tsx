@@ -1,24 +1,39 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+
+function isBase64Image(str: string): boolean {
+  return str && str.startsWith("data:image");
+}
+
 export default function EventEntry(props: {
   eventName: string;
   eventPosterUrl: string;
 }) {
   console.log(props);
+  const isBase64 = isBase64Image(props.eventPosterUrl);
+  
   return (
     <Link
       href={`/ticket/${props.eventName}`}
       className="bg-white rounded-lg shadow-md overflow-hidden"
       passHref
     >
-      <Image
-        src={props.eventPosterUrl}
-        alt={props.eventName}
-        width={400}
-        height={200}
-        className="w-full h-48 object-cover"
-      />
+      {isBase64 ? (
+        <img
+          src={props.eventPosterUrl}
+          alt={props.eventName}
+          className="w-full h-48 object-cover"
+        />
+      ) : (
+        <Image
+          src={props.eventPosterUrl}
+          alt={props.eventName}
+          width={400}
+          height={200}
+          className="w-full h-48 object-cover"
+        />
+      )}
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-2">{props.eventName}</h2>
         <p className="text-gray-600 mb-2">{""}</p>

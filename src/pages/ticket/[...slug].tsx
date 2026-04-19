@@ -25,6 +25,7 @@ type formSchema = {
   quantity: number;
   mobileNumber: number;
   ticketTypeTitle: string;
+  email: string;
 };
 const features = [
   {
@@ -38,7 +39,50 @@ const Ticket: NextPage = () => {
   const Router = useRouter();
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentModalData, setPaymentModalData] = useState<{ paymentUrl?: string; transactionId?: string }>({});
+  const [dots, setDots] = useState(".");
+  
   const buyMutation = trpc.ticket.buyTicket.useMutation();
+  const checkTransactionMutation = trpc.transaction.checkTransaction.useMutation();
+  
+  // Polling for payment status
+  React.useEffect(() => {
+    if (!showPaymentModal || !paymentModalData.transactionId) return;
+    
+    const interval = setInterval(() => {
+      setDots(prev => prev.length < 3 ? prev + "." : ".");
+      
+      checkTransactionMutation.mutateAsync({ merchantRequestID: paymentModalData.transactionId! })
+        .then(res => {
+          if (res.completed === true) {
+            toast({
+              title: "Payment Complete",
+              description: "Your tickets are being generated",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+            });
+            clearInterval(interval);
+            setShowPaymentModal(false);
+            Router.push(`/transaction/${paymentModalData.transactionId}`);
+          }
+          if (res.cancelled === true) {
+            clearInterval(interval);
+            setShowPaymentModal(false);
+            toast({
+              title: "Payment Failed",
+              description: "Please try again",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            });
+          }
+        });
+    }, 6000);
+    
+    return () => clearInterval(interval);
+  }, [showPaymentModal, paymentModalData.transactionId]);
 
   const {
     register,
@@ -74,23 +118,31 @@ const Ticket: NextPage = () => {
       <Skeleton isLoaded={isFetched} className="w-screen h-screen z-0">
         <Alert className="m-3">
           <HandCoins className="h-4 w-4" />
-          <AlertTitle>We currently only support mpesa payments</AlertTitle>
+          <AlertTitle>We currently only support PayGate payments</AlertTitle>
           <AlertDescription>
-            We are working on adding other payment methods soon.
+            Secure payment powered by Stripe.
           </AlertDescription>
         </Alert>{" "}
         <div className="container mx-auto px-4 py-8">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Event Poster Section */}
             <div className="rounded-lg overflow-hidden shadow-lg">
-              <Image
-                width={384}
-                height={384}
-                quality={100}
-                src={data?.event?.EventPosterUrl as string}
-                alt={data?.event?.EventName as string}
-                className="w-full h-auto object-cover"
-              />
+              {data?.event?.EventPosterData ? (
+                <img
+                  src={data.event.EventPosterData}
+                  alt={data?.event?.EventName as string}
+                  className="w-full h-auto object-cover"
+                />
+              ) : (
+                <Image
+                  width={384}
+                  height={384}
+                  quality={100}
+                  src={data?.event?.EventPosterUrl as string}
+                  alt={data?.event?.EventName as string}
+                  className="w-full h-auto object-cover"
+                />
+              )}
             </div>
 
             {/* Event Details and Purchase Form Section */}
@@ -191,6 +243,17 @@ const Ticket: NextPage = () => {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    {...register("email", {
+                      required: "email is required",
+                    })}
+                    type="email"
+                    placeholder="you@example.com"
+                  />
+                </div>
+
                 <Button
                   onClick={() => {
                     if (searchObj?.price) {
@@ -201,24 +264,47 @@ const Ticket: NextPage = () => {
                           ticketTypeTitle: vals?.ticketTypeTitle,
                           eventName: data?.event?.EventName as string,
                           totalAmount: searchObj?.price * vals?.quantity,
+                          email: vals?.email,
                         },
                         {
                           onSuccess(data) {
-                            setIsSubmitting(false);
+                            console.log("buyTicket response:", data);
                             if (data.transaction) {
+                              if (data.paymentUrl) {
+                                console.log("Opening PayGate in new tab:", data.paymentUrl);
+                                window.open(data.paymentUrl, "_blank");
+                                // Show blocking modal with polling
+                                setPaymentModalData({
+                                  paymentUrl: data.paymentUrl,
+                                  transactionId: data.transaction.MerchantRequestID,
+                                });
+                                setShowPaymentModal(true);
+                                return;
+                              }
                               Router.push(
                                 `/transaction/${data.transaction.MerchantRequestID}`
                               );
                             } else {
+                              setIsSubmitting(false);
                               toast({
                                 title: "Error",
-                                description:
-                                  "There was a problem purchasing your tickets",
+                                description: data?.error || "There was a problem purchasing your tickets",
                                 status: "error",
                                 duration: 9000,
                                 isClosable: true,
                               });
                             }
+                          },
+                          onError(error) {
+                            console.error("buyTicket error:", error);
+                            setIsSubmitting(false);
+                            toast({
+                              title: "Error",
+                              description: error.message || "Failed to process purchase",
+                              status: "error",
+                              duration: 9000,
+                              isClosable: true,
+                            });
                           },
                         }
                       );
@@ -238,6 +324,50 @@ const Ticket: NextPage = () => {
           </div>
         </div>
       </Skeleton>
+
+      {/* Blocking Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-16 w-16 mx-auto animate-spin text-primary" />
+              <h2 className="text-xl font-bold">Payment in Progress</h2>
+              <p className="text-muted-foreground">
+                Please complete your payment in the new tab{dots}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Do not close this page until payment is complete.
+              </p>
+              <div className="flex flex-col gap-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    window.open(paymentModalData.paymentUrl, "_blank");
+                  }}
+                >
+                  Open Payment Page Again
+                </Button>
+                <Button 
+                  variant="destructive"
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setIsSubmitting(false);
+                    toast({
+                      title: "Payment Cancelled",
+                      description: "You can try again anytime",
+                      status: "info",
+                      duration: 5000,
+                      isClosable: true,
+                    });
+                  }}
+                >
+                  Cancel & Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

@@ -214,6 +214,7 @@ export const eventsRouter = router({
         eventLocation: z.string(),
         eventMaxTickets: z.number(),
         eventPosterUrl: z.string(),
+        eventPosterData: z.string().optional(),
         eventOrganizer: z.string(),
         mobileContact: z.string(),
         eventDate: z.date(),
@@ -232,6 +233,7 @@ export const eventsRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         let event;
+
         if (input.merch.length !== 0) {
           event = await ctx.prisma.event.create({
             data: {
@@ -241,6 +243,7 @@ export const eventsRouter = router({
               EventLocation: input.eventLocation,
               EventMaxTickets: input.eventMaxTickets,
               EventPosterUrl: input.eventPosterUrl,
+              EventPosterData: input.eventPosterData,
               EventOrganizer: input.eventOrganizer,
               MobileContact: input.mobileContact,
               ticketTypes: {
@@ -260,6 +263,7 @@ export const eventsRouter = router({
               EventLocation: input.eventLocation,
               EventMaxTickets: input.eventMaxTickets,
               EventPosterUrl: input.eventPosterUrl,
+              EventPosterData: input.eventPosterData,
               EventOrganizer: input.eventOrganizer,
               MobileContact: input.mobileContact,
               ticketTypes: {
