@@ -45,7 +45,7 @@ export const transactionRouter = router({
         }
 
         if (transaction?.TransactionMethod === "PAYGATE" && transaction?.ipn_token) {
-          const createdAt = new Date(transaction.transactionDate || transaction.createdAt);
+          const createdAt = new Date(transaction.transactionDate || Date.now());
           const now = new Date();
           const minutesSinceCreated = (now.getTime() - createdAt.getTime()) / (1000 * 60);
 
