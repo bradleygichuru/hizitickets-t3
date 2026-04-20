@@ -1,7 +1,8 @@
 import TicketTemplate from "../../components/Ticket";
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { trpc } from "../../utils/trpc";
+import { useMutation } from "@tanstack/react-query";
+import api from "../../utils/api";
 import { GetServerSideProps } from "next";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Event, Ticket } from "@prisma/client";
@@ -19,7 +20,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar, Loader2, MapPin } from "lucide-react";
 const TransactionPage: NextPage<{ slug: string }> = (props) => {
-  const generateTicketsMutation = trpc.ticket.generateTickets.useMutation();
+  const generateTicketsMutation = useMutation({
+    mutationFn: (data: { transactionId: string }) =>
+      api.post("/ticket/generateTickets", data).then((res) => res.data),
+  });
 
   const [valid, setValid] = useState<boolean>(false);
   const [generated, setGenerated] = useState(false);
@@ -34,12 +38,12 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
     return () => clearInterval(interval);
   }, []);
   const generateTicketPdfs =
-    generateTicketsMutation?.data?.transaction?.tickets.map((val, index) => {
+    generateTicketsMutation.data?.transaction?.tickets.map((val: any, index: number) => {
       return (
         <Card key={val.TicketId} className="flex flex-col">
           <CardHeader>
             <CardTitle>
-              {generateTicketsMutation?.data?.transaction?.event.EventName}
+              {generateTicketsMutation.data?.transaction?.event.EventName}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-grow">
@@ -105,51 +109,51 @@ const TransactionPage: NextPage<{ slug: string }> = (props) => {
       );
     });
 
-  const checkTransactionMutation =
-    trpc.transaction.checkTransaction.useMutation();
+  const checkTransactionMutation = useMutation({
+    mutationFn: (data: { merchantRequestID: string }) =>
+      api.post("/transaction/checkTransaction", data).then((res) => res.data),
+  });
   const toast = useToast();
   useEffect(() => {
     const timer = setInterval(() => {
-      checkTransactionMutation
-        .mutateAsync({ merchantRequestID: props.slug })
-        .then((res) => {
-          console.log(res.validity);
-
-          if (res?.completed === true && res?.validity === true) {
-            toast({
-              title: "Transaction was valid",
-              description: res?.mpesaResDescription,
-              status: "info",
-              isClosable: true,
-              duration: 9000,
-            });
-            setValid(true);
-            setTransactionId(res.transactionId);
-
-            generateTicketsMutation
-              .mutateAsync({ transactionId: res?.transactionId as string })
-              .then((res) => {
-                //setTransaction(res?.transaction);
-              });
-            setValid(true);
-            clearInterval(timer);
-          }
-          if (res.cancelled === true) {
-            toast({
-              title: "Transaction was not valid",
-              description: res?.mpesaResDescription,
-              status: "info",
-              isClosable: true,
-              duration: 9000,
-            });
-            setValid(true);
-            clearInterval(timer);
-            Router.push("/events");
-          }
-        });
-      return () => clearInterval(timer);
+      checkTransactionMutation.mutate({ merchantRequestID: props.slug });
     }, 6000);
+
+    return () => clearInterval(timer);
   }, []);
+
+  // Handle transaction response
+  useEffect(() => {
+    const res = checkTransactionMutation.data;
+    if (!res) return;
+
+    console.log(res.validity);
+
+    if (res.completed === true && res.validity === true) {
+      toast({
+        title: "Transaction was valid",
+        description: res.mpesaResDescription,
+        status: "info",
+        isClosable: true,
+        duration: 9000,
+      });
+      setValid(true);
+      setTransactionId(res.transactionId);
+
+      generateTicketsMutation.mutate({ transactionId: res.transactionId as string });
+    }
+    if (res.cancelled === true) {
+      toast({
+        title: "Transaction was not valid",
+        description: res.mpesaResDescription,
+        status: "info",
+        isClosable: true,
+        duration: 9000,
+      });
+      setValid(true);
+      Router.push("/events");
+    }
+  }, [checkTransactionMutation.data]);
   if (valid == false) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">

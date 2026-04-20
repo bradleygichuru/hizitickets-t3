@@ -25,7 +25,8 @@ import {
 } from "@chakra-ui/react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import storage from "../server/firebaseConfig";
-import { trpc } from "../utils/trpc";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import api from "../utils/api";
 import { z } from "zod";
 import Image from "next/image";
 import ticketLogo from "../../public/ticket-svgrepo-com.svg";
@@ -119,16 +120,20 @@ const DashBoard = () => {
     merchSlotThreePosterReference,
     eventPoster,
   });
-  const { data, isLoading } = trpc.events.getUserEvents.useQuery(
-    { eventOrganizer: session?.user?.name as string },
-    {
-      onSuccess(data) {
-        console.log(data);
-      },
-    }
-  ); //TODO only execute query if session is present
-  /*  console.log("Fields",watchAllFields); */
-  const addEventMutation = trpc.events.addEvent.useMutation();
+  const { data, isLoading } = useQuery({
+    queryKey: ["getUserEvents", session?.user?.name],
+    queryFn: () =>
+      api
+        .get("/events/getUserEvents", {
+          params: { eventOrganizer: session?.user?.name },
+        })
+        .then((res) => res.data),
+    enabled: !!session?.user?.name,
+  });
+  const addEventMutation = useMutation({
+    mutationFn: (data: any) =>
+      api.post("/events/addEvent", data).then((res) => res.data),
+  });
 
 const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     console.log(data);
@@ -1016,13 +1021,13 @@ const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
             </div>
           ) : (
             <div className="m-5 mx-auto w-screen flex flex-col rounded-3xl p-1">
-              {data?.events?.map((event, index: number) => {
+              {data?.events?.map((event: any, index: number) => {
                 let ticketNumbers = 0;
                 // const revenue = new Decimal(0);
-                let ticketsScanned = [];
-                event.transactions.forEach((val) => {
+                let ticketsScanned: any[] = [];
+                event.transactions.forEach((val: any) => {
                   ticketNumbers += val.tickets.length;
-                  ticketsScanned = val.tickets.filter((ticket) => {
+                  ticketsScanned = val.tickets.filter((ticket: any) => {
                     return ticket.Scanned === true;
                   });
                 });
@@ -1084,9 +1089,9 @@ const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
                           </div>
                         </CardContent>
                       </Card>
-                      {event.ticketTypes.map((type, typeIndex) => {
+                      {event.ticketTypes.map((type: any, typeIndex: number) => {
                         let typeCount = 0;
-                        event.transactions.forEach((val, _) => {
+                        event.transactions.forEach((val: any, _: any) => {
                           if (val.ticketTypeTitle == type.title) {
                             typeCount = typeCount + val.tickets.length;
                           }
