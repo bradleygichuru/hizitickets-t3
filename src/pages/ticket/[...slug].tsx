@@ -4,7 +4,8 @@ import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import type { NextPage } from "next";
 import React from "react";
-import { trpc } from "../../utils/trpc";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import api from "../../utils/api";
 import Layout from "../../components/layout";
 import { useRouter } from "next/router";
 import { useToast, Skeleton } from "@chakra-ui/react";
@@ -23,7 +24,7 @@ import {
 } from "@/components/ui/select";
 type formSchema = {
   quantity: number;
-  mobileNumber: number;
+  mobileNumber: string;
   ticketTypeTitle: string;
   email: string;
 };
@@ -43,8 +44,21 @@ const Ticket: NextPage = () => {
   const [paymentModalData, setPaymentModalData] = useState<{ paymentUrl?: string; transactionId?: string }>({});
   const [dots, setDots] = useState(".");
   
-  const buyMutation = trpc.ticket.buyTicket.useMutation();
-  const checkTransactionMutation = trpc.transaction.checkTransaction.useMutation();
+  const buyMutation = useMutation({
+    mutationFn: (data: {
+      mobileNumber: string;
+      quantity: number;
+      ticketTypeTitle: string;
+      eventName: string;
+      totalAmount: number;
+      email: string;
+    }) => api.post("/ticket/buyTicket", data).then((res) => res.data),
+  });
+
+  const checkTransactionMutation = useMutation({
+    mutationFn: (data: { merchantRequestID: string }) =>
+      api.post("/transaction/checkTransaction", data).then((res) => res.data),
+  });
   
   // Polling for payment status
   React.useEffect(() => {
@@ -53,36 +67,39 @@ const Ticket: NextPage = () => {
     const interval = setInterval(() => {
       setDots(prev => prev.length < 3 ? prev + "." : ".");
       
-      checkTransactionMutation.mutateAsync({ merchantRequestID: paymentModalData.transactionId! })
-        .then(res => {
-          if (res.completed === true) {
-            toast({
-              title: "Payment Complete",
-              description: "Your tickets are being generated",
-              status: "success",
-              duration: 5000,
-              isClosable: true,
-            });
-            clearInterval(interval);
-            setShowPaymentModal(false);
-            Router.push(`/transaction/${paymentModalData.transactionId}`);
-          }
-          if (res.cancelled === true) {
-            clearInterval(interval);
-            setShowPaymentModal(false);
-            toast({
-              title: "Payment Failed",
-              description: "Please try again",
-              status: "error",
-              duration: 5000,
-              isClosable: true,
-            });
-          }
-        });
+      checkTransactionMutation.mutate({ merchantRequestID: paymentModalData.transactionId! });
     }, 6000);
     
     return () => clearInterval(interval);
   }, [showPaymentModal, paymentModalData.transactionId]);
+
+  // Handle transaction check response
+  React.useEffect(() => {
+    const res = checkTransactionMutation.data;
+    if (!res) return;
+    
+    if (res.completed === true) {
+      toast({
+        title: "Payment Complete",
+        description: "Your tickets are being generated",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      setShowPaymentModal(false);
+      Router.push(`/transaction/${paymentModalData.transactionId}`);
+    }
+    if (res.cancelled === true) {
+      setShowPaymentModal(false);
+      toast({
+        title: "Payment Failed",
+        description: "Please try again",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [checkTransactionMutation.data]);
 
   const {
     register,
@@ -93,12 +110,16 @@ const Ticket: NextPage = () => {
     formState: { errors },
   } = useForm<formSchema>();
   const vals = watch();
-  const { data, isFetched } = trpc.events.getEvent.useQuery({
-    eventName: Router?.query?.slug?.[0] as string,
+  const { data, isFetched } = useQuery({
+    queryKey: ["getEvent", Router?.query?.slug?.[0]],
+    queryFn: () =>
+      api
+        .get("/events/getEvent", { params: { eventName: Router?.query?.slug?.[0] } })
+        .then((res) => res.data),
   });
 
   const searchObj = data?.event?.ticketTypes?.find(
-    (type) => type.title == vals.ticketTypeTitle
+    (type: any) => type.title == vals.ticketTypeTitle
   );
   console.log({ liveFormData: watch() });
   const onSubmit: SubmitHandler<formSchema> = async (formData, e) => {
@@ -152,7 +173,7 @@ const Ticket: NextPage = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-muted-foreground">
                   <Calendar className="h-5 w-5" />
-                  <span>{data?.event?.EventDate.toDateString()}</span>
+                  <span>{new Date(data?.event?.EventDate).toDateString()}</span>
                 </div>
               </div>
 
@@ -173,7 +194,7 @@ const Ticket: NextPage = () => {
                       <SelectValue placeholder="Select ticket type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {data?.event?.ticketTypes.map((val, index) => (
+                      {data?.event?.ticketTypes.map((val: any, index: number) => (
                         <SelectItem key={index} value={val.title}>
                           {`${val?.title} ${val?.price} ksh`}
                         </SelectItem>
@@ -240,12 +261,14 @@ const Ticket: NextPage = () => {
                   <Input
                     {...register("mobileNumber", {
                       required: "Phone number is required",
-                      valueAsNumber: true,
-                      minLength: { value: 9, message: "Phone must be 9 digits" },
-                      maxLength: { value: 9, message: "Phone must be 9 digits" },
+                      pattern: {
+                        value: /^[0-9]{9}$/,
+                        message: "Phone must be 9 digits (e.g., 712345678)",
+                      },
                     })}
                     type="tel"
-                    placeholder="71234567"
+                    placeholder="712345678"
+                    maxLength={9}
                   />
                   {errors.mobileNumber && (
                     <p className="text-sm text-red-500">{errors.mobileNumber.message}</p>
@@ -267,10 +290,10 @@ const Ticket: NextPage = () => {
                 </div>
 
                 <Button
-                  disabled={!vals.ticketTypeTitle || !vals.quantity || !vals.mobileNumber || !vals.email || isSubmitting || buyMutation?.isLoading}
+                  disabled={!vals.ticketTypeTitle || !vals.quantity || !vals.mobileNumber || !vals.email || isSubmitting || buyMutation.isPending}
                   onClick={() => {
                     if (searchObj?.price) {
-                      buyMutation.mutateAsync(
+                      buyMutation.mutate(
                         {
                           mobileNumber: vals?.mobileNumber,
                           quantity: vals?.quantity,
@@ -286,7 +309,6 @@ const Ticket: NextPage = () => {
                               if (data.paymentUrl) {
                                 console.log("Opening PayGate in new tab:", data.paymentUrl);
                                 window.open(data.paymentUrl, "_blank");
-                                // Show blocking modal with polling
                                 setPaymentModalData({
                                   paymentUrl: data.paymentUrl,
                                   transactionId: data.transaction.MerchantRequestID,
@@ -308,12 +330,12 @@ const Ticket: NextPage = () => {
                               });
                             }
                           },
-                          onError(error) {
+                          onError(error: any) {
                             console.error("buyTicket error:", error);
                             setIsSubmitting(false);
                             toast({
                               title: "Error",
-                              description: error.message || "Failed to process purchase",
+                              description: error?.message || "Failed to process purchase",
                               status: "error",
                               duration: 9000,
                               isClosable: true,
@@ -324,7 +346,7 @@ const Ticket: NextPage = () => {
                     }
                   }}
                 >
-                  {buyMutation?.isLoading ? (
+                  {buyMutation.isPending ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     ""

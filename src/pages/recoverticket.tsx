@@ -2,7 +2,8 @@ import type { NextPage } from "next";
 import Layout from "../components/layout";
 
 import Router from "next/router";
-import { trpc } from "../utils/trpc";
+import { useMutation } from "@tanstack/react-query";
+import api from "../utils/api";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button, useToast } from "@chakra-ui/react";
@@ -19,14 +20,16 @@ const RecoverTicket: NextPage = () => {
     watch,
   } = useForm<FormSchemaType>();
   const toast = useToast();
-  const findTransactionMutation =
-    trpc.transaction.findTransaction.useMutation();
+  const findTransactionMutation = useMutation({
+    mutationFn: (data: { mpesaTransCode: string }) =>
+      api.get("/transaction/findTransaction", { params: data }).then((res) => res.data),
+  });
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     const res = await findTransactionMutation.mutateAsync({
       mpesaTransCode: data?.mpesaTransCode,
     });
-    if (res) {
-      Router.push(`/transaction/${res?.transaction?.MerchantRequestID}`);
+    if (res?.transaction) {
+      Router.push(`/transaction/${res.transaction.MerchantRequestID}`);
     } else {
       toast({
         status: "error",
@@ -72,7 +75,7 @@ const RecoverTicket: NextPage = () => {
                 </label>
               )}
               <Button
-                isLoading={findTransactionMutation?.isLoading}
+                isLoading={findTransactionMutation?.isPending}
                 type="submit"
                 className="btn m-2 bg-accent"
               >

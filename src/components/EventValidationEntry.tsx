@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { trpc } from "../utils/trpc";
+import { useMutation } from "@tanstack/react-query";
+import api from "../utils/api";
 
 import { useToast } from "@chakra-ui/react";
 const EventInfo = (props: {
@@ -10,11 +11,23 @@ const EventInfo = (props: {
 }) => {
   const toast = useToast();
   const [eventValidity, setEventValidity] = useState<boolean>();
-  const makeDemoEventMutation = trpc.events.setDemoEvent.useMutation();
+  const makeDemoEventMutation = useMutation({
+    mutationFn: (data: { eventName: string }) =>
+      api.post("/events/setDemoEvent", data).then((res) => res.data),
+  });
 
-  const unMakeDemoEventMutation = trpc.events.unDemoEvent.useMutation();
-  const invalidateMutation = trpc.events.invalidateEvent.useMutation();
-  const verifyMutation = trpc.events.verifyEvent.useMutation();
+  const unMakeDemoEventMutation = useMutation({
+    mutationFn: (data: { eventName: string }) =>
+      api.post("/events/unDemoEvent", data).then((res) => res.data),
+  });
+  const invalidateMutation = useMutation({
+    mutationFn: (data: { eventName: string }) =>
+      api.post("/events/invalidateEvent", data).then((res) => res.data),
+  });
+  const verifyMutation = useMutation({
+    mutationFn: (data: { eventName: string }) =>
+      api.post("/events/verifyEvent", data).then((res) => res.data),
+  });
   useEffect(() => {
     setEventValidity(props?.EventValidity);
   }, []);
@@ -42,8 +55,7 @@ const EventInfo = (props: {
         <button
           className="m-2 btn btn-accent btn-wide"
           onClick={() => {
-            invalidateMutation
-              .mutateAsync({ eventName: props?.EventName })
+            invalidateMutation.mutateAsync({ eventName: props?.EventName })
               .then(({ verification }) => {
                 if (verification == "successful") {
                   toast({
@@ -71,8 +83,7 @@ const EventInfo = (props: {
         <button
           className="m-2 btn btn-accent btn-wide"
           onClick={() => {
-            verifyMutation
-              .mutateAsync({ eventName: props?.EventName })
+            verifyMutation.mutateAsync({ eventName: props?.EventName })
               .then(({ verification }) => {
                 if (verification == "successful") {
                   toast({
@@ -100,8 +111,7 @@ const EventInfo = (props: {
         <button
           className="m-2 btn btn-accent btn-wide"
           onClick={() => {
-            makeDemoEventMutation
-              .mutateAsync({ eventName: props?.EventName })
+            makeDemoEventMutation.mutateAsync({ eventName: props?.EventName })
               .then((data) => {
                 if (data.status === "successful") {
                   toast({
@@ -128,8 +138,7 @@ const EventInfo = (props: {
         <button
           className="m-2 btn btn-accent btn-wide"
           onClick={() => {
-            unMakeDemoEventMutation
-              .mutateAsync({ eventName: props?.EventName })
+            unMakeDemoEventMutation.mutateAsync({ eventName: props?.EventName })
               .then((data) => {
                 if (data.status === "successful") {
                   toast({

@@ -1,13 +1,16 @@
 import type { NextPage } from "next";
 import Layout from "../components/layout";
-import { trpc } from "../utils/trpc";
+import { useQuery } from "@tanstack/react-query";
+import api from "../utils/api";
 import Section from "../components/section";
 import Image from "next/image";
 import ticket from "../../public/ticket-svgrepo-com.svg";
 import { Skeleton } from "@chakra-ui/react";
 const EventsPage: NextPage = () => {
-  const { data, isFetched } =
-    trpc.events.getVerifiedEvents.useQuery();
+  const { data, isFetched } = useQuery({
+    queryKey: ["getVerifiedEvents"],
+    queryFn: () => api.get("/events/getVerifiedEvents").then((res) => res.data),
+  });
   console.log(data);
   return (
     <Layout>

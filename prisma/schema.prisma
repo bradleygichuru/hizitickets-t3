@@ -110,6 +110,10 @@ model Transaction {
   ipn_token                    String?
   payment_url                  String?
   email                        String?
+  paygateTxIdIn                String?
+  paygateTxIdOut               String?
+  paygateAddressIn             String?
+  paygateValueForwarded        Decimal?
 
   @@index([EventName])
 }

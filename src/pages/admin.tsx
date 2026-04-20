@@ -1,4 +1,5 @@
-import { trpc } from "../utils/trpc";
+import { useQuery } from "@tanstack/react-query";
+import api from "../utils/api";
 import Image from "next/image";
 
 import ticketLogo from "../../public/ticket-svgrepo-com.svg";
@@ -9,7 +10,10 @@ import EventInfo from "../components/EventValidationEntry";
 import type { NextPage } from "next";
 const AdminPage:NextPage = () => {
   const { data: session, status } = useSession();
-  const { data, isLoading } = trpc.events.getEvents.useQuery();
+  const { data, isLoading } = useQuery({
+    queryKey: ["getEvents"],
+    queryFn: () => api.get("/events/getEvents").then((res) => res.data),
+  });
   console.log(session);
   if (status == "unauthenticated") {
     signIn(undefined, { callbackUrl: "/admin" });
@@ -43,7 +47,7 @@ const AdminPage:NextPage = () => {
   if (data?.events) {
     return (
       <div className="flex flex-row bg-base-100">
-        {data?.events?.map((event, index) => {
+        {data?.events?.map((event: any, index: number) => {
           return (
             <EventInfo
               key={index}

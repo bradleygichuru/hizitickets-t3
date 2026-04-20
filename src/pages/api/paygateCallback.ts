@@ -1,6 +1,7 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { prisma } from "../../server/db/client";
+import { generateTicketsForTransaction } from "../../server/ticketGenerator";
 import Decimal from "decimal.js";
 
 const paygateCallback = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -21,13 +22,20 @@ const paygateCallback = async (req: NextApiRequest, res: NextApiResponse) => {
           data: {
             completed: true,
             Valid: true,
-            mpesaReceiptNumber: txid_in as string,
+            paygateTxIdIn: txid_in as string,
+            paygateTxIdOut: txid_out as string,
+            paygateAddressIn: address_in as string,
+            paygateValueForwarded: value_forwarded_coin ? parseFloat(value_forwarded_coin as string) : null,
             transactionDate: new Date().toISOString(),
             mpesaTransactionDescription: `Paid ${value_coin} ${coin}`,
           },
         });
         
         console.log(`Transaction ${number} (ID: ${transaction.TransactionId}) marked as completed`);
+
+        // Auto-generate tickets
+        await generateTicketsForTransaction(transaction.TransactionId);
+        console.log(`Transaction ${number} tickets generated`);
 
         const transactions = await prisma.transaction.findMany({
           where: { EventName: transaction.EventName, completed: true },
@@ -43,7 +51,7 @@ const paygateCallback = async (req: NextApiRequest, res: NextApiResponse) => {
           data: { TicketRevenue: totalRev },
         });
 
-        console.log(`Transaction ${number} marked as completed`);
+        console.log(`Transaction ${number} fully processed`);
       }
     }
 
