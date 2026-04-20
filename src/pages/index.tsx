@@ -79,7 +79,7 @@ const Home: NextPage = () => {
             <div className="flex items-center">
               <label
                 htmlFor="my-modal-3"
-                className="hover:btn-accent-focus focus:shadow-outline btn-accent mr-6 inline-flex h-12 items-center justify-center rounded px-6 font-medium tracking-wide text-accent-content shadow-md  transition duration-200 focus:outline-none"
+                className="hover:bg-teal-700 focus:shadow-outline bg-teal-600 mr-6 inline-flex h-12 items-center justify-center rounded px-6 font-medium tracking-wide text-white shadow-md  transition duration-200 focus:outline-none"
               >
                 Get started
               </label>
