@@ -21,7 +21,7 @@ async function createPayGatePayment(
   transactionId: string
 ) {
   // PayGate requires HTTPS callback - use production URL
-  const callbackUrl = env.CALLBACK_URL;
+  const callbackUrl = env.PAYGATE_CALLBACK;
   
   // Fixed exchange rate: 1 USD = 129.10 KES
   const KES_TO_USD_RATE = 129.10;
