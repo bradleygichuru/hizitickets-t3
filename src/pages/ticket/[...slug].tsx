@@ -180,6 +180,9 @@ const Ticket: NextPage = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {!vals.ticketTypeTitle && (
+                    <p className="text-sm text-red-500">Please select a ticket type</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -203,9 +206,9 @@ const Ticket: NextPage = () => {
                       id="quantity"
                       defaultValue={1}
                       {...register("quantity", {
-                        required: true,
-
+                        required: "Quantity is required",
                         valueAsNumber: true,
+                        min: { value: 1, message: "Minimum quantity is 1" },
                       })}
                       onChange={(e) =>
                         setValue(
@@ -227,34 +230,44 @@ const Ticket: NextPage = () => {
                       +
                     </Button>
                   </div>
+                  {errors.quantity && (
+                    <p className="text-sm text-red-500">{errors.quantity.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
                     {...register("mobileNumber", {
-                      required: "phone number is required",
+                      required: "Phone number is required",
                       valueAsNumber: true,
-                      minLength: 9,
-                      maxLength: 9,
+                      minLength: { value: 9, message: "Phone must be 9 digits" },
+                      maxLength: { value: 9, message: "Phone must be 9 digits" },
                     })}
                     type="tel"
                     placeholder="71234567"
                   />
+                  {errors.mobileNumber && (
+                    <p className="text-sm text-red-500">{errors.mobileNumber.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
                     {...register("email", {
-                      required: "email is required",
+                      required: "Email is required",
                     })}
                     type="email"
                     placeholder="you@example.com"
                   />
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                  )}
                 </div>
 
                 <Button
+                  disabled={!vals.ticketTypeTitle || !vals.quantity || !vals.mobileNumber || !vals.email || isSubmitting || buyMutation?.isLoading}
                   onClick={() => {
                     if (searchObj?.price) {
                       buyMutation.mutateAsync(
@@ -310,7 +323,6 @@ const Ticket: NextPage = () => {
                       );
                     }
                   }}
-                  disabled={buyMutation?.isLoading ? true : false}
                 >
                   {buyMutation?.isLoading ? (
                     <Loader2 className="animate-spin" />
