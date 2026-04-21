@@ -121,36 +121,38 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    if (!status && !session) {
-      authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
-    }
-  }, [session, status]);
-
-useEffect(() => {
-    if (!status && !session) {
-      authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
-    }
-  }, [session, status]);
-
-  if (!session) {
+if (status) {
     return (
       <Layout>
         <div className="flex h-screen items-center justify-center">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+            <span className="text-muted-foreground">Authenticating...</span>
+          </div>
         </div>
       </Layout>
     );
   }
 
-  if (status || isLoading) {
+  if (!session) {
     return (
       <Layout>
-        <div className="grid h-screen place-items-center bg-base-100">
-          <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
-          <span className="text-foreground">
-            {status ? "Authenticating..." : "Loading..."}
-          </span>
+        <div className="flex h-[60vh] items-center justify-center">
+          <div className="flex flex-col items-center gap-4 text-center max-w-md">
+            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+              <span className="text-3xl">🔐</span>
+            </div>
+            <h2 className="text-xl font-semibold">Sign in Required</h2>
+            <p className="text-muted-foreground">
+              Please sign in to access your dashboard and manage your events.
+            </p>
+            <Button 
+              onClick={() => authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" })}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Sign in with Google
+            </Button>
+          </div>
         </div>
       </Layout>
     );

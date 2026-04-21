@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db/client";
-import { z } from "zod";
-
-const querySchema = z.object({
-  eventName: z.string(),
-});
 
 export async function GET(request: Request) {
   try {
@@ -16,7 +11,12 @@ export async function GET(request: Request) {
     }
 
     const event = await prisma.event.findFirst({
-      where: { EventName: eventName },
+      where: { 
+        EventName: { 
+          equals: eventName, 
+          mode: "insensitive" 
+        } 
+      },
       include: { ticketTypes: true },
     });
 

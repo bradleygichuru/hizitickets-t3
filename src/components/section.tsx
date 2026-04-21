@@ -12,18 +12,19 @@ export default function Section(props: {
   data: Event[] | undefined;
   sectionName: string;
 }) {
+  if (!props?.data || props.data.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-wrap gap-4 m-3">
-      {props?.data?.map((val, index) => {
-        return (
-          <div key={index} className="flex-shrink-0">
-            <EventEntry
-              eventName={val.EventName}
-              eventPosterUrl={getEventImage(val)}
-            />
-          </div>
-        );
-      })}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 md:px-8">
+      {props.data.map((val, index) => (
+        <EventEntry
+          key={val.EventId || index}
+          eventName={val.EventName}
+          eventPosterUrl={getEventImage(val)}
+        />
+      ))}
     </div>
   );
 }

@@ -93,6 +93,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       transactionId: transaction.TransactionId,
+      merchantRequestID: transaction.MerchantRequestID,
       paymentUrl: paymentData.payment_url,
     });
   } catch (e) {

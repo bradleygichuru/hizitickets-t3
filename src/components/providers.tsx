@@ -6,7 +6,10 @@ import { Toaster } from "sonner";
 import { useState, type ReactNode } from "react";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXTAUTH_URL,
+  baseURL:
+    process.env.NODE_ENV === "production"
+      ? process.env.NEXTAUTH_URL
+      : "http://localhost:3000",
 });
 
 export function Providers({ children }: { children: ReactNode }) {

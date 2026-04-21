@@ -11,55 +11,64 @@ datasource db {
   //relationMode = "prisma"
 }
 
-// Necessary for Next auth
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
+// Better Auth models
 
 model User {
   id            String    @id @default(cuid())
-  name          String?   @unique
+  name          String?
   email         String?   @unique
-  emailVerified DateTime?
+  emailVerified Boolean   @default(false)
   image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
-  event         Event[]
+
+  @@map("user")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([identifier, token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id            String  @id @default(cuid())
+  accountId     String
+  providerId    String
+  userId        String
+  refresh_token String?  @db.Text
+  access_token  String?  @db.Text
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?  @db.Text
+  password      String?
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
 
 model Event {
@@ -75,7 +84,6 @@ model Event {
   TicketRevenue           Decimal                  @default(0.0)
   DemoMode                Boolean                  @default(false)
   EventValidity           Boolean                  @default(false)
-  eventOrganizer          User                     @relation(fields: [EventOrganizer], references: [name])
   ticketTypes             TicketTypes[]
   transactions            Transaction[]
   createdAt               DateTime                 @default(now())
@@ -86,6 +94,7 @@ model Event {
   EventRevenueWithdrawals EventRevenueWithdrawal[]
 
   @@index([EventOrganizer])
+  @@index([EventValidity])
 }
 
 model Transaction {

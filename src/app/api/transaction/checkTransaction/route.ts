@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db/client";
 import { z } from "zod";
 import axios from "axios";
+import { generateTicketsForTransaction } from "@/server/ticketGenerator";
+import Decimal from "decimal.js";
 
 const PAYGATE_API_BASE = "https://api.paygate.to";
 
@@ -51,9 +53,9 @@ export async function POST(request: Request) {
     if (transaction.TransactionMethod === "PAYGATE" && transaction.ipn_token) {
       const createdAt = new Date(transaction.transactionDate || Date.now());
       const now = new Date();
-      const minutesSinceCreated = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+      const secondsSinceCreated = (now.getTime() - createdAt.getTime()) / 1000;
 
-      if (minutesSinceCreated > 2) {
+      if (secondsSinceCreated > 30) {
         const paygateStatus = await checkPayGateStatus(transaction.ipn_token);
 
         if (paygateStatus?.status === "paid") {
@@ -61,9 +63,24 @@ export async function POST(request: Request) {
             where: { TransactionId: transaction.TransactionId },
             data: {
               completed: true,
+              Valid: true,
               mpesaReceiptNumber: paygateStatus.txid_out,
               mpesaTransactionDescription: `Paid ${paygateStatus.value_coin} ${paygateStatus.coin}`,
             },
+          });
+
+          await generateTicketsForTransaction(transaction.TransactionId);
+
+          const transactions = await prisma.transaction.findMany({
+            where: { EventName: transaction.EventName, completed: true },
+          });
+          const totalRev = transactions.reduce(
+            (acc, t) => acc.add(t.TotalAmount),
+            new Decimal(0)
+          );
+          await prisma.event.update({
+            where: { EventName: transaction.EventName },
+            data: { TicketRevenue: totalRev },
           });
 
           return NextResponse.json({

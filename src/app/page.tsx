@@ -19,28 +19,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50" data-theme="corporate">
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="default">Get Started</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Start Your Experience Right Now!</DialogTitle>
-          </DialogHeader>
-          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/events")}
-            >
-              View Events
-            </Button>
-            <Button onClick={() => router.push("/dashboard")}>
-              Create Your Event
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <div className="mx-auto flex max-w-xl flex-col justify-between px-4 md:px-8 lg:max-w-screen-xl lg:flex-row lg:pt-16">
         <div className="mb-16 pt-16 lg:mb-0 lg:max-w-lg lg:pt-32 lg:pr-5">
           <div className="mb-6 max-w-xl">

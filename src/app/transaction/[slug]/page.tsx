@@ -22,7 +22,7 @@ import { Calendar, Loader2, MapPin } from "lucide-react";
 const TransactionPage = () => {
   const router = useRouter();
   const params = useParams();
-  const transactionId = params?.slug?.[0] as string;
+  const transactionId = params?.slug as string;
 
   const generateTicketsMutation = useMutation({
     mutationFn: (data: { transactionId: string }) =>
