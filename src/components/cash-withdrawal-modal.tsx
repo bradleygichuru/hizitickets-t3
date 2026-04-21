@@ -1,74 +1,82 @@
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  Select,
-} from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 type WithdrawalData = {
   transactionMethod: string;
   amount: number;
 };
+
 const CashWithdrawalModal = ({
-  isOpen,
-  onOpen,
-  onClose,
+  open,
+  onOpenChange,
 }: {
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<WithdrawalData>();
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Modal Title</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <form className="form-control m-4">
-            <FormControl
-              className="mb-6"
-              isInvalid={Boolean(errors.transactionMethod)}
-            >
-              <FormLabel className="font-bold text-black" htmlFor="name">
-                Method
-              </FormLabel>
-              <Select
-                className="w-full"
-                placeholder="Transaction Method"
-                {...register("transactionMethod", {
-                  required: "method is required",
-                })}
-              />
-              <FormErrorMessage>
-                {errors?.transactionMethod?.message}
-              </FormErrorMessage>
-            </FormControl>
-          </form>
-        </ModalBody>
 
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
-            Close
-          </Button>
-          <Button variant="ghost">Secondary Action</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+  const onSubmit = (data: WithdrawalData) => {
+    console.log(data);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Cash Withdrawal</DialogTitle>
+          <DialogDescription>
+            Enter your withdrawal details
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="transactionMethod">Transaction Method</Label>
+            <Select>
+              <SelectTrigger id="transactionMethod">
+                <SelectValue placeholder="Select method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mpesa">M-Pesa</SelectItem>
+                <SelectItem value="bank">Bank Transfer</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="amount">Amount</Label>
+            <Input
+              id="amount"
+              type="number"
+              {...register("amount", { valueAsNumber: true })}
+            />
+          </div>
+          <DialogFooter>
+            <Button type="submit">Submit</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
+
+export default CashWithdrawalModal;

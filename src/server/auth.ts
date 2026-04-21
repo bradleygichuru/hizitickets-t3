@@ -1,21 +1,17 @@
-import { type NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./db/client";
 import { env } from "../env/server.mjs";
 
-const debug = env.NODE_ENV == "development" ? true : false;
-
-export const authOptions: NextAuthOptions = {
-  debug,
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    GoogleProvider({
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  socialProviders: {
+    google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-    }),
-  ],
-  pages: {
-    signIn: "/auth/signin",
+    },
   },
-};
+  baseURL: env.NEXTAUTH_URL,
+});

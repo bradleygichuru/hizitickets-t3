@@ -1,9 +1,5 @@
 import EventEntry from "./EventEntry";
 import { Event } from "@prisma/client";
-import { BiCaretDownCircle } from "react-icons/bi";
-import { loadGetInitialProps } from "next/dist/shared/lib/utils";
-import { Key } from "react";
-import { Wrap, WrapItem } from "@chakra-ui/react";
 
 function getEventImage(event: Event): string {
   if (event.EventPosterData) {
@@ -17,17 +13,17 @@ export default function Section(props: {
   sectionName: string;
 }) {
   return (
-    <Wrap className="m-3 ">
+    <div className="flex flex-wrap gap-4 m-3">
       {props?.data?.map((val, index) => {
         return (
-          <WrapItem key={index}>
+          <div key={index} className="flex-shrink-0">
             <EventEntry
               eventName={val.EventName}
               eventPosterUrl={getEventImage(val)}
             />
-          </WrapItem>
+          </div>
         );
       })}
-    </Wrap>
+    </div>
   );
 }

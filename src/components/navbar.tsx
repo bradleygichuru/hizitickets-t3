@@ -1,10 +1,10 @@
-import { useSession, signOut } from "next-auth/react";
+"use client";
+
+import { authClient } from "@/components/providers";
 import Image from "next/image";
 import Link from "next/link";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import logo from "../../public/logo.svg";
+import { useState } from "react";
+import logo from "@/../public/logo.svg";
 
 import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,18 +14,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { env } from "@/env/client.mjs";
+
 export default function Nav() {
-  const [isDashboard, setIsDashboard] = useState<boolean>(false);
-  const { data: session, status } = useSession();
-
-  const router = useRouter();
-  useEffect(() => {
-    if (router.pathname == "/dashboard") {
-      setIsDashboard(true);
-    }
-  }, []);
-
+  const { data: session } = authClient.useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -37,17 +28,20 @@ export default function Nav() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0">
-              <Image priority={true} src={logo} alt="hizitickets" />
+              <Image priority={true} src={logo} alt="hizitickets" width={100} height={50} />
             </Link>
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-4">
-              <NavLink href="/dashboard">Dashboard</NavLink>
-              <NavLink href="/events">Events</NavLink>
-              <NavLink href="/help">Get Help</NavLink>
-              <NavLink href={env?.NEXT_PUBLIC_BLOG_URL} >
-                Blog
-              </NavLink>
+              <Link href="/dashboard" className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2 text-sm font-medium">
+                Dashboard
+              </Link>
+              <Link href="/events" className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2 text-sm font-medium">
+                Events
+              </Link>
+              <Link href="/help" className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-2 text-sm font-medium">
+                Get Help
+              </Link>
               <ProfileDropdown />
             </div>
           </div>
@@ -68,23 +62,18 @@ export default function Nav() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <NavLink href="/dashboard" mobile>
+            <Link href="/dashboard" className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md block px-3 py-2 text-base font-medium">
               Dashboard
-            </NavLink>
-            <NavLink href="/events" mobile>
+            </Link>
+            <Link href="/events" className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md block px-3 py-2 text-base font-medium">
               Events
-            </NavLink>
-            <NavLink href="/help" mobile>
+            </Link>
+            <Link href="/help" className="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md block px-3 py-2 text-base font-medium">
               Get Help
-            </NavLink>
-
-            <NavLink href={env?.NEXT_PUBLIC_BLOG_URL} mobile>
-              Blog
-            </NavLink>
+            </Link>
             <div className="pt-4">
               <ProfileDropdown mobile />
             </div>
@@ -94,41 +83,12 @@ export default function Nav() {
     </nav>
   );
 }
-interface NavLinkProps {
-  href: string;
-  children: React.ReactNode;
-  mobile?: boolean;
-}
-
-function NavLink({ href, children, mobile = false }: NavLinkProps) {
-  const baseClasses =
-    "text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors duration-200";
-  const desktopClasses = "px-3 py-2 text-sm font-medium";
-  const mobileClasses = "block px-3 py-2 text-base font-medium";
-
-  return (
-    <Link
-      href={href}
-      className={`${baseClasses} ${mobile ? mobileClasses : desktopClasses}`}
-    >
-      {children}
-    </Link>
-  );
-}
 
 function ProfileDropdown({ mobile = false }: { mobile?: boolean }) {
-  const [isDashboard, setIsDashboard] = useState<boolean>(false);
-  const router = useRouter();
-  useEffect(() => {
-    if (router.pathname == "/dashboard") {
-      setIsDashboard(true);
-    }
-  }, []);
+  const { data: session } = authClient.useSession();
 
   const handleLogout = () => {
-    // Implement logout logic here
-    signOut();
-    console.log("Logging out...");
+    authClient.signOut();
   };
 
   return (
@@ -149,16 +109,18 @@ function ProfileDropdown({ mobile = false }: { mobile?: boolean }) {
           )}
         </Button>
       </DropdownMenuTrigger>
-      {router.pathname == "/dashboard" ? (
-        <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end">
+        {session ? (
           <DropdownMenuItem onSelect={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      ) : (
-        ""
-      )}
+        ) : (
+          <DropdownMenuItem asChild>
+            <Link href="/auth/signin">Sign in</Link>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }
