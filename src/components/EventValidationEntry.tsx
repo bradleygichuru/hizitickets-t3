@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import api from "../utils/api";
+import { toast } from "sonner";
 
-import { useToast } from "@chakra-ui/react";
 const EventInfo = (props: {
   EventValidity: boolean;
   EventName: string;
   MobileContact: string;
   EventOrganizer: string;
 }) => {
-  const toast = useToast();
   const [eventValidity, setEventValidity] = useState<boolean>();
   const makeDemoEventMutation = useMutation({
     mutationFn: (data: { eventName: string }) =>
@@ -58,20 +57,12 @@ const EventInfo = (props: {
             invalidateMutation.mutateAsync({ eventName: props?.EventName })
               .then(({ verification }) => {
                 if (verification == "successful") {
-                  toast({
-                    title: "Success.",
+                  toast.success("Success", {
                     description: "Your event was invalidated successfully",
-                    status: "success",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 } else {
-                  toast({
-                    title: "Error.",
+                  toast.error("Error", {
                     description: "There was an error verifying your event",
-                    status: "error",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 }
               });
@@ -86,20 +77,12 @@ const EventInfo = (props: {
             verifyMutation.mutateAsync({ eventName: props?.EventName })
               .then(({ verification }) => {
                 if (verification == "successful") {
-                  toast({
-                    title: "Success.",
+                  toast.success("Success", {
                     description: "Your event was verified successfully",
-                    status: "success",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 } else {
-                  toast({
-                    title: "Error.",
+                  toast.error("Error", {
                     description: "There was an error verifying your event",
-                    status: "error",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 }
               });
@@ -114,20 +97,12 @@ const EventInfo = (props: {
             makeDemoEventMutation.mutateAsync({ eventName: props?.EventName })
               .then((data) => {
                 if (data.status === "successful") {
-                  toast({
-                    title: "Success.",
+                  toast.success("Success", {
                     description: "Converted to demo event",
-                    status: "success",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 } else {
-                  toast({
-                    title: "Error.",
+                  toast.error("Error", {
                     description: "Error converting to demo mode",
-                    status: "error",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 }
               });
@@ -141,20 +116,12 @@ const EventInfo = (props: {
             unMakeDemoEventMutation.mutateAsync({ eventName: props?.EventName })
               .then((data) => {
                 if (data.status === "successful") {
-                  toast({
-                    title: "Success.",
+                  toast.success("Success", {
                     description: "Removed deactivated mode",
-                    status: "success",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 } else {
-                  toast({
-                    title: "Error.",
+                  toast.error("Error", {
                     description: "Error deactivating demo mode",
-                    status: "error",
-                    duration: 9000,
-                    isClosable: true,
                   });
                 }
               });
